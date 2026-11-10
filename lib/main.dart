@@ -7,6 +7,7 @@ import 'dart:ui'
     show
         Image,
         ImageShader,
+        PathMetric,
         PictureRecorder,
         instantiateImageCodec,
         Vertices,
@@ -20,7 +21,17 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_map/flutter_map.dart'
-    show FlutterMap, MapController, MapOptions, Marker, MarkerLayer, TileLayer;
+    show
+        CameraFit,
+        FlutterMap,
+        MapCamera,
+        MapController,
+        MapOptions,
+        Marker,
+        MarkerLayer,
+        Polyline,
+        PolylineLayer,
+        TileLayer;
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -5722,6 +5733,192 @@ class DeliveryLocationService {
   }
 }
 
+class DeliveryRoute {
+  DeliveryRoute({
+    required List<LatLng> points,
+    required this.distanceMeters,
+    this.durationSeconds,
+  }) : points = List<LatLng>.unmodifiable(points) {
+    if (this.points.length < 2 ||
+        this.points.length > 10000 ||
+        this.points.any((point) => !_validPoint(point)) ||
+        !distanceMeters.isFinite ||
+        distanceMeters < 0 ||
+        (durationSeconds != null &&
+            (!durationSeconds!.isFinite || durationSeconds! < 0))) {
+      throw StateError('The delivery route is invalid.');
+    }
+  }
+
+  final List<LatLng> points;
+  final double distanceMeters;
+  final double? durationSeconds;
+
+  static bool _validPoint(LatLng point) =>
+      point.latitude.isFinite &&
+      point.longitude.isFinite &&
+      point.latitude >= -90 &&
+      point.latitude <= 90 &&
+      point.longitude >= -180 &&
+      point.longitude <= 180;
+}
+
+class DeliveryRouteService {
+  DeliveryRouteService({this.client, Uri? endpoint, DateTime Function()? clock})
+    : _endpoint = endpoint ?? Uri.parse(_configuredEndpoint),
+      _clock = clock ?? DateTime.now {
+    if (!const ['https', 'http'].contains(_endpoint.scheme) ||
+        _endpoint.host.isEmpty ||
+        _endpoint.userInfo.isNotEmpty ||
+        _endpoint.hasFragment) {
+      throw ArgumentError('The routing endpoint must be an HTTP(S) URL.');
+    }
+  }
+
+  static const _configuredEndpoint = String.fromEnvironment(
+    'OSRM_ROUTE_URL',
+    defaultValue: 'https://router.project-osrm.org/route/v1/driving',
+  );
+  static final shared = DeliveryRouteService();
+  static const _timeout = Duration(seconds: 8);
+  static const _cacheLifetime = Duration(minutes: 10);
+  static const _maxCacheEntries = 24;
+  static const _maxResponseBytes = 512 * 1024;
+  static DateTime _nextPublicRequest = DateTime.fromMillisecondsSinceEpoch(0);
+
+  final http.Client? client;
+  final Uri _endpoint;
+  final DateTime Function() _clock;
+  final _cache = <String, ({DeliveryRoute route, DateTime expiresAt})>{};
+  final _inFlight = <String, Future<DeliveryRoute>>{};
+
+  Future<DeliveryRoute> route(LatLng origin, LatLng destination) {
+    if (!DeliveryRoute._validPoint(origin) ||
+        !DeliveryRoute._validPoint(destination)) {
+      return Future.error(StateError('The route locations are invalid.'));
+    }
+    final coordinates =
+        '${origin.longitude},${origin.latitude};'
+        '${destination.longitude},${destination.latitude}';
+    final cached = _cache.remove(coordinates);
+    if (cached != null && _clock().isBefore(cached.expiresAt)) {
+      // Refresh insertion order so the least recently used entry leaves first.
+      _cache[coordinates] = cached;
+      return Future.value(cached.route);
+    }
+    final pending = _inFlight[coordinates];
+    if (pending != null) return pending;
+
+    final request = _fetch(coordinates)
+        .then((result) {
+          _cache[coordinates] = (
+            route: result,
+            expiresAt: _clock().add(_cacheLifetime),
+          );
+          while (_cache.length > _maxCacheEntries) {
+            _cache.remove(_cache.keys.first);
+          }
+          return result;
+        })
+        .whenComplete(() {
+          _inFlight.remove(coordinates);
+        });
+    _inFlight[coordinates] = request;
+    return request;
+  }
+
+  Future<DeliveryRoute> _fetch(String coordinates) async {
+    try {
+      // The public OSRM server allows at most one request each second.
+      // Reserve slots synchronously across instances; custom hosts skip this.
+      if (_endpoint.host.toLowerCase() == 'router.project-osrm.org') {
+        final now = DateTime.now();
+        final slot = now.isBefore(_nextPublicRequest)
+            ? _nextPublicRequest
+            : now;
+        _nextPublicRequest = slot.add(const Duration(seconds: 1));
+        final delay = slot.difference(now);
+        if (delay > Duration.zero) await Future<void>.delayed(delay);
+      }
+      final path = _endpoint.path.replaceFirst(RegExp(r'/+$'), '');
+      final uri = _endpoint.replace(
+        path: '$path/$coordinates',
+        queryParameters: {
+          ..._endpoint.queryParameters,
+          'geometries': 'geojson',
+          'overview': 'full',
+          'steps': 'false',
+          'alternatives': 'false',
+        },
+      );
+      const headers = {'Accept': 'application/json'};
+      final response =
+          await (client == null
+                  ? http.get(uri, headers: headers)
+                  : client!.get(uri, headers: headers))
+              .timeout(_timeout);
+      if (response.statusCode != 200 ||
+          response.bodyBytes.length > _maxResponseBytes) {
+        throw StateError('The delivery route is unavailable.');
+      }
+      final body = jsonDecode(utf8.decode(response.bodyBytes));
+      if (body is! Map<String, dynamic> || body['code'] != 'Ok') {
+        throw StateError('No road route is available for these locations.');
+      }
+      final routes = body['routes'];
+      if (routes is! List || routes.isEmpty) {
+        throw StateError('The routing response contains no route.');
+      }
+      final first = routes.first;
+      if (first is! Map<String, dynamic>) {
+        throw StateError('The routing response is invalid.');
+      }
+      final geometry = first['geometry'];
+      if (geometry is! Map<String, dynamic> ||
+          geometry['type'] != 'LineString') {
+        throw StateError('The routing geometry is invalid.');
+      }
+      final rawPoints = geometry['coordinates'];
+      if (rawPoints is! List ||
+          rawPoints.length < 2 ||
+          rawPoints.length > 10000) {
+        throw StateError('The routing geometry is invalid.');
+      }
+      final points = <LatLng>[];
+      for (final coordinate in rawPoints) {
+        if (coordinate is! List ||
+            coordinate.length < 2 ||
+            coordinate[0] is! num ||
+            coordinate[1] is! num) {
+          throw StateError('The routing coordinates are invalid.');
+        }
+        points.add(
+          LatLng(
+            (coordinate[1] as num).toDouble(),
+            (coordinate[0] as num).toDouble(),
+          ),
+        );
+      }
+      final distance = first['distance'];
+      final duration = first['duration'];
+      if (distance is! num || (duration != null && duration is! num)) {
+        throw StateError('The routing distance is invalid.');
+      }
+      return DeliveryRoute(
+        points: points,
+        distanceMeters: distance.toDouble(),
+        durationSeconds: (duration as num?)?.toDouble(),
+      );
+    } on StateError {
+      rethrow;
+    } on TimeoutException {
+      throw StateError('The route request timed out.');
+    } catch (_) {
+      throw StateError('The delivery route could not be loaded.');
+    }
+  }
+}
+
 class _CafeMap extends StatelessWidget {
   const _CafeMap({
     required this.center,
@@ -5730,6 +5927,10 @@ class _CafeMap extends StatelessWidget {
     this.onTap,
     this.onReady,
     this.zoom = 15,
+    this.mapKey = const Key('delivery-map'),
+    this.initialCameraFit,
+    this.layers = const [],
+    this.markers = const [],
   });
 
   static const _tileUrl = String.fromEnvironment(
@@ -5743,14 +5944,19 @@ class _CafeMap extends StatelessWidget {
   final ValueChanged<LatLng>? onTap;
   final VoidCallback? onReady;
   final double zoom;
+  final Key mapKey;
+  final CameraFit? initialCameraFit;
+  final List<Widget> layers;
+  final List<Marker> markers;
 
   @override
   Widget build(BuildContext context) => FlutterMap(
-    key: const Key('delivery-map'),
+    key: mapKey,
     mapController: controller,
     options: MapOptions(
       initialCenter: center,
       initialZoom: zoom,
+      initialCameraFit: initialCameraFit,
       minZoom: 3,
       maxZoom: 19,
       onTap: onTap == null ? null : (_, point) => onTap!(point),
@@ -5761,20 +5967,23 @@ class _CafeMap extends StatelessWidget {
         urlTemplate: _tileUrl,
         userAgentPackageName: 'SmoochCafeFlutter',
       ),
-      if (pin != null)
+      ...layers,
+      if (pin != null || markers.isNotEmpty)
         MarkerLayer(
           markers: [
-            Marker(
-              point: pin!,
-              width: 48,
-              height: 48,
-              child: const Icon(
-                Icons.location_on,
-                size: 46,
-                color: AppColors.action,
-                shadows: [Shadow(color: Color(0x66000000), blurRadius: 8)],
+            ...markers,
+            if (pin != null)
+              Marker(
+                point: pin!,
+                width: 48,
+                height: 48,
+                child: const Icon(
+                  Icons.location_on,
+                  size: 46,
+                  color: AppColors.action,
+                  shadows: [Shadow(color: Color(0x66000000), blurRadius: 8)],
+                ),
               ),
-            ),
           ],
         ),
       Align(
@@ -5803,6 +6012,453 @@ class _CafeMap extends StatelessWidget {
       ),
     ],
   );
+}
+
+class DeliveryRouteMap extends StatefulWidget {
+  const DeliveryRouteMap({
+    super.key,
+    required this.destination,
+    this.origin = CheckoutValidation.deliveryCenter,
+    this.routeService,
+  });
+
+  final LatLng origin;
+  final LatLng destination;
+  final DeliveryRouteService? routeService;
+
+  @override
+  State<DeliveryRouteMap> createState() => _DeliveryRouteMapState();
+}
+
+class _DeliveryRouteMapState extends State<DeliveryRouteMap>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  final mapController = MapController();
+  late final flow = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 6500),
+  );
+  DeliveryRoute? route;
+  bool loading = true;
+  bool failed = false;
+  bool paused = false;
+  bool reduced = false;
+  bool foreground = true;
+  bool tickerEnabled = true;
+  bool mapReady = false;
+  int request = 0;
+
+  DeliveryRouteService get service =>
+      widget.routeService ?? DeliveryRouteService.shared;
+
+  CameraFit get cameraFit => CameraFit.coordinates(
+    coordinates: [widget.origin, ...?route?.points, widget.destination],
+    padding: const EdgeInsets.fromLTRB(42, 48, 42, 42),
+    maxZoom: 17,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(loadRoute());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    reduced = MediaQuery.disableAnimationsOf(context);
+    tickerEnabled = TickerMode.valuesOf(context).enabled;
+    syncMotion();
+  }
+
+  @override
+  void didUpdateWidget(DeliveryRouteMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.origin != widget.origin ||
+        oldWidget.destination != widget.destination ||
+        oldWidget.routeService != widget.routeService) {
+      unawaited(loadRoute());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    foreground = state == AppLifecycleState.resumed;
+    syncMotion();
+  }
+
+  void syncMotion() {
+    if (route != null && !paused && !reduced && foreground && tickerEnabled) {
+      if (!flow.isAnimating) flow.repeat();
+    } else {
+      flow.stop();
+    }
+  }
+
+  Future<void> loadRoute() async {
+    final generation = ++request;
+    flow.stop();
+    flow.value = 0;
+    setState(() {
+      route = null;
+      loading = true;
+      failed = false;
+    });
+    if (mapReady) fitRoute();
+    try {
+      final result = await service.route(widget.origin, widget.destination);
+      if (!mounted || generation != request) return;
+      setState(() {
+        route = result;
+        loading = false;
+      });
+      syncMotion();
+      // Camera changes happen after layout; animation never moves the map.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && generation == request) fitRoute();
+      });
+    } catch (_) {
+      if (!mounted || generation != request) return;
+      setState(() {
+        loading = false;
+        failed = true;
+      });
+    }
+  }
+
+  void fitRoute() {
+    if (mapReady) mapController.fitCamera(cameraFit);
+  }
+
+  @override
+  void dispose() {
+    request++;
+    WidgetsBinding.instance.removeObserver(this);
+    flow.dispose();
+    mapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Delivery route',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            ),
+          ),
+          if (route != null && !reduced)
+            IconButton(
+              key: const Key('delivery-route-toggle'),
+              tooltip: paused
+                  ? 'Play route animation'
+                  : 'Pause route animation',
+              onPressed: () {
+                setState(() => paused = !paused);
+                syncMotion();
+              },
+              icon: Icon(
+                paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                size: 20,
+              ),
+            ),
+          IconButton(
+            key: const Key('delivery-route-fit'),
+            tooltip: 'Show full route',
+            onPressed: fitRoute,
+            icon: const Icon(Icons.fit_screen_rounded, size: 20),
+          ),
+        ],
+      ),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 260,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _CafeMap(
+                mapKey: const Key('delivery-route-map'),
+                center: widget.origin,
+                controller: mapController,
+                initialCameraFit: cameraFit,
+                onReady: () {
+                  mapReady = true;
+                  fitRoute();
+                },
+                markers: [
+                  Marker(
+                    point: widget.origin,
+                    width: 40,
+                    height: 40,
+                    child: const _RoutePin(
+                      label: 'Smooch Cafe. Route start',
+                      color: AppColors.dark,
+                      icon: Icons.storefront_outlined,
+                    ),
+                  ),
+                  Marker(
+                    point: widget.destination,
+                    width: 40,
+                    height: 40,
+                    child: const _RoutePin(
+                      label: 'Delivery destination',
+                      color: AppColors.action,
+                      icon: Icons.home_outlined,
+                    ),
+                  ),
+                ],
+                layers: [
+                  if (route case final road?) ...[
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: road.points,
+                          strokeWidth: 6,
+                          color: AppColors.teal,
+                          borderStrokeWidth: 4,
+                          borderColor: Colors.white,
+                        ),
+                      ],
+                    ),
+                    _DeliveryRouteHighlight(
+                      points: road.points,
+                      animation: flow,
+                      moving: !reduced,
+                    ),
+                  ],
+                ],
+              ),
+              if (loading)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    key: const Key('delivery-route-loading'),
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'Finding a road route…',
+                      style: TextStyle(fontSize: 12, color: AppColors.ink),
+                    ),
+                  ),
+                ),
+              if (failed)
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Road route unavailable right now.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        TextButton.icon(
+                          key: const Key('delivery-route-retry'),
+                          onPressed: () => unawaited(loadRoute()),
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: const Text('Try again'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      const Wrap(
+        spacing: 16,
+        runSpacing: 6,
+        children: [
+          _RouteLegend(color: AppColors.dark, label: 'Smooch Cafe'),
+          _RouteLegend(color: AppColors.action, label: 'Delivery address'),
+        ],
+      ),
+      if (route case final road?) ...[
+        const SizedBox(height: 8),
+        Text(
+          '${(road.distanceMeters / 1000).toStringAsFixed(1)} km by road · Highlight shows route direction.',
+          style: const TextStyle(
+            fontSize: 11,
+            height: 1.5,
+            color: AppColors.secondaryText,
+          ),
+        ),
+      ],
+    ],
+  );
+}
+
+class _RoutePin extends StatelessWidget {
+  const _RoutePin({
+    required this.label,
+    required this.color,
+    required this.icon,
+  });
+  final String label;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: label,
+    image: true,
+    child: Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 8)],
+        ),
+        child: Icon(icon, size: 20, color: Colors.white),
+      ),
+    ),
+  );
+}
+
+class _RouteLegend extends StatelessWidget {
+  const _RouteLegend({required this.color, required this.label});
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(Icons.circle, size: 8, color: color),
+      const SizedBox(width: 6),
+      Flexible(child: Text(label, style: const TextStyle(fontSize: 11))),
+    ],
+  );
+}
+
+class _DeliveryRouteHighlight extends StatelessWidget {
+  const _DeliveryRouteHighlight({
+    required this.points,
+    required this.animation,
+    required this.moving,
+  });
+  final List<LatLng> points;
+  final Animation<double> animation;
+  final bool moving;
+
+  @override
+  Widget build(BuildContext context) {
+    final camera = MapCamera.of(context);
+    return SizedBox.expand(
+      child: IgnorePointer(
+        child: ExcludeSemantics(
+          child: RepaintBoundary(
+            child: CustomPaint(
+              key: const Key('delivery-route-highlight'),
+              painter: DeliveryRouteHighlightPainter(
+                points: points
+                    .map(camera.latLngToScreenOffset)
+                    .toList(growable: false),
+                animation: animation,
+                moving: moving,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DeliveryRouteHighlightPainter extends CustomPainter {
+  DeliveryRouteHighlightPainter({
+    required this.points,
+    required this.animation,
+    required this.moving,
+  }) : super(repaint: animation) {
+    final path = Path();
+    for (var i = 0; i < points.length; i++) {
+      if (i == 0) {
+        path.moveTo(points[i].dx, points[i].dy);
+      } else {
+        path.lineTo(points[i].dx, points[i].dy);
+      }
+    }
+    final iterator = path.computeMetrics().iterator;
+    metric = iterator.moveNext() ? iterator.current : null;
+  }
+
+  final List<Offset> points;
+  final Animation<double> animation;
+  final bool moving;
+  late final ui.PathMetric? metric;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final line = metric;
+    if (line == null || line.length < 1 || size.isEmpty) return;
+    final length = line.length;
+    final tail = (length * .22).clamp(28.0, 90.0);
+    final head = moving
+        ? animation.value * (length + tail * 2) - tail
+        : length * .62;
+    final start = (head - tail).clamp(0.0, length);
+    final end = head.clamp(0.0, length);
+    if (end <= start) return;
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
+    canvas.drawPath(
+      line.extractPath(start, end),
+      Paint()
+        ..color = AppColors.gold
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4
+        ..strokeCap = StrokeCap.round,
+    );
+    // A directional chevron is decorative, rather than a rider position.
+    final tangent = line.getTangentForOffset(end);
+    if (tangent != null) {
+      canvas.translate(tangent.position.dx, tangent.position.dy);
+      canvas.rotate(tangent.angle);
+      canvas.drawPath(
+        Path()
+          ..moveTo(-4, -4)
+          ..lineTo(0, 0)
+          ..lineTo(-4, 4),
+        Paint()
+          ..color = AppColors.dark
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round,
+      );
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(DeliveryRouteHighlightPainter oldDelegate) =>
+      points != oldDelegate.points ||
+      animation != oldDelegate.animation ||
+      moving != oldDelegate.moving;
 }
 
 class DeliveryMapPicker extends StatefulWidget {
@@ -7502,25 +8158,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                         Text(order.deliveryAddress),
                         if (order.deliveryPoint case final point?) ...[
                           const SizedBox(height: 12),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
-                            child: SizedBox(
-                              height: 180,
-                              child: _CafeMap(
-                                center: point,
-                                pin: point,
-                                zoom: 16,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Pinned delivery location',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.secondaryText,
-                            ),
-                          ),
+                          DeliveryRouteMap(destination: point),
                         ],
                       ],
                       if (order.notes.isNotEmpty) ...[
