@@ -1,0 +1,904 @@
+{
+  "auditDate": "2026-11-10",
+  "timeZone": "Asia/Manila",
+  "units": {
+    "bytes": "Exact bytes",
+    "MiB": "1048576 bytes",
+    "PssKiB": "1024 bytes",
+    "frameTimes": "milliseconds"
+  },
+  "device": {
+    "model": "vivo V2417",
+    "androidVersion": "16",
+    "abi": "arm64-v8a",
+    "displayPixels": [
+      1080,
+      2400
+    ],
+    "observedActiveRefreshHz": 60,
+    "mode": "Flutter profile / Android physical device"
+  },
+  "packages": {
+    "app-debug.apk": {
+      "bytes": 310161246,
+      "groups": {
+        "android_resources_and_code": {
+          "compressedBytes": 6220635,
+          "uncompressedBytes": 15004335,
+          "entries": 577
+        },
+        "other_flutter_assets": {
+          "compressedBytes": 31342241,
+          "uncompressedBytes": 95310262,
+          "entries": 14
+        },
+        "product_and_other_images": {
+          "compressedBytes": 159066540,
+          "uncompressedBytes": 159068328,
+          "entries": 142
+        },
+        "native_libraries": {
+          "compressedBytes": 54344640,
+          "uncompressedBytes": 54344640,
+          "entries": 8
+        }
+      }
+    },
+    "app-release.apk": {
+      "bytes": 179976579,
+      "groups": {
+        "android_resources_and_code": {
+          "compressedBytes": 884179,
+          "uncompressedBytes": 1575145,
+          "entries": 361
+        },
+        "native_libraries": {
+          "compressedBytes": 19177148,
+          "uncompressedBytes": 19177148,
+          "entries": 8
+        },
+        "other_flutter_assets": {
+          "compressedBytes": 671685,
+          "uncompressedBytes": 1472222,
+          "entries": 11
+        },
+        "product_and_other_images": {
+          "compressedBytes": 159066496,
+          "uncompressedBytes": 159068328,
+          "entries": 142
+        }
+      }
+    }
+  },
+  "assets": {
+    "total": {
+      "files": 142,
+      "bytes": 159068328
+    },
+    "products": {
+      "files": 92,
+      "bytes": 95995552,
+      "nativeRgbaBytes": 379206656,
+      "decode640RgbaBytes": 165015552
+    },
+    "actualFormats": {
+      "png": {
+        "files": 81,
+        "bytes": 152444371
+      },
+      "jpeg": {
+        "files": 60,
+        "bytes": 6620991
+      },
+      "other": {
+        "files": 1,
+        "bytes": 2966
+      }
+    },
+    "dimensions": {
+      "1024x1536": 31,
+      "1024x1024": 87,
+      "683x1024": 14,
+      "747x1024": 2,
+      "832x1248": 2,
+      "665x375": 1,
+      "176x176": 3,
+      "687x1024": 1
+    },
+    "unreferenced": {
+      "files": 47,
+      "bytes": 58490667,
+      "list": [
+        {
+          "file": "assets/images/1.png",
+          "bytes": 2476992,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/5.png",
+          "bytes": 1872567,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Americano 2.png",
+          "bytes": 937417,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Americano.png",
+          "bytes": 2172179,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Caramel Macchiato 1.png",
+          "bytes": 23965,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Caramel Macchiato 6.png",
+          "bytes": 50641,
+          "width": 683,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Caramel Macchiato.png",
+          "bytes": 2274745,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Caramel Machiato 1.png",
+          "bytes": 1894119,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Caramel Treat 1.png",
+          "bytes": 47032,
+          "width": 747,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Choco Hazelnut 1.png",
+          "bytes": 2235690,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Choco Hazelnut 6.png",
+          "bytes": 72735,
+          "width": 683,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Choco Hazelnut Latte 1.png",
+          "bytes": 26502,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Choco Hazelnut Latte.png",
+          "bytes": 2296539,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Chocolate  4.png",
+          "bytes": 67057,
+          "width": 683,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Chocolate 2.png",
+          "bytes": 2159013,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Chocolate 3.png",
+          "bytes": 2352705,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Chocolate Bliss 1.png",
+          "bytes": 59957,
+          "width": 747,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Chocolate Bliss.png",
+          "bytes": 2072650,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Creamy Americano 1.png",
+          "bytes": 27591,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Creamy Americano 3.png",
+          "bytes": 1900361,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Dirty Matcha Latte 1.png",
+          "bytes": 40681,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/favicon.ico",
+          "bytes": 2966
+        },
+        {
+          "file": "assets/images/French Vanilla Latte 1.png",
+          "bytes": 21551,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/French Vanilla Latte.png",
+          "bytes": 2090500,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/landing2.png",
+          "bytes": 2476992,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Latte 1.png",
+          "bytes": 19632,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/latte 2.png",
+          "bytes": 917492,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Latte 3.png",
+          "bytes": 973571,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Latte.png",
+          "bytes": 2282385,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Matcha 3.png",
+          "bytes": 1682639,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Mocha 1.png",
+          "bytes": 2040239,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Mocha Latte 1.png",
+          "bytes": 20756,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Mocha Latte.png",
+          "bytes": 2206718,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Spanish Latte 1.png",
+          "bytes": 21091,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Spanish Latte.png",
+          "bytes": 2143931,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Strawberrry 7.png",
+          "bytes": 2014968,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Strawberry 4.png",
+          "bytes": 2363184,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Strawberry 5.png",
+          "bytes": 60563,
+          "width": 683,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Test1.jpg",
+          "bytes": 28552,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Test2.jpg",
+          "bytes": 31381,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Tiramisu Latte.png",
+          "bytes": 1617856,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/Ube 5.png",
+          "bytes": 1807731,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Vanilla Ice Cream Latte 1.png",
+          "bytes": 1962741,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/Vanilla Ice Cream Latte 2.png",
+          "bytes": 1895181,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/White Mocha 1.png",
+          "bytes": 2471468,
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "file": "assets/images/White Mocha Latte 1.png",
+          "bytes": 23887,
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "file": "assets/images/White Mocha Latte.png",
+          "bytes": 2251554,
+          "width": 1024,
+          "height": 1024
+        }
+      ]
+    },
+    "duplicates": [
+      {
+        "files": [
+          "assets/images/1.png",
+          "assets/images/landing2.png"
+        ],
+        "eachBytes": 2476992,
+        "avoidableBytes": 2476992
+      }
+    ],
+    "referenceMethod": "pubspec bundles entire assets/images directory; references are Dart image-path literals",
+    "warning": "Unreferenced candidates require retaining originals outside the Flutter bundle and verifying the catalog before excluding them. Decode640RgbaBytes is the theoretical sum for all catalog images, not measured simultaneous RAM."
+  },
+  "androidMemorySnapshots": [
+    {
+      "screen": "3D starting scene",
+      "pssKiB": 123860,
+      "rssKiB": 176580,
+      "swapPssKiB": 36409
+    },
+    {
+      "screen": "menu after browsing",
+      "pssKiB": 196045,
+      "rssKiB": 266784,
+      "swapPssKiB": 24645
+    },
+    {
+      "screen": "receipt with animated route",
+      "pssKiB": 167181,
+      "rssKiB": 233804,
+      "swapPssKiB": 27223
+    }
+  ],
+  "samples": [
+    {
+      "file": ".dart_tool/profile-starting-scene.json",
+      "label": "starting-scene-steady",
+      "startedAtUtc": "2026-11-10T03:38:33.118Z",
+      "endedAtUtc": "2026-11-10T03:38:53.128Z",
+      "durationSeconds": 20.009,
+      "source": "VM Service Extension stream / Flutter.Frame; native SchedulerBinding FrameTiming events",
+      "units": "Raw durations and startTimeUs are microseconds. Summaries are milliseconds.",
+      "note": "Frame events describe scheduled Flutter frames, not measured display FPS. UI and raster budgets are evaluated separately, not summed. All raw events and outliers are retained.",
+      "summary": {
+        "count": 1182,
+        "build": {
+          "count": 1182,
+          "meanMs": 6.924,
+          "p50Ms": 7.194,
+          "p90Ms": 9.903,
+          "p95Ms": 11.139,
+          "p99Ms": 14.179,
+          "worstMs": 19.22
+        },
+        "raster": {
+          "count": 1182,
+          "meanMs": 9.397,
+          "p50Ms": 9.055,
+          "p90Ms": 13.249,
+          "p95Ms": 14.324,
+          "p99Ms": 17.075,
+          "worstMs": 31.911
+        },
+        "totalSpan": {
+          "count": 1182,
+          "meanMs": 18.048,
+          "p50Ms": 17.534,
+          "p90Ms": 23.901,
+          "p95Ms": 26.593,
+          "p99Ms": 31.679,
+          "worstMs": 39.59
+        },
+        "vsyncOverhead": {
+          "count": 1182,
+          "meanMs": 1.301,
+          "p50Ms": 1.088,
+          "p90Ms": 2.016,
+          "p95Ms": 2.128,
+          "p99Ms": 2.518,
+          "worstMs": 2.986
+        },
+        "budgets": [
+          {
+            "hz": 60,
+            "budgetMs": 16.667,
+            "buildOverBudget": 2,
+            "rasterOverBudget": 17,
+            "eitherOverBudget": 17,
+            "eitherOverBudgetPercent": 1.44
+          },
+          {
+            "hz": 90,
+            "budgetMs": 11.111,
+            "buildOverBudget": 62,
+            "rasterOverBudget": 344,
+            "eitherOverBudget": 347,
+            "eitherOverBudgetPercent": 29.36
+          }
+        ]
+      },
+      "dartMemoryBefore": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 16125728,
+          "heapCapacity": 18874368,
+          "externalUsage": 3664
+        }
+      ],
+      "dartMemoryAfter": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 18474496,
+          "heapCapacity": 20971520,
+          "externalUsage": 3984
+        }
+      ]
+    },
+    {
+      "file": ".dart_tool/profile-menu-controlled.json",
+      "label": "menu",
+      "startedAtUtc": "2026-11-10T03:41:21.725Z",
+      "endedAtUtc": "2026-11-10T03:41:41.729Z",
+      "durationSeconds": 20.004,
+      "source": "VM Service Extension stream / Flutter.Frame; native SchedulerBinding FrameTiming events",
+      "units": "Raw durations and startTimeUs are microseconds. Summaries are milliseconds.",
+      "note": "Frame events describe scheduled Flutter frames, not measured display FPS. UI and raster budgets are evaluated separately, not summed. All raw events and outliers are retained.",
+      "summary": {
+        "count": 630,
+        "build": {
+          "count": 630,
+          "meanMs": 3.74,
+          "p50Ms": 3.068,
+          "p90Ms": 6.593,
+          "p95Ms": 8.114,
+          "p99Ms": 16.584,
+          "worstMs": 38.757
+        },
+        "raster": {
+          "count": 630,
+          "meanMs": 7.802,
+          "p50Ms": 7.52,
+          "p90Ms": 11.087,
+          "p95Ms": 14.065,
+          "p99Ms": 16.167,
+          "worstMs": 24.607
+        },
+        "totalSpan": {
+          "count": 630,
+          "meanMs": 13.724,
+          "p50Ms": 12.751,
+          "p90Ms": 18.471,
+          "p95Ms": 22.994,
+          "p99Ms": 33.062,
+          "worstMs": 60.705
+        },
+        "vsyncOverhead": {
+          "count": 630,
+          "meanMs": 1.587,
+          "p50Ms": 1.311,
+          "p90Ms": 2.692,
+          "p95Ms": 3.459,
+          "p99Ms": 4.688,
+          "worstMs": 6.181
+        },
+        "budgets": [
+          {
+            "hz": 60,
+            "budgetMs": 16.667,
+            "buildOverBudget": 7,
+            "rasterOverBudget": 6,
+            "eitherOverBudget": 12,
+            "eitherOverBudgetPercent": 1.9
+          },
+          {
+            "hz": 90,
+            "budgetMs": 11.111,
+            "buildOverBudget": 9,
+            "rasterOverBudget": 62,
+            "eitherOverBudget": 68,
+            "eitherOverBudgetPercent": 10.79
+          }
+        ]
+      },
+      "dartMemoryBefore": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 19716496,
+          "heapCapacity": 21549056,
+          "externalUsage": 27664
+        }
+      ],
+      "dartMemoryAfter": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 19235328,
+          "heapCapacity": 21024768,
+          "externalUsage": 20784
+        }
+      ]
+    },
+    {
+      "file": ".dart_tool/profile-menu-idle.json",
+      "label": "menu-idle",
+      "startedAtUtc": "2026-11-10T03:42:56.562Z",
+      "endedAtUtc": "2026-11-10T03:43:06.570Z",
+      "durationSeconds": 10.008,
+      "source": "VM Service Extension stream / Flutter.Frame; native SchedulerBinding FrameTiming events",
+      "units": "Raw durations and startTimeUs are microseconds. Summaries are milliseconds.",
+      "note": "Frame events describe scheduled Flutter frames, not measured display FPS. UI and raster budgets are evaluated separately, not summed. All raw events and outliers are retained.",
+      "summary": {
+        "count": 0,
+        "build": {
+          "count": 0
+        },
+        "raster": {
+          "count": 0
+        },
+        "totalSpan": {
+          "count": 0
+        },
+        "vsyncOverhead": {
+          "count": 0
+        },
+        "budgets": [
+          {
+            "hz": 60,
+            "budgetMs": 16.667,
+            "buildOverBudget": 0,
+            "rasterOverBudget": 0,
+            "eitherOverBudget": 0,
+            "eitherOverBudgetPercent": null
+          },
+          {
+            "hz": 90,
+            "budgetMs": 11.111,
+            "buildOverBudget": 0,
+            "rasterOverBudget": 0,
+            "eitherOverBudget": 0,
+            "eitherOverBudgetPercent": null
+          }
+        ]
+      },
+      "dartMemoryBefore": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 19235968,
+          "heapCapacity": 21024768,
+          "externalUsage": 20784
+        }
+      ],
+      "dartMemoryAfter": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 19236608,
+          "heapCapacity": 21024768,
+          "externalUsage": 20784
+        }
+      ]
+    },
+    {
+      "file": ".dart_tool/profile-delivery-route.json",
+      "label": "route-highlight-visible",
+      "startedAtUtc": "2026-11-10T03:44:00.135Z",
+      "endedAtUtc": "2026-11-10T03:44:20.135Z",
+      "durationSeconds": 20,
+      "source": "VM Service Extension stream / Flutter.Frame; native SchedulerBinding FrameTiming events",
+      "units": "Raw durations and startTimeUs are microseconds. Summaries are milliseconds.",
+      "note": "Frame events describe scheduled Flutter frames, not measured display FPS. UI and raster budgets are evaluated separately, not summed. All raw events and outliers are retained.",
+      "summary": {
+        "count": 1195,
+        "build": {
+          "count": 1195,
+          "meanMs": 1.21,
+          "p50Ms": 1.172,
+          "p90Ms": 1.579,
+          "p95Ms": 1.717,
+          "p99Ms": 1.999,
+          "worstMs": 2.439
+        },
+        "raster": {
+          "count": 1195,
+          "meanMs": 9.193,
+          "p50Ms": 8.877,
+          "p90Ms": 11.773,
+          "p95Ms": 12.5,
+          "p99Ms": 14.075,
+          "worstMs": 17.497
+        },
+        "totalSpan": {
+          "count": 1195,
+          "meanMs": 11.935,
+          "p50Ms": 11.51,
+          "p90Ms": 14.838,
+          "p95Ms": 15.811,
+          "p99Ms": 17.637,
+          "worstMs": 63.685
+        },
+        "vsyncOverhead": {
+          "count": 1195,
+          "meanMs": 1.151,
+          "p50Ms": 1.055,
+          "p90Ms": 1.398,
+          "p95Ms": 1.616,
+          "p99Ms": 2.269,
+          "worstMs": 47.316
+        },
+        "budgets": [
+          {
+            "hz": 60,
+            "budgetMs": 16.667,
+            "buildOverBudget": 0,
+            "rasterOverBudget": 1,
+            "eitherOverBudget": 1,
+            "eitherOverBudgetPercent": 0.08
+          },
+          {
+            "hz": 90,
+            "budgetMs": 11.111,
+            "buildOverBudget": 0,
+            "rasterOverBudget": 202,
+            "eitherOverBudget": 202,
+            "eitherOverBudgetPercent": 16.9
+          }
+        ]
+      },
+      "dartMemoryBefore": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 16801232,
+          "heapCapacity": 17354752,
+          "externalUsage": 122464
+        },
+        {
+          "isolate": "[flutter_map: cache] Tile & Size Monitor Writer",
+          "type": "MemoryUsage",
+          "heapUsage": 16801872,
+          "heapCapacity": 17354752,
+          "externalUsage": 122464
+        }
+      ],
+      "dartMemoryAfter": [
+        {
+          "isolate": "main",
+          "type": "MemoryUsage",
+          "heapUsage": 19631696,
+          "heapCapacity": 21024768,
+          "externalUsage": 135424
+        },
+        {
+          "isolate": "[flutter_map: cache] Tile & Size Monitor Writer",
+          "type": "MemoryUsage",
+          "heapUsage": 19632336,
+          "heapCapacity": 21024768,
+          "externalUsage": 135424
+        }
+      ]
+    }
+  ],
+  "menuScenario": [
+    {
+      "utc": "2026-11-10T03:41:22.436Z",
+      "action": [
+        "tap",
+        "290",
+        "565"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:22.830Z",
+      "action": [
+        "swipe",
+        "900",
+        "1250",
+        "190",
+        "1250",
+        "450"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:23.667Z",
+      "action": [
+        "swipe",
+        "900",
+        "1250",
+        "190",
+        "1250",
+        "450"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:24.534Z",
+      "action": [
+        "swipe",
+        "900",
+        "1250",
+        "190",
+        "1250",
+        "450"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:25.385Z",
+      "action": [
+        "tap",
+        "115",
+        "565"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:25.806Z",
+      "action": [
+        "swipe",
+        "540",
+        "1850",
+        "540",
+        "800",
+        "500"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:26.693Z",
+      "action": [
+        "swipe",
+        "540",
+        "1850",
+        "540",
+        "800",
+        "500"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:27.594Z",
+      "action": [
+        "swipe",
+        "540",
+        "1850",
+        "540",
+        "800",
+        "500"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:28.512Z",
+      "action": [
+        "swipe",
+        "540",
+        "800",
+        "540",
+        "1850",
+        "500"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:29.414Z",
+      "action": [
+        "swipe",
+        "540",
+        "800",
+        "540",
+        "1850",
+        "500"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:30.317Z",
+      "action": [
+        "swipe",
+        "540",
+        "800",
+        "540",
+        "1850",
+        "500"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:31.192Z",
+      "action": [
+        "swipe",
+        "900",
+        "1300",
+        "190",
+        "1300",
+        "450"
+      ]
+    },
+    {
+      "utc": "2026-11-10T03:41:32.044Z",
+      "action": [
+        "tap",
+        "800",
+        "565"
+      ]
+    }
+  ],
+  "limitations": [
+    "One connected 60 Hz device; short samples, not a low-end-device certification, display FPS, battery, or thermal benchmark.",
+    "UI and raster durations are compared separately to their frame budget. Static menu emitted no frames in 10 seconds; that is expected.",
+    "The first browsing capture is excluded because most gestures occurred after capture ended.",
+    "Initial Android launch wait is excluded because the device was locked; cold startup has not been measured reliably.",
+    "Do not sum Dart memory values across isolate groups or equate them with Android PSS/native/GPU RAM.",
+    "3D GC events were predominantly idle notifications; they do not establish GC stalls or a memory leak.",
+    "APK size is a local ARM64 release artifact, not a Play Store download/install-size estimate."
+  ]
+}

@@ -2,6 +2,8 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { posix } from 'node:path';
+import { syncFlutterAssets } from './sync_flutter_assets.mjs';
+import { resolveProductImage } from './product_image_assets.mjs';
 
 const root = new URL('../', import.meta.url);
 const imageFiles = new Set(readdirSync(new URL('assets/images/', root)));
@@ -25,7 +27,7 @@ const featured = ['Tiramisu Latte', 'Classic Burger', 'Chocolate Bliss', 'Spanis
 const products = [];
 for (let i = 1; i < cards.length; i += 3) {
   const [name, price, body] = [decode(cards[i]), Number(cards[i + 1]), cards[i + 2]];
-  const image = `assets/images/${posix.basename(decode(body.match(/<img src="([^"]+)"/)[1]))}`;
+  const image = resolveProductImage(posix.basename(decode(body.match(/<img src="([^"]+)"/)[1])), imageFiles);
   const subcategory = decode(body.match(/<div class="product-tag">([^<]+)/)[1]).trim();
   const category = food.includes(subcategory) ? 'Food' : pastry.includes(subcategory) ? 'Pastries' : ['Coffee', 'Non-Coffee', 'Ice Blended'].includes(subcategory) ? subcategory : 'More Drinks';
   if (!existsSync(new URL(image, root))) throw Error(`Missing image: ${image}`);
@@ -54,6 +56,7 @@ if (start < 0 || end < start || main.indexOf(startMarker, start + 1) !== -1 || m
   throw Error('Expected one matching pair of cafe catalog markers in lib/main.dart. No files changed.');
 }
 writeFileSync(target, main.slice(0, start) + output + main.slice(end + endMarker.length));
+syncFlutterAssets();
 console.log(`Imported ${products.length} products; all image paths verified.`);
 console.log('Categories:', [...new Set(products.map((p) => p.category))].join(', '));
 console.log('Catalog section:', fileURLToPath(target));

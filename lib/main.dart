@@ -655,7 +655,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Espresso-based latte with tiramisu-inspired cream. A little coffee, a little dessert, and a whole lot of comfort.",
-    image: "assets/images/Tiramisu Latte 5.png",
+    image: "assets/images/Tiramisu Latte 5.webp",
     featured: true,
   ),
   Product(
@@ -665,7 +665,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quarter Pounder",
     description: "A juicy quarter-pound patty with cheese and fresh veggies. Your comfort-food favorite, made to pair with a Smooch drink.",
-    image: "assets/images/Classic Burger.png",
+    image: "assets/images/Classic Burger.webp",
     featured: true,
   ),
   Product(
@@ -685,7 +685,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Espresso and milk with a sweet, creamy finish. A comforting coffee for slow afternoons.",
-    image: "assets/images/Spanish Latte 5.png",
+    image: "assets/images/Spanish Latte 5.webp",
     featured: true,
   ),
   Product(
@@ -695,7 +695,7 @@ const cafeProducts = <Product>[
     category: "Non-Coffee",
     subcategory: "Non-Coffee",
     description: "Earthy matcha meets sweet strawberry and milk for a colorful sip of happiness.",
-    image: "assets/images/Strawberry Matcha 1.png",
+    image: "assets/images/Strawberry Matcha 1.webp",
     featured: true,
   ),
   Product(
@@ -715,7 +715,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quarter Pounder",
     description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Hawaiian Burger.png",
+    image: "assets/images/Hawaiian Burger.webp",
     featured: false,
   ),
   Product(
@@ -725,7 +725,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quarter Pounder",
     description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Sunrise Burger.png",
+    image: "assets/images/Sunrise Burger.webp",
     featured: false,
   ),
   Product(
@@ -735,7 +735,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quarter Pounder",
     description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Bacon Cheese Burger.png",
+    image: "assets/images/Bacon Cheese Burger.webp",
     featured: false,
   ),
   Product(
@@ -745,7 +745,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quarter Pounder",
     description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Double Classic Burger.png",
+    image: "assets/images/Double Classic Burger.webp",
     featured: false,
   ),
   Product(
@@ -755,7 +755,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Classic Chicken Sandwich.png",
+    image: "assets/images/Classic Chicken Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -765,7 +765,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Club House Sandwich.png",
+    image: "assets/images/Club House Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -775,7 +775,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Grilled Cheese Sandwich.png",
+    image: "assets/images/Grilled Cheese Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -785,7 +785,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Grilled Ham & Cheese Sandwich.png",
+    image: "assets/images/Grilled Ham & Cheese Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -795,7 +795,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Tuna Sandwich.png",
+    image: "assets/images/Tuna Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -805,7 +805,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Sandwich.png",
+    image: "assets/images/Chicken Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -815,7 +815,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quesadilla",
     description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Cheese Quesadilla.png",
+    image: "assets/images/Cheese Quesadilla.webp",
     featured: false,
   ),
   Product(
@@ -825,7 +825,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quesadilla",
     description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Bacon Quesadilla.png",
+    image: "assets/images/Bacon Quesadilla.webp",
     featured: false,
   ),
   Product(
@@ -835,7 +835,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quesadilla",
     description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Quesadilla.png",
+    image: "assets/images/Chicken Quesadilla.webp",
     featured: false,
   ),
   Product(
@@ -845,7 +845,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Quesadilla",
     description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Tapa Quesadilla.png",
+    image: "assets/images/Tapa Quesadilla.webp",
     featured: false,
   ),
   Product(
@@ -855,7 +855,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "French Fries",
     description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Plain Fries.png",
+    image: "assets/images/Plain Fries.webp",
     featured: false,
   ),
   Product(
@@ -865,7 +865,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "French Fries",
     description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/BBQ Fries.png",
+    image: "assets/images/BBQ Fries.webp",
     featured: false,
   ),
   Product(
@@ -875,7 +875,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "French Fries",
     description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Cheese Fries.png",
+    image: "assets/images/Cheese Fries.webp",
     featured: false,
   ),
   Product(
@@ -885,7 +885,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "French Fries",
     description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Sour Cream Fries.png",
+    image: "assets/images/Sour Cream Fries.webp",
     featured: false,
   ),
   Product(
@@ -895,7 +895,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Longanisa Rice Bowl.png",
+    image: "assets/images/Longanisa Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -905,7 +905,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Bacon Rice Bowl.png",
+    image: "assets/images/Bacon Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -915,7 +915,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Sisig Rice Bowl.png",
+    image: "assets/images/Sisig Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -925,7 +925,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Steak Rice Bowl.png",
+    image: "assets/images/Chicken Steak Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -935,7 +935,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Burger Steak Rice Bowl .png",
+    image: "assets/images/Burger Steak Rice Bowl .webp",
     featured: false,
   ),
   Product(
@@ -945,7 +945,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Beef Tapa Rice Bowl.png",
+    image: "assets/images/Beef Tapa Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -955,7 +955,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Savory Tapa Rice Bowl.png",
+    image: "assets/images/Savory Tapa Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -965,7 +965,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken BBQ Rice Bowl.png",
+    image: "assets/images/Chicken BBQ Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -975,7 +975,7 @@ const cafeProducts = <Product>[
     category: "Food",
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Teriyaki Rice Bowl.png",
+    image: "assets/images/Chicken Teriyaki Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -1225,7 +1225,7 @@ const cafeProducts = <Product>[
     category: "Pastries",
     subcategory: "Cakes",
     description: "A sweet little moment from our cakes selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Tiramisu 1.png",
+    image: "assets/images/Tiramisu 1.webp",
     featured: false,
   ),
   Product(
@@ -1235,7 +1235,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Americano 3.png",
+    image: "assets/images/Americano 3.webp",
     featured: false,
   ),
   Product(
@@ -1245,7 +1245,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Latte 5.png",
+    image: "assets/images/Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1255,7 +1255,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/French Vanilla Latte 5.png",
+    image: "assets/images/French Vanilla Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1265,7 +1265,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Mocha Latte 5.png",
+    image: "assets/images/Mocha Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1275,7 +1275,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/White Mocha Latte 5.png",
+    image: "assets/images/White Mocha Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1285,7 +1285,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Caramel Macchiato 5.png",
+    image: "assets/images/Caramel Macchiato 5.webp",
     featured: false,
   ),
   Product(
@@ -1295,7 +1295,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Choco Hazelnut Latte 5.png",
+    image: "assets/images/Choco Hazelnut Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1305,7 +1305,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Creamy Americano 5.png",
+    image: "assets/images/Creamy Americano 5.webp",
     featured: false,
   ),
   Product(
@@ -1315,7 +1315,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Vanilla Ice Cream Latte 5.png",
+    image: "assets/images/Vanilla Ice Cream Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1325,7 +1325,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Dirty Matcha Latte 5.png",
+    image: "assets/images/Dirty Matcha Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1335,7 +1335,7 @@ const cafeProducts = <Product>[
     category: "Coffee",
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Dirty Ube Latte 5.png",
+    image: "assets/images/Dirty Ube Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1345,7 +1345,7 @@ const cafeProducts = <Product>[
     category: "Non-Coffee",
     subcategory: "Non-Coffee",
     description: "Skip the espresso and find a little happiness in our non-coffee drink selection.",
-    image: "assets/images/Chocolate 1.png",
+    image: "assets/images/Chocolate 1.webp",
     featured: false,
   ),
   Product(
@@ -1355,7 +1355,7 @@ const cafeProducts = <Product>[
     category: "Non-Coffee",
     subcategory: "Non-Coffee",
     description: "Skip the espresso and find a little happiness in our non-coffee drink selection.",
-    image: "assets/images/Strawberry Latte 1.png",
+    image: "assets/images/Strawberry Latte 1.webp",
     featured: false,
   ),
   Product(
@@ -1365,7 +1365,7 @@ const cafeProducts = <Product>[
     category: "Non-Coffee",
     subcategory: "Non-Coffee",
     description: "Skip the espresso and find a little happiness in our non-coffee drink selection.",
-    image: "assets/images/Matcha Latte 1.png",
+    image: "assets/images/Matcha Latte 1.webp",
     featured: false,
   ),
   Product(
@@ -1375,7 +1375,7 @@ const cafeProducts = <Product>[
     category: "Non-Coffee",
     subcategory: "Non-Coffee",
     description: "Skip the espresso and find a little happiness in our non-coffee drink selection.",
-    image: "assets/images/Ube Latte 1.png",
+    image: "assets/images/Ube Latte 1.webp",
     featured: false,
   ),
   Product(
@@ -1385,7 +1385,7 @@ const cafeProducts = <Product>[
     category: "Non-Coffee",
     subcategory: "Non-Coffee",
     description: "Skip the espresso and find a little happiness in our non-coffee drink selection.",
-    image: "assets/images/Ube Matcha.png",
+    image: "assets/images/Ube Matcha.webp",
     featured: false,
   ),
   Product(
@@ -1475,7 +1475,7 @@ const cafeProducts = <Product>[
     category: "More Drinks",
     subcategory: "Lava Series",
     description: "A refreshing little break from our lava series selection. A delicious way to complete your order.",
-    image: "assets/images/Chocolate Lava 5.png",
+    image: "assets/images/Chocolate Lava 5.webp",
     featured: false,
   ),
   Product(

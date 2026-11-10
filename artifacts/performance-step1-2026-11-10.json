@@ -1,0 +1,20 @@
+{
+  "step": 1,
+  "description": "Exclude verified unused image assets only",
+  "baselineReleaseBytes": 179976579,
+  "releaseBytes": 121478522,
+  "savedBytes": 58498057,
+  "reductionPercent": 32.503,
+  "bundledImages": 95,
+  "excludedOriginals": 47,
+  "compressedImageBytes": 100577661,
+  "all142OriginalHashesUnchanged": true,
+  "all95BundledImagesMatchOriginalBytes": true,
+  "bothBundledFontsMatchOriginalBytes": true,
+  "build": "flutter build apk --release --target-platform android-arm64 --analyze-size --no-pub",
+  "web": {
+    "bundledImages": 95,
+    "excludedOriginals": 47,
+    "all95BundledImagesMatchOriginalBytes": true
+  }
+}

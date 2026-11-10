@@ -1,0 +1,1313 @@
+{
+  "date": "2026-11-10",
+  "step": 2,
+  "codec": "libwebp 1.6.0\r\nlibsharpyuv: 0.4.2",
+  "settings": {
+    "quality": 94,
+    "maxEdge": 1024,
+    "minimumSourceBytes": 262144,
+    "alphaQuality": 100
+  },
+  "optimizedImages": 49,
+  "resizedImages": 12,
+  "unchangedProducts": 43,
+  "productCount": 92,
+  "beforeProductBytes": 95995552,
+  "productBytes": 18983941,
+  "productImageReductionPercent": 80.224,
+  "baselineReleaseBytes": 121478522,
+  "releaseBytes": 44467003,
+  "savedApkBytes": 77011519,
+  "apkReductionPercent": 63.395,
+  "all95PackagedImageHashesMatchSource": true,
+  "noDuplicateOriginalPngsInPackage": true,
+  "catalogBusinessDataUnchanged": true,
+  "runtimeDependenciesAdded": 0,
+  "qualityMetrics": {
+    "minLumaSsim": 0.985813,
+    "minRgbSsim": 0.895591,
+    "meanRgbSsim": 0.9600629387755104,
+    "method": "SSIM against original source pixels resized losslessly with the same resampler; FFmpeg gbrp and yuv444p comparisons. Scores are metrics, not proof of identical visual quality."
+  },
+  "images": [
+    {
+      "source": "assets/images/Americano 3.png",
+      "target": "assets/images/Americano 3.webp",
+      "sourceBytes": 1180872,
+      "bytes": 56364,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "f1b41219e591769bab59d0e9150e06384adcd3f7666117a3c9062edec0d2647f",
+      "sha256": "86e5d94b893dfaba04423ec79bda45e6576e408f470f89d9f723b52a78a4661d",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.975207,
+        "yuv": 0.991131,
+        "luma": 0.99254
+      }
+    },
+    {
+      "source": "assets/images/BBQ Fries.png",
+      "target": "assets/images/BBQ Fries.webp",
+      "sourceBytes": 2486797,
+      "bytes": 592400,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "6a049050d556512104b400f67ed5510a4089323b262ba691dc05ef9807db4390",
+      "sha256": "abf8a26c9a3213a0bbb6ab1b822965fe6d155cfe69114eccb1e14bace7d830c9",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.899829,
+        "yuv": 0.897828,
+        "luma": 0.992422
+      }
+    },
+    {
+      "source": "assets/images/Bacon Cheese Burger.png",
+      "target": "assets/images/Bacon Cheese Burger.webp",
+      "sourceBytes": 1744602,
+      "bytes": 268886,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "2ec6db279d7b026195bcf17d9ca4d855fd8b1b7b9978aa62d5a9a09471bef13a",
+      "sha256": "354d69ebfd1417d13daaad4b878fe85a015ee7ac9cde43abbb21175713eef157",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.948051,
+        "yuv": 0.983361,
+        "luma": 0.98704
+      }
+    },
+    {
+      "source": "assets/images/Bacon Quesadilla.png",
+      "target": "assets/images/Bacon Quesadilla.webp",
+      "sourceBytes": 2295420,
+      "bytes": 511276,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "9a3ac50a8c7094c7ec62c0586620d42f02fc24dfc305b681b2bd9841460c8b87",
+      "sha256": "e65f67d6265d6a2775066a8c9a40acd79542e2e017db2e0d00fe3e626862949c",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.948916,
+        "yuv": 0.954558,
+        "luma": 0.990678
+      }
+    },
+    {
+      "source": "assets/images/Bacon Rice Bowl.png",
+      "target": "assets/images/Bacon Rice Bowl.webp",
+      "sourceBytes": 2156588,
+      "bytes": 458916,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "6e1746e3caad0a771758bba241552d6206570422916562c167523345cd0e74fd",
+      "sha256": "12fff3f616b4712ee3d26ae1807a43db9da2de3c6033f1c445bde1c74fc78c34",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.96573,
+        "yuv": 0.980829,
+        "luma": 0.988575
+      }
+    },
+    {
+      "source": "assets/images/Beef Tapa Rice Bowl.png",
+      "target": "assets/images/Beef Tapa Rice Bowl.webp",
+      "sourceBytes": 1798864,
+      "bytes": 286518,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "2fc46e5274ec45017f1bf34063729c6835bf62da9171b639a3e681c93ee2cb83",
+      "sha256": "bf5db46c6aa16d2d95d25cc60cb2372ae1949106ae2be2c5f67465361e69aff1",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.965722,
+        "yuv": 0.97476,
+        "luma": 0.988465
+      }
+    },
+    {
+      "source": "assets/images/Burger Steak Rice Bowl .png",
+      "target": "assets/images/Burger Steak Rice Bowl .webp",
+      "sourceBytes": 1808357,
+      "bytes": 289680,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "2d5928efb8164d3b83bf164fccac62c60ac809ffef3df2b338e140ec112c8264",
+      "sha256": "52e8f56435bc437e7157702b33c6c582b80c4a6546e81919fa44f2019042eaba",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.960492,
+        "yuv": 0.974181,
+        "luma": 0.989093
+      }
+    },
+    {
+      "source": "assets/images/Caramel Macchiato 5.png",
+      "target": "assets/images/Caramel Macchiato 5.webp",
+      "sourceBytes": 1247671,
+      "bytes": 95428,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "d6842e80af764e6547279cb6392739e072c8b65ab02c6f8babfa7cd0b7fe72b2",
+      "sha256": "485046a2f30090e7cb355a72aabaf8755047b40c19c6cec4bcf3d7c8326478f4",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.968631,
+        "yuv": 0.990721,
+        "luma": 0.990364
+      }
+    },
+    {
+      "source": "assets/images/Cheese Fries.png",
+      "target": "assets/images/Cheese Fries.webp",
+      "sourceBytes": 2348963,
+      "bytes": 535450,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "a60a5fa63a94d79adf127a50ce42321d8ca6496aff2059da706a19376a790444",
+      "sha256": "564b7ddc34cf8e0a383fc8d252784377d489d5061cc3281885f59f16dc5769c9",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.895591,
+        "yuv": 0.919201,
+        "luma": 0.990895
+      }
+    },
+    {
+      "source": "assets/images/Cheese Quesadilla.png",
+      "target": "assets/images/Cheese Quesadilla.webp",
+      "sourceBytes": 2370629,
+      "bytes": 529780,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "ba12c09b64fc0fd33943d0c17a1a4b2a2462904c90af85bbd93efc875ca0b80c",
+      "sha256": "e5db37f93ecd66bbe31f182d0e06f848dbb33897d1e79eca1ffcbcf0ffd6a417",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.928642,
+        "yuv": 0.933922,
+        "luma": 0.990948
+      }
+    },
+    {
+      "source": "assets/images/Chicken BBQ Rice Bowl.png",
+      "target": "assets/images/Chicken BBQ Rice Bowl.webp",
+      "sourceBytes": 1704121,
+      "bytes": 243884,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "8129942c1863b117e8386670518e6fb2020cd62153e0f1605b27b9d06fc493ba",
+      "sha256": "f50b796f7301e13d94d7a104dace48c2e77e6acea1beeaee4d348cc5b453f655",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.959814,
+        "yuv": 0.979282,
+        "luma": 0.987862
+      }
+    },
+    {
+      "source": "assets/images/Chicken Quesadilla.png",
+      "target": "assets/images/Chicken Quesadilla.webp",
+      "sourceBytes": 2374335,
+      "bytes": 543754,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "1474460939e83e69364bd0aad0f217261aa97ab1b8db32dccc15588630ba1e3d",
+      "sha256": "bcf18a61b9f83480c46fa8ed179be8b91e7d97e452ff505eb531c1b1c696ce80",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.931669,
+        "yuv": 0.934549,
+        "luma": 0.992195
+      }
+    },
+    {
+      "source": "assets/images/Chicken Sandwich.png",
+      "target": "assets/images/Chicken Sandwich.webp",
+      "sourceBytes": 1980869,
+      "bytes": 398988,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "e58a519e681afc2406697caa01ae889a37d9d9620548ce89b894c2fc235ca8cb",
+      "sha256": "1ae53db75009c1a17c5f1b31316f9b602dc080bfdafcf9c3d75765aa86739bcc",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.957739,
+        "yuv": 0.981757,
+        "luma": 0.986858
+      }
+    },
+    {
+      "source": "assets/images/Chicken Steak Rice Bowl.png",
+      "target": "assets/images/Chicken Steak Rice Bowl.webp",
+      "sourceBytes": 1765365,
+      "bytes": 289196,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "9c90397bc26fbfa07d35c788c487c93b7c366ccf3f0189afc1ade8baf43a4f8c",
+      "sha256": "403c0c8144fc9011e2b44364478dc959cd5e7d9fdad44ded8a9d3119603711bd",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.961145,
+        "yuv": 0.98138,
+        "luma": 0.986375
+      }
+    },
+    {
+      "source": "assets/images/Chicken Teriyaki Rice Bowl.png",
+      "target": "assets/images/Chicken Teriyaki Rice Bowl.webp",
+      "sourceBytes": 1748564,
+      "bytes": 264942,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "8b679d072c0c58ab8e5a59e332d7988a5e6817bbb3f9dcdbb124a4e661bcdadb",
+      "sha256": "4be6d5c2c0dbceb43598df4526ceb007bbf12b0a91b34975b22d857141d67cb3",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.957386,
+        "yuv": 0.976482,
+        "luma": 0.987656
+      }
+    },
+    {
+      "source": "assets/images/Choco Hazelnut Latte 5.png",
+      "target": "assets/images/Choco Hazelnut Latte 5.webp",
+      "sourceBytes": 1308526,
+      "bytes": 108176,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "b1b838fe6d5e7ecdd12bc54d245c449c08b3680ee6f42e3451fdc3558c819ed8",
+      "sha256": "e550421827312bbff0242010c67242bd84e2a83ebfe352c527f147ab6d200d08",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.972938,
+        "yuv": 0.974835,
+        "luma": 0.991585
+      }
+    },
+    {
+      "source": "assets/images/Chocolate 1.png",
+      "target": "assets/images/Chocolate 1.webp",
+      "sourceBytes": 1803814,
+      "bytes": 43076,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "302c61cbb79d668383951d9d01b969f2bf0631cc9188666682f729029473e8ee",
+      "sha256": "ea60845a2d937e49bd7658cb01e4df2deb2651363f66987102f1a487b2914679",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.977081,
+        "yuv": 0.990939,
+        "luma": 0.992863
+      }
+    },
+    {
+      "source": "assets/images/Chocolate Lava 5.png",
+      "target": "assets/images/Chocolate Lava 5.webp",
+      "sourceBytes": 1926821,
+      "bytes": 80306,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "a1398066685d4abc846f52718357dcbc4effe4d612ed647a552bca36ddc22a55",
+      "sha256": "dc3691f83a7361251d2652ce90e048fb992bc9a419fc7f00e18e6eeacdff5a0c",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.975832,
+        "yuv": 0.990762,
+        "luma": 0.99222
+      }
+    },
+    {
+      "source": "assets/images/Classic Burger.png",
+      "target": "assets/images/Classic Burger.webp",
+      "sourceBytes": 1795499,
+      "bytes": 302926,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "d2ad1c569b7fbc648da85f5d0e296c5d513580c0b0f102013464e7d31d2bf125",
+      "sha256": "3edce19caf20645805f7f0f96ffae162fe695b67787d00642bd9ac79dfc4fe26",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.954825,
+        "yuv": 0.977619,
+        "luma": 0.985813
+      }
+    },
+    {
+      "source": "assets/images/Classic Chicken Sandwich.png",
+      "target": "assets/images/Classic Chicken Sandwich.webp",
+      "sourceBytes": 1946273,
+      "bytes": 366416,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "ccc5f70bd6bf9b18b5c3454087096304b52c090f6a69e12fc24da107000bc5d8",
+      "sha256": "968f899921699b4b73f7bde03585d30db3adad50750d6e8c8d736aa89f163640",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.959203,
+        "yuv": 0.981314,
+        "luma": 0.987369
+      }
+    },
+    {
+      "source": "assets/images/Club House Sandwich.png",
+      "target": "assets/images/Club House Sandwich.webp",
+      "sourceBytes": 2050135,
+      "bytes": 407894,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "2157f106dca3da27f4308078fda8f31c518ec92b7813dc8dd8899851a56e19eb",
+      "sha256": "a88d29283918da6b931cf78ce4710623cb59d330fa45c9ab79e0bc43fc784158",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.95775,
+        "yuv": 0.975019,
+        "luma": 0.988106
+      }
+    },
+    {
+      "source": "assets/images/Creamy Americano 5.png",
+      "target": "assets/images/Creamy Americano 5.webp",
+      "sourceBytes": 2130159,
+      "bytes": 87120,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "60273136d520991ca07e1ec3159eb5c6cbe168c5dde35fa2929b0a19ed32fb1e",
+      "sha256": "c8c18d2c4d0d02b609079fbed5a93235f03c9056615aacd74336732e000ec7c8",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.9699,
+        "yuv": 0.987265,
+        "luma": 0.98977
+      }
+    },
+    {
+      "source": "assets/images/Dirty Matcha Latte 5.png",
+      "target": "assets/images/Dirty Matcha Latte 5.webp",
+      "sourceBytes": 1210189,
+      "bytes": 56158,
+      "before": {
+        "format": "png",
+        "width": 832,
+        "height": 1248,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "9a1f385cd1fbbcf47f0981998c4b274a0080bed6fc64a2b7726b3306beed6b64",
+      "sha256": "47e2afc60f22aeeda60350812414163981bb2be223985424e9b553e343eda70a",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.976102,
+        "yuv": 0.991645,
+        "luma": 0.991375
+      }
+    },
+    {
+      "source": "assets/images/Dirty Ube Latte 5.png",
+      "target": "assets/images/Dirty Ube Latte 5.webp",
+      "sourceBytes": 1766414,
+      "bytes": 45044,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "65b2cc453ed8b8c9bfbe207adfb1b8428b17263fc17b9e2920add2e8e456b41a",
+      "sha256": "c2f3839e626eb6c776e6ad23480c38904d6166cb341a1ae4f234a88df05db958",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.980745,
+        "yuv": 0.993286,
+        "luma": 0.993812
+      }
+    },
+    {
+      "source": "assets/images/Double Classic Burger.png",
+      "target": "assets/images/Double Classic Burger.webp",
+      "sourceBytes": 1996895,
+      "bytes": 388198,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "585b04b1d37b7f8292c3f10adf53c0872b152ad17b72dffcb9c095c249adb7c2",
+      "sha256": "ffd22e7e2b093972c4dbc67da1f5d8dab20fa583d0a82cf077a09e6e33420bd9",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.955054,
+        "yuv": 0.980024,
+        "luma": 0.987626
+      }
+    },
+    {
+      "source": "assets/images/French Vanilla Latte 5.png",
+      "target": "assets/images/French Vanilla Latte 5.webp",
+      "sourceBytes": 1201966,
+      "bytes": 64566,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "9c4e51984f875394d6ab0c4773da1d99691db722ad34abdc013dbbd1a1a8f859",
+      "sha256": "b6525d584b2ba097dd7927a317196cd2715b25aff99879872d818aae57243697",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.973396,
+        "yuv": 0.992335,
+        "luma": 0.992854
+      }
+    },
+    {
+      "source": "assets/images/Grilled Cheese Sandwich.png",
+      "target": "assets/images/Grilled Cheese Sandwich.webp",
+      "sourceBytes": 2065304,
+      "bytes": 441054,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "ba17df224e32a3108d4c8ae963eba8adddc45b67203d5ec5bf80f82726ba0ebe",
+      "sha256": "e570ac17caaad7124dccdabf94502f68ffdff6ab030c4e59ae4e6ce6bdc3729c",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.956918,
+        "yuv": 0.972977,
+        "luma": 0.988655
+      }
+    },
+    {
+      "source": "assets/images/Grilled Ham & Cheese Sandwich.png",
+      "target": "assets/images/Grilled Ham & Cheese Sandwich.webp",
+      "sourceBytes": 2142551,
+      "bytes": 465238,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "f19b30db1ffb17f08eea44c3f972cb98998e7c38e229aaf7d219ceff2f39f251",
+      "sha256": "3a68c273a2661dcc05e77a11cbd67af2532321a743054d2e5495726977bc7bf2",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.960808,
+        "yuv": 0.96889,
+        "luma": 0.989702
+      }
+    },
+    {
+      "source": "assets/images/Hawaiian Burger.png",
+      "target": "assets/images/Hawaiian Burger.webp",
+      "sourceBytes": 2037180,
+      "bytes": 387838,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "8667650b7d066d379bcd1c15c6956114b0d824f7df5a976d3006d75fd4318053",
+      "sha256": "daa7085055398c39b8348ab09b461410ec25081aa0b078629fd49aaadaeaf69e",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.95588,
+        "yuv": 0.975662,
+        "luma": 0.989277
+      }
+    },
+    {
+      "source": "assets/images/Latte 5.png",
+      "target": "assets/images/Latte 5.webp",
+      "sourceBytes": 1198481,
+      "bytes": 64838,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "4add03821113c46cdadf6e669da7d91b5d9d906e57e934f555f1299e4bbadaca",
+      "sha256": "603977af9c2007c03e7618e616737e66751f7c84be75ec494e33977b41252165",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.974477,
+        "yuv": 0.991523,
+        "luma": 0.992275
+      }
+    },
+    {
+      "source": "assets/images/Longanisa Rice Bowl.png",
+      "target": "assets/images/Longanisa Rice Bowl.webp",
+      "sourceBytes": 2128964,
+      "bytes": 447614,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "ef0d62f68600e689c57fa92ddce1a2ed6cd4afa38fe2758bc8ed00732c484401",
+      "sha256": "154b8cc7073b10a4e7871b66e3c3b5870dacf773487bd74ba7bedae0a9863305",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.947246,
+        "yuv": 0.959651,
+        "luma": 0.987926
+      }
+    },
+    {
+      "source": "assets/images/Matcha Latte 1.png",
+      "target": "assets/images/Matcha Latte 1.webp",
+      "sourceBytes": 1842195,
+      "bytes": 57388,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "38311cad573eff72b631678a44ed68befda54577a46fc4e5f88b8074d98e6dc4",
+      "sha256": "fab62548f9cff26b2f1a767489e74bdfeca86c6dd69ded1a73b2d8939040475c",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.976357,
+        "yuv": 0.990396,
+        "luma": 0.992667
+      }
+    },
+    {
+      "source": "assets/images/Mocha Latte 5.png",
+      "target": "assets/images/Mocha Latte 5.webp",
+      "sourceBytes": 1188676,
+      "bytes": 59136,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "98ff6c6be8e3e75d36b266d3d97e3c0f02f835d95b83d7275e106e020937f2a5",
+      "sha256": "e66b500777327f40f17a0b6e13d84b77ad5d3daf41874c2c23b2b45404fcd9a1",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.971201,
+        "yuv": 0.98943,
+        "luma": 0.99092
+      }
+    },
+    {
+      "source": "assets/images/Plain Fries.png",
+      "target": "assets/images/Plain Fries.webp",
+      "sourceBytes": 2375431,
+      "bytes": 523066,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "c06f94973946298b3363aad05307ddb5bc979f4bc1160adc2d9f5888336948ab",
+      "sha256": "b7648aa48829ec40f13436f6fd12458c1e6e00d2a60bbfee93a28aedc657fea5",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.922358,
+        "yuv": 0.928973,
+        "luma": 0.990853
+      }
+    },
+    {
+      "source": "assets/images/Savory Tapa Rice Bowl.png",
+      "target": "assets/images/Savory Tapa Rice Bowl.webp",
+      "sourceBytes": 1818844,
+      "bytes": 285762,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "7187111101c3c916a5e6e40a4558a3ee3d60e79462f4a56e7f6d8ec4e357e68b",
+      "sha256": "fd5a1778c6821e15da7b2b2554b516f922bacbcc666592a68e70a22c2b4d78e9",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.967032,
+        "yuv": 0.976553,
+        "luma": 0.987589
+      }
+    },
+    {
+      "source": "assets/images/Sisig Rice Bowl.png",
+      "target": "assets/images/Sisig Rice Bowl.webp",
+      "sourceBytes": 2241342,
+      "bytes": 486940,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "318383bdfebaeab63dd20ee8b567ab1a750f5172d21dc428a4cd37278c59a655",
+      "sha256": "2bb83be687f1b8158b8ae29bcfdc1dfff9bc5fd286cb39bf3222e32877054d0d",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.951823,
+        "yuv": 0.956462,
+        "luma": 0.989199
+      }
+    },
+    {
+      "source": "assets/images/Sour Cream Fries.png",
+      "target": "assets/images/Sour Cream Fries.webp",
+      "sourceBytes": 2204847,
+      "bytes": 463254,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "93b9b0316e7a59e0b40653f099330cd4bf2e01b2cdc1903cc9f207c8c0df2a3c",
+      "sha256": "686feab9e1a544753b22df52ee0cc53d077cd2fa9f6e11cf00df34ba99e28964",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.960198,
+        "yuv": 0.96372,
+        "luma": 0.99082
+      }
+    },
+    {
+      "source": "assets/images/Spanish Latte 5.png",
+      "target": "assets/images/Spanish Latte 5.webp",
+      "sourceBytes": 1195650,
+      "bytes": 68272,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "250bd9cc59e5cd50bee591595d41f32d11218f2a699c66794d7c5bfcdaed64ef",
+      "sha256": "e2078683674640375f02a758f711d2bee1d51a319077bd14ec2221c0c5ded11e",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.973851,
+        "yuv": 0.991332,
+        "luma": 0.991807
+      }
+    },
+    {
+      "source": "assets/images/Strawberry Latte 1.png",
+      "target": "assets/images/Strawberry Latte 1.webp",
+      "sourceBytes": 1769928,
+      "bytes": 50414,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "aa5f109a807a04abea449a701501e75398d7e59220a938ca526d78c775759f49",
+      "sha256": "a8288c53b3318f67cda8dc0ea18f8ceb6d5a100192d7d62a15101529e3c13539",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.976193,
+        "yuv": 0.990361,
+        "luma": 0.992583
+      }
+    },
+    {
+      "source": "assets/images/Strawberry Matcha 1.png",
+      "target": "assets/images/Strawberry Matcha 1.webp",
+      "sourceBytes": 1781800,
+      "bytes": 47512,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "f73fea7562f3c34980143a5d48b043c6ce4231fd0fb4a3a73a7c88b8add001ac",
+      "sha256": "8565485ebccf33387fad6f1a9dcbbc2c6d2164e1c3ff697913e2e4ee50ee7474",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.975712,
+        "yuv": 0.990197,
+        "luma": 0.993025
+      }
+    },
+    {
+      "source": "assets/images/Sunrise Burger.png",
+      "target": "assets/images/Sunrise Burger.webp",
+      "sourceBytes": 2060717,
+      "bytes": 417144,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "f824e23810aa89314563a1b868928914486c7e06d98f5fc8965f3d3fc51a1af7",
+      "sha256": "83e07e7ba768708c6577310d47c218f2e11d219874a34dc988a4eefd66eec808",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.932851,
+        "yuv": 0.953618,
+        "luma": 0.988997
+      }
+    },
+    {
+      "source": "assets/images/Tapa Quesadilla.png",
+      "target": "assets/images/Tapa Quesadilla.webp",
+      "sourceBytes": 2403946,
+      "bytes": 543896,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "7c347a79e6f5dca3a95ecc6caba96b56c41a8ca2d3902c0d55cddbc9a2b4e222",
+      "sha256": "5ac2df2a69d5b9c6a1a955788341d905a41f080c8015239dfb428c9ebd065a6b",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.941457,
+        "yuv": 0.940102,
+        "luma": 0.991806
+      }
+    },
+    {
+      "source": "assets/images/Tiramisu 1.png",
+      "target": "assets/images/Tiramisu 1.webp",
+      "sourceBytes": 1288094,
+      "bytes": 91754,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "7ed6a962bc53576016db80e38c867eee0dc9a984f2a6c7f7138d4d0782be662b",
+      "sha256": "2c57d3e82451611598fe332f5d32558c76f107a8f9d30f93d69487dd5bb3b084",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.978572,
+        "yuv": 0.991604,
+        "luma": 0.992197
+      }
+    },
+    {
+      "source": "assets/images/Tiramisu Latte 5.png",
+      "target": "assets/images/Tiramisu Latte 5.webp",
+      "sourceBytes": 1193292,
+      "bytes": 63710,
+      "before": {
+        "format": "png",
+        "width": 832,
+        "height": 1248,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "bd24273518ca52aba8dfa0ebe2065da972c6c0a3567778dd737e3bb6176733f3",
+      "sha256": "da6b1a1ea5784a574952311c28e6343d4c1e266caf3c8ffdc9f942830b1f9267",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.974862,
+        "yuv": 0.990274,
+        "luma": 0.992283
+      }
+    },
+    {
+      "source": "assets/images/Tuna Sandwich.png",
+      "target": "assets/images/Tuna Sandwich.webp",
+      "sourceBytes": 2226007,
+      "bytes": 492634,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "061fa65c326fab619757ffc1e2f7be5f784fb687b0f25ad057840788af0d9b60",
+      "sha256": "3ced86a7f905eae179868abec932e237c86823a3bb26ed37247ef9cadea37f68",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.96781,
+        "yuv": 0.972741,
+        "luma": 0.991697
+      }
+    },
+    {
+      "source": "assets/images/Ube Latte 1.png",
+      "target": "assets/images/Ube Latte 1.webp",
+      "sourceBytes": 1769220,
+      "bytes": 36932,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "67448216d48ae901ad84237b89ba70ae737a9cc38b90670b50638c8985558602",
+      "sha256": "843cfa81894813757d42164f1fff3af5bcdd05e1d5ae5b3f75ae71f102e05d3b",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.979859,
+        "yuv": 0.992459,
+        "luma": 0.994186
+      }
+    },
+    {
+      "source": "assets/images/Ube Matcha.png",
+      "target": "assets/images/Ube Matcha.webp",
+      "sourceBytes": 1716062,
+      "bytes": 54258,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "30d83dec3d50d04634f03fba8e7633d0970b5dec6ce9f67c690d3a003bf38da6",
+      "sha256": "0c093309d05ba895dc65bfa7fc1570e6aa22bad463fe359b97f72a14f5f4a1e4",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.977044,
+        "yuv": 0.991588,
+        "luma": 0.993759
+      }
+    },
+    {
+      "source": "assets/images/Vanilla Ice Cream Latte 5.png",
+      "target": "assets/images/Vanilla Ice Cream Latte 5.webp",
+      "sourceBytes": 1959915,
+      "bytes": 50578,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1536,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 683,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "0600ce7c0928054c72ddc27f3744e17a61eab8cf3ff25e9eaf201210711b9964",
+      "sha256": "696904d201ad860b14849db57f31ce7ef871a645d426bf1cedec2cc8886cf171",
+      "resized": true,
+      "qualityMetrics": {
+        "rgb": 0.970255,
+        "yuv": 0.990295,
+        "luma": 0.987778
+      }
+    },
+    {
+      "source": "assets/images/White Mocha Latte 5.png",
+      "target": "assets/images/White Mocha Latte 5.webp",
+      "sourceBytes": 1260981,
+      "bytes": 91950,
+      "before": {
+        "format": "png",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "after": {
+        "format": "webp",
+        "width": 1024,
+        "height": 1024,
+        "alpha": false
+      },
+      "sourceSha256": "0e15ec737350d749bcc1a9b354c2b758d016a5e325b471640ff8c31efcd3b3d7",
+      "sha256": "a14ad1350c316882ea819dc13d7253562a2c49ac5c330009daba070ed64a07f4",
+      "resized": false,
+      "qualityMetrics": {
+        "rgb": 0.97293,
+        "yuv": 0.991105,
+        "luma": 0.991702
+      }
+    }
+  ],
+  "web": {
+    "bundledImages": 95,
+    "optimizedWebpImages": 49,
+    "allPackagedHashesMatchSource": true
+  }
+}

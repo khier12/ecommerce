@@ -1,0 +1,246 @@
+{
+  "date": "2026-11-10",
+  "removedFiles": [
+    {
+      "file": "assets/images/1.png",
+      "bytes": 2476992,
+      "sha256": "a57186e86c0b49cf1b1572ee63d8652814ac0a57d8072aa5e92b9f3fc9816da1"
+    },
+    {
+      "file": "assets/images/5.png",
+      "bytes": 1872567,
+      "sha256": "508ab97178831bf301ed4a8e0d98f31f69da3ec5568745c7cb61561d913311c0"
+    },
+    {
+      "file": "assets/images/Americano 2.png",
+      "bytes": 937417,
+      "sha256": "fd2a79d3ed2668a7f1fb4c0acec6be87220b1763fc7e2a137208bea6aa3f7209"
+    },
+    {
+      "file": "assets/images/Americano.png",
+      "bytes": 2172179,
+      "sha256": "1bdee8592f9c875f2c1d4b3601c7e4d110d287502dd4d5fba6ca1f0f1139d73c"
+    },
+    {
+      "file": "assets/images/Caramel Macchiato 1.png",
+      "bytes": 23965,
+      "sha256": "ef33647eb0f48a3c4699b83bc17b55aa8683b9e29a3a003f75e577658ee4b76b"
+    },
+    {
+      "file": "assets/images/Caramel Macchiato 6.png",
+      "bytes": 50641,
+      "sha256": "ff27730239d0480ac5e2191e244d16d02017f4b5c9964b9c2c57e4df03155676"
+    },
+    {
+      "file": "assets/images/Caramel Macchiato.png",
+      "bytes": 2274745,
+      "sha256": "52bd3fff968f19d39c3e4020bd4e76e0c475a826c2e9aa93280cc646f1751d7b"
+    },
+    {
+      "file": "assets/images/Caramel Machiato 1.png",
+      "bytes": 1894119,
+      "sha256": "abca768874592f0fbde83b2fb59c8d5a47a713a414bc32f5b08b9c4e6857c627"
+    },
+    {
+      "file": "assets/images/Caramel Treat 1.png",
+      "bytes": 47032,
+      "sha256": "4ce39a08e6c8fe01e44b7d1d54d653a69e97b59a9510a305a4e1687924cc8b3a"
+    },
+    {
+      "file": "assets/images/Choco Hazelnut 1.png",
+      "bytes": 2235690,
+      "sha256": "7080fe39bde464b36e551fd324b7526de99574999a7ce1507c4a7f6e79293a76"
+    },
+    {
+      "file": "assets/images/Choco Hazelnut 6.png",
+      "bytes": 72735,
+      "sha256": "8e50305570533e59c70a1a238cf1886054f887ee9b49cc938ec208855f7d39b1"
+    },
+    {
+      "file": "assets/images/Choco Hazelnut Latte 1.png",
+      "bytes": 26502,
+      "sha256": "97e93c15edec7fc878bac801365a3a3cfd94201f8c8457c6094177549b310081"
+    },
+    {
+      "file": "assets/images/Choco Hazelnut Latte.png",
+      "bytes": 2296539,
+      "sha256": "e7132072b68fbd363ccb07b89e7e9f26a044b7075ebcecf7736847907628595e"
+    },
+    {
+      "file": "assets/images/Chocolate  4.png",
+      "bytes": 67057,
+      "sha256": "dd9069cccbe662798b745fdccd3c6e3175be95395ee40e1b00a10d049e312469"
+    },
+    {
+      "file": "assets/images/Chocolate 2.png",
+      "bytes": 2159013,
+      "sha256": "d654d8140ba2b0fc3a346c99218e60ad49e705a651f6431e3851e536f69fb796"
+    },
+    {
+      "file": "assets/images/Chocolate 3.png",
+      "bytes": 2352705,
+      "sha256": "21d7616f93d1b63035b92c8a066c5db1fe1f5fb512b32348cb5557e68c58ab63"
+    },
+    {
+      "file": "assets/images/Chocolate Bliss 1.png",
+      "bytes": 59957,
+      "sha256": "87487ae1cce14589e6663dd642d4e6c579eb140373e8b3d3da074fb194b888e7"
+    },
+    {
+      "file": "assets/images/Chocolate Bliss.png",
+      "bytes": 2072650,
+      "sha256": "4bfcc419b3319bb75e54adc4fab75389efc1dd70ab11cf4f10f489de8fb4b77d"
+    },
+    {
+      "file": "assets/images/Creamy Americano 1.png",
+      "bytes": 27591,
+      "sha256": "0dc00e248cd29c3612e4234e83a24df74ba4de8412f1cccc87ea9f2086920630"
+    },
+    {
+      "file": "assets/images/Creamy Americano 3.png",
+      "bytes": 1900361,
+      "sha256": "073290748756a153ef550b4c8539b4dd57397bf094a33ecc3f07ea21d6f7994d"
+    },
+    {
+      "file": "assets/images/Dirty Matcha Latte 1.png",
+      "bytes": 40681,
+      "sha256": "6ee98836a2c221cced205961340c2fd6fb8f1b603cda26e64e2cd82319fb9229"
+    },
+    {
+      "file": "assets/images/favicon.ico",
+      "bytes": 2966,
+      "sha256": "bd705cf7db70feb4698c5fbc9871e274209cff0b3ebaac97f4e85241a54bfc6c"
+    },
+    {
+      "file": "assets/images/French Vanilla Latte 1.png",
+      "bytes": 21551,
+      "sha256": "ef7710c7be7617641c1e71f2d4e5943966b64c1e92fff6175214f8066da9559b"
+    },
+    {
+      "file": "assets/images/French Vanilla Latte.png",
+      "bytes": 2090500,
+      "sha256": "270e6fdfcd4c627a1bac18726a7cd826c7dc6e438bfa7de194fd649aab708f6f"
+    },
+    {
+      "file": "assets/images/landing2.png",
+      "bytes": 2476992,
+      "sha256": "a57186e86c0b49cf1b1572ee63d8652814ac0a57d8072aa5e92b9f3fc9816da1"
+    },
+    {
+      "file": "assets/images/Latte 1.png",
+      "bytes": 19632,
+      "sha256": "d360d853d39426027c4f28bdeff2265fcaef937863ad537f5068956189659fa7"
+    },
+    {
+      "file": "assets/images/latte 2.png",
+      "bytes": 917492,
+      "sha256": "0d6ebd7134910e30253396e0fd2b74ccd31adf073222086e826d0507eaf32926"
+    },
+    {
+      "file": "assets/images/Latte 3.png",
+      "bytes": 973571,
+      "sha256": "8eb139ce915e616e9ab02a47a3e7b400244e5ac9a42280d5a13d605705c49159"
+    },
+    {
+      "file": "assets/images/Latte.png",
+      "bytes": 2282385,
+      "sha256": "5e80583f0b7ae71d3ba9fc035cfe394c8069a1843a9c8a9189fd8888446f4a21"
+    },
+    {
+      "file": "assets/images/Matcha 3.png",
+      "bytes": 1682639,
+      "sha256": "8184d0ee2d07fecce4d14c8fc786a81844d725aedbcdcf423b0e43f105d4c734"
+    },
+    {
+      "file": "assets/images/Mocha 1.png",
+      "bytes": 2040239,
+      "sha256": "14b447b93f8fa8b140dd80d6457c446a15aca300b4c3833796b0c992bf142d32"
+    },
+    {
+      "file": "assets/images/Mocha Latte 1.png",
+      "bytes": 20756,
+      "sha256": "a980c0a3e0065f5e4f73c01443cd1fa612c49b7700d401b24118f68993e8963b"
+    },
+    {
+      "file": "assets/images/Mocha Latte.png",
+      "bytes": 2206718,
+      "sha256": "66dce953017fda9bdb17aa970929603721d17e9fc10eeb0aa00ce210e0bef875"
+    },
+    {
+      "file": "assets/images/Spanish Latte 1.png",
+      "bytes": 21091,
+      "sha256": "9406175d35768836b97a0cdf111266eed74ef55601bf47635bcd0afca969fd99"
+    },
+    {
+      "file": "assets/images/Spanish Latte.png",
+      "bytes": 2143931,
+      "sha256": "1cb72c1d71d0c025fedb0e260ca570d2a014c50fe3b20b8566f141cebc5e60fc"
+    },
+    {
+      "file": "assets/images/Strawberrry 7.png",
+      "bytes": 2014968,
+      "sha256": "126ce160e9b70c01dbdca9f834c9546580d656c25447f276835844d3193276de"
+    },
+    {
+      "file": "assets/images/Strawberry 4.png",
+      "bytes": 2363184,
+      "sha256": "fda66e2c9565560803836fa64e4fcb61f4fdb73dab598de463717fdc893d1a8f"
+    },
+    {
+      "file": "assets/images/Strawberry 5.png",
+      "bytes": 60563,
+      "sha256": "4df3c7b1a399ca5e53ed9f7f10952ef5706954697108db603a58e0c034c8bc81"
+    },
+    {
+      "file": "assets/images/Test1.jpg",
+      "bytes": 28552,
+      "sha256": "57ee96fe54ee0fa6facf26a441fc0882837b791a299910744b234d3ce659e3e0"
+    },
+    {
+      "file": "assets/images/Test2.jpg",
+      "bytes": 31381,
+      "sha256": "03ef438b013ec5fec24e58556c9d93d2e43c104f1b8f5a7a4ef6f805ac855945"
+    },
+    {
+      "file": "assets/images/Tiramisu Latte.png",
+      "bytes": 1617856,
+      "sha256": "cf0704b8059bc937b0f7571bd2f0b49c7b29371407fcc8fb4fdc47938299231a"
+    },
+    {
+      "file": "assets/images/Ube 5.png",
+      "bytes": 1807731,
+      "sha256": "39fa78af707ab5dda0f211680815656c14cddbf3289a354fe93f91f2dcbf424f"
+    },
+    {
+      "file": "assets/images/Vanilla Ice Cream Latte 1.png",
+      "bytes": 1962741,
+      "sha256": "b33041b878097b8eac742ae81645eb1c15ff3e870c964c5872538eff82fe4a26"
+    },
+    {
+      "file": "assets/images/Vanilla Ice Cream Latte 2.png",
+      "bytes": 1895181,
+      "sha256": "8877c8ef32af8a540ef23dbc05f340ba4bd4d12a953fc794facad00098779364"
+    },
+    {
+      "file": "assets/images/White Mocha 1.png",
+      "bytes": 2471468,
+      "sha256": "50a79d6d30bca0d3ead69aa3ecff4db83f2b1afd43fc05bd52f14aad53bbf5da"
+    },
+    {
+      "file": "assets/images/White Mocha Latte 1.png",
+      "bytes": 23887,
+      "sha256": "eb48b783ffc8f5b76203beceaafc9d847e98cbcd680ba1f57063a72a68d51e87"
+    },
+    {
+      "file": "assets/images/White Mocha Latte.png",
+      "bytes": 2251554,
+      "sha256": "8dd1459d51bdccff8290a9300d9c8078b54ebd3a8ea00b17a925d20f62c30f40"
+    }
+  ],
+  "removedBytes": 58490667,
+  "remainingImages": 95,
+  "remainingImageBytes": 100577661,
+  "all95RequiredImageHashesMatchPreCleanup": true,
+  "assetManifestChanged": false,
+  "note": "The files were already excluded from the app bundle; this cleanup reduces source-folder size without additional APK reduction."
+}
