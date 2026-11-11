@@ -1,0 +1,263 @@
+{
+  "date": "2026-11-11",
+  "profile": "motor_scooter",
+  "provider": "https://valhalla1.openstreetmap.de/route",
+  "configurationKey": "VALHALLA_ROUTE_URL",
+  "oldOsrmEndpointExclusionProbe": {
+    "httpStatus": 400,
+    "code": "InvalidValue",
+    "message": "Exclude flag combination is not supported."
+  },
+  "publicHardExclusionsWarningObserved": true,
+  "validation": "Both trip and leg must explicitly report no highway/toll/ferry segments; every maneuver must report drive/motor_scooter. Unknown or restricted responses are rejected without a different travel-profile fallback.",
+  "deliveryRadiusKm": 30,
+  "flutterTestsPassed": 165,
+  "routeServiceTestsPassed": 40,
+  "routeMapTestsPassed": 8,
+  "staticAnalysis": "No issues found",
+  "androidReleaseBytes": 26804192,
+  "apkContainsUpdatedScooterProfile": true,
+  "webReleaseBuildPassed": true,
+  "chromeUnitRunner": "Unavailable: the installed Flutter SDK browser test runner references a missing archive-path host.dart.js. Release-web behavior was checked in a real browser instead.",
+  "browser": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "isolatedTemporaryContext": true,
+    "temporaryContextClosed": true,
+    "regularPreviewSavedOrdersUntouched": true,
+    "httpStatus": 200,
+    "routeVisible": true,
+    "displayedRoadDistanceKm": 17.0,
+    "travelTypes": [
+      "motor_scooter"
+    ],
+    "hasHighway": false,
+    "hasToll": false,
+    "hasFerry": false,
+    "pageErrors": [],
+    "routeNetworkFailures": []
+  },
+  "liveRoutes": {
+    "routes": [
+      {
+        "destination": "Alabang Town Center",
+        "point": [
+          14.4235,
+          121.0314
+        ],
+        "distanceMeters": 17032.0,
+        "shapePoints": 761
+      },
+      {
+        "destination": "Santa Rosa local-road crossing",
+        "point": [
+          14.3121,
+          121.1115
+        ],
+        "distanceMeters": 8092.000000000001,
+        "shapePoints": 266
+      },
+      {
+        "destination": "Bacoor public landmark area",
+        "point": [
+          14.458,
+          120.946
+        ],
+        "distanceMeters": 28573.0,
+        "shapePoints": 1281
+      }
+    ],
+    "responses": [
+      {
+        "status": 200,
+        "request": {
+          "locations": [
+            {
+              "lat": 14.3158,
+              "lon": 121.0561,
+              "type": "break",
+              "search_filter": {
+                "max_road_class": "trunk",
+                "exclude_toll": true,
+                "exclude_ferry": true
+              }
+            },
+            {
+              "lat": 14.4235,
+              "lon": 121.0314,
+              "type": "break",
+              "search_filter": {
+                "max_road_class": "trunk",
+                "exclude_toll": true,
+                "exclude_ferry": true
+              }
+            }
+          ],
+          "costing": "motor_scooter",
+          "costing_options": {
+            "motor_scooter": {
+              "exclude_highways": true,
+              "exclude_tolls": true,
+              "exclude_ferries": true,
+              "use_highways": 0,
+              "use_tolls": 0
+            }
+          },
+          "units": "kilometers",
+          "directions_type": "instructions",
+          "alternates": 0
+        },
+        "summary": {
+          "has_time_restrictions": false,
+          "has_toll": false,
+          "has_highway": false,
+          "has_ferry": false,
+          "min_lat": 14.315923,
+          "min_lon": 121.031252,
+          "max_lat": 14.424534,
+          "max_lon": 121.082117,
+          "time": 2768.442,
+          "length": 17.032,
+          "cost": 5393.014
+        },
+        "warnings": [
+          {
+            "code": 208,
+            "text": "Hard exclusions are not allowed on this server, ignoring hard excludes"
+          }
+        ],
+        "travelTypes": [
+          "motor_scooter"
+        ]
+      },
+      {
+        "status": 200,
+        "request": {
+          "locations": [
+            {
+              "lat": 14.3158,
+              "lon": 121.0561,
+              "type": "break",
+              "search_filter": {
+                "max_road_class": "trunk",
+                "exclude_toll": true,
+                "exclude_ferry": true
+              }
+            },
+            {
+              "lat": 14.3121,
+              "lon": 121.1115,
+              "type": "break",
+              "search_filter": {
+                "max_road_class": "trunk",
+                "exclude_toll": true,
+                "exclude_ferry": true
+              }
+            }
+          ],
+          "costing": "motor_scooter",
+          "costing_options": {
+            "motor_scooter": {
+              "exclude_highways": true,
+              "exclude_tolls": true,
+              "exclude_ferries": true,
+              "use_highways": 0,
+              "use_tolls": 0
+            }
+          },
+          "units": "kilometers",
+          "directions_type": "instructions",
+          "alternates": 0
+        },
+        "summary": {
+          "has_time_restrictions": false,
+          "has_toll": false,
+          "has_highway": false,
+          "has_ferry": false,
+          "min_lat": 14.31185,
+          "min_lon": 121.056103,
+          "max_lat": 14.333288,
+          "max_lon": 121.1124,
+          "time": 1484.265,
+          "length": 8.092,
+          "cost": 2772.972
+        },
+        "warnings": [
+          {
+            "code": 208,
+            "text": "Hard exclusions are not allowed on this server, ignoring hard excludes"
+          }
+        ],
+        "travelTypes": [
+          "motor_scooter"
+        ]
+      },
+      {
+        "status": 200,
+        "request": {
+          "locations": [
+            {
+              "lat": 14.3158,
+              "lon": 121.0561,
+              "type": "break",
+              "search_filter": {
+                "max_road_class": "trunk",
+                "exclude_toll": true,
+                "exclude_ferry": true
+              }
+            },
+            {
+              "lat": 14.458,
+              "lon": 120.946,
+              "type": "break",
+              "search_filter": {
+                "max_road_class": "trunk",
+                "exclude_toll": true,
+                "exclude_ferry": true
+              }
+            }
+          ],
+          "costing": "motor_scooter",
+          "costing_options": {
+            "motor_scooter": {
+              "exclude_highways": true,
+              "exclude_tolls": true,
+              "exclude_ferries": true,
+              "use_highways": 0,
+              "use_tolls": 0
+            }
+          },
+          "units": "kilometers",
+          "directions_type": "instructions",
+          "alternates": 0
+        },
+        "summary": {
+          "has_time_restrictions": false,
+          "has_toll": false,
+          "has_highway": false,
+          "has_ferry": false,
+          "min_lat": 14.315923,
+          "min_lon": 120.946424,
+          "max_lat": 14.467265,
+          "max_lon": 121.082117,
+          "time": 4606.528,
+          "length": 28.573,
+          "cost": 8829.219
+        },
+        "warnings": [
+          {
+            "code": 208,
+            "text": "Hard exclusions are not allowed on this server, ignoring hard excludes"
+          }
+        ],
+        "travelTypes": [
+          "motor_scooter"
+        ]
+      }
+    ]
+  },
+  "runtimeDependenciesAdded": 0,
+  "limitations": "Road/access flags depend on OpenStreetMap and provider data. The motor_scooter profile is conservative and is not an engine-displacement certification. A public host may ignore requested hard exclusions; response validation prevents drawing a route reported as restricted. Endpoint snapping may move a point to a nearby allowed road."
+}

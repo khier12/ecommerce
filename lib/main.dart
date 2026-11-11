@@ -5375,8 +5375,8 @@ class DeliveryRouteService {
   }
 
   static const _configuredEndpoint = String.fromEnvironment(
-    'OSRM_ROUTE_URL',
-    defaultValue: 'https://router.project-osrm.org/route/v1/driving',
+    'VALHALLA_ROUTE_URL',
+    defaultValue: 'https://valhalla1.openstreetmap.de/route',
   );
   static final shared = DeliveryRouteService();
   static const _timeout = Duration(seconds: 8);
@@ -5397,7 +5397,7 @@ class DeliveryRouteService {
       return Future.error(StateError('The route locations are invalid.'));
     }
     final coordinates =
-        '${origin.longitude},${origin.latitude};'
+        'motor_scooter_no_expressways_v1|${origin.longitude},${origin.latitude};'
         '${destination.longitude},${destination.latitude}';
     final cached = _cache.remove(coordinates);
     if (cached != null && _clock().isBefore(cached.expiresAt)) {
@@ -5408,7 +5408,7 @@ class DeliveryRouteService {
     final pending = _inFlight[coordinates];
     if (pending != null) return pending;
 
-    final request = _fetch(coordinates)
+    final request = _fetch(origin, destination)
         .then((result) {
           _cache[coordinates] = (
             route: result,
@@ -5426,11 +5426,10 @@ class DeliveryRouteService {
     return request;
   }
 
-  Future<DeliveryRoute> _fetch(String coordinates) async {
+  Future<DeliveryRoute> _fetch(LatLng origin, LatLng destination) async {
     try {
-      // The public OSRM server allows at most one request each second.
-      // Reserve slots synchronously across instances; custom hosts skip this.
-      if (_endpoint.host.toLowerCase() == 'router.project-osrm.org') {
+      // Reserve public-server slots across instances. Custom hosts skip this.
+      if (_endpoint.host.toLowerCase() == 'valhalla1.openstreetmap.de') {
         final now = DateTime.now();
         final slot = now.isBefore(_nextPublicRequest)
             ? _nextPublicRequest
@@ -5439,18 +5438,43 @@ class DeliveryRouteService {
         final delay = slot.difference(now);
         if (delay > Duration.zero) await Future<void>.delayed(delay);
       }
-      final path = _endpoint.path.replaceFirst(RegExp(r'/+$'), '');
       final uri = _endpoint.replace(
-        path: '$path/$coordinates',
         queryParameters: {
           ..._endpoint.queryParameters,
-          'geometries': 'geojson',
-          'overview': 'full',
-          'steps': 'false',
-          'alternatives': 'false',
+          'json': jsonEncode({
+            'locations': [
+              for (final point in [origin, destination])
+                {
+                  'lat': point.latitude,
+                  'lon': point.longitude,
+                  'type': 'break',
+                  'search_filter': {
+                    'max_road_class': 'trunk',
+                    'exclude_toll': true,
+                    'exclude_ferry': true,
+                  },
+                },
+            ],
+            'costing': 'motor_scooter',
+            'costing_options': {
+              'motor_scooter': {
+                'exclude_highways': true,
+                'exclude_tolls': true,
+                'exclude_ferries': true,
+                'use_highways': 0,
+                'use_tolls': 0,
+              },
+            },
+            'units': 'kilometers',
+            'directions_type': 'instructions',
+            'alternates': 0,
+          }),
         },
       );
-      const headers = {'Accept': 'application/json'};
+      const headers = {
+        'Accept': 'application/json',
+        'X-Client-Id': 'SmoochCafeFlutter/1.0',
+      };
       final response =
           await (client == null
                   ? http.get(uri, headers: headers)
@@ -5461,52 +5485,47 @@ class DeliveryRouteService {
         throw StateError('The delivery route is unavailable.');
       }
       final body = jsonDecode(utf8.decode(response.bodyBytes));
-      if (body is! Map<String, dynamic> || body['code'] != 'Ok') {
-        throw StateError('No road route is available for these locations.');
+      if (body is! Map<String, dynamic>) {
+        throw StateError('The motorcycle routing response is invalid.');
       }
-      final routes = body['routes'];
-      if (routes is! List || routes.isEmpty) {
-        throw StateError('The routing response contains no route.');
-      }
-      final first = routes.first;
-      if (first is! Map<String, dynamic>) {
-        throw StateError('The routing response is invalid.');
-      }
-      final geometry = first['geometry'];
-      if (geometry is! Map<String, dynamic> ||
-          geometry['type'] != 'LineString') {
-        throw StateError('The routing geometry is invalid.');
-      }
-      final rawPoints = geometry['coordinates'];
-      if (rawPoints is! List ||
-          rawPoints.length < 2 ||
-          rawPoints.length > 10000) {
-        throw StateError('The routing geometry is invalid.');
-      }
-      final points = <LatLng>[];
-      for (final coordinate in rawPoints) {
-        if (coordinate is! List ||
-            coordinate.length < 2 ||
-            coordinate[0] is! num ||
-            coordinate[1] is! num) {
-          throw StateError('The routing coordinates are invalid.');
-        }
-        points.add(
-          LatLng(
-            (coordinate[1] as num).toDouble(),
-            (coordinate[0] as num).toDouble(),
-          ),
+      final trip = body['trip'];
+      if (trip is! Map<String, dynamic> ||
+          trip['status'] != 0 ||
+          trip['units'] != 'kilometers') {
+        throw StateError(
+          'No motorcycle route is available for these locations.',
         );
       }
-      final distance = first['distance'];
-      final duration = first['duration'];
-      if (distance is! num || (duration != null && duration is! num)) {
-        throw StateError('The routing distance is invalid.');
+      final summary = _checkedSummary(trip['summary']);
+      final legs = trip['legs'];
+      if (legs is! List ||
+          legs.length != 1 ||
+          legs.first is! Map<String, dynamic>) {
+        throw StateError('The motorcycle routing response is invalid.');
       }
+      final leg = legs.first as Map<String, dynamic>;
+      _checkedSummary(leg['summary']);
+      final maneuvers = leg['maneuvers'];
+      if (maneuvers is! List || maneuvers.isEmpty) {
+        throw StateError('The motorcycle route has no access information.');
+      }
+      for (final maneuver in maneuvers) {
+        if (maneuver is! Map<String, dynamic> ||
+            maneuver['travel_mode'] != 'drive' ||
+            maneuver['travel_type'] != 'motor_scooter' ||
+            maneuver['highway'] == true ||
+            maneuver['toll'] == true ||
+            maneuver['ferry'] == true) {
+          throw StateError(
+            'The route is not suitable for this delivery motorcycle.',
+          );
+        }
+      }
+      final points = _decodeShape(leg['shape']);
       return DeliveryRoute(
         points: points,
-        distanceMeters: distance.toDouble(),
-        durationSeconds: (duration as num?)?.toDouble(),
+        distanceMeters: (summary['length'] as num).toDouble() * 1000,
+        durationSeconds: (summary['time'] as num?)?.toDouble(),
       );
     } on StateError {
       rethrow;
@@ -5515,6 +5534,69 @@ class DeliveryRouteService {
     } catch (_) {
       throw StateError('The delivery route could not be loaded.');
     }
+  }
+
+  static Map<String, dynamic> _checkedSummary(Object? value) {
+    // Public hosts can ignore hard-exclusion options. Require explicit clean
+    // metadata for both the whole trip and its leg before showing any geometry.
+    // Never retry using a car, walking or bicycle profile as an unsafe fallback.
+    if (value is! Map<String, dynamic> ||
+        value['has_highway'] != false ||
+        value['has_toll'] != false ||
+        value['has_ferry'] != false) {
+      throw StateError(
+        'No expressway-free motorcycle route could be verified.',
+      );
+    }
+    final length = value['length'], time = value['time'];
+    if (length is! num ||
+        !length.isFinite ||
+        length < 0 ||
+        (time != null && (time is! num || !time.isFinite || time < 0))) {
+      throw StateError('The motorcycle route metrics are invalid.');
+    }
+    return value;
+  }
+
+  static List<LatLng> _decodeShape(Object? value) {
+    if (value is! String || value.isEmpty) {
+      throw StateError('The motorcycle route geometry is invalid.');
+    }
+    var index = 0, latitude = 0, longitude = 0;
+    int component() {
+      var result = 0, shift = 0, chunk = 0;
+      do {
+        if (index >= value.length || shift >= 30) {
+          throw StateError(
+            'The motorcycle route geometry is truncated or invalid.',
+          );
+        }
+        chunk = value.codeUnitAt(index++) - 63;
+        if (chunk < 0 || chunk > 63) {
+          throw StateError('The motorcycle route geometry is invalid.');
+        }
+        result |= (chunk & 31) << shift;
+        shift += 5;
+      } while (chunk >= 32);
+      // Arithmetic negation preserves signed deltas in both Dart VM and JS;
+      // bitwise NOT on web integers can produce an unsigned 32-bit value.
+      return (result & 1) == 1 ? -((result >> 1) + 1) : result >> 1;
+    }
+
+    final points = <LatLng>[];
+    while (index < value.length) {
+      latitude += component();
+      longitude += component();
+      final point = LatLng(latitude / 1e6, longitude / 1e6);
+      if (!DeliveryRoute._validPoint(point) || points.length >= 10000) {
+        throw StateError('The motorcycle route coordinates are invalid.');
+      }
+      points.add(point);
+    }
+    if (points.length < 2) {
+      throw StateError('The motorcycle route geometry is incomplete.');
+    }
+    return points;
   }
 }
 
@@ -5847,7 +5929,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
-                      'Finding a road route…',
+                      'Finding a motorcycle route…',
                       style: TextStyle(fontSize: 12, color: AppColors.ink),
                     ),
                   ),
@@ -5865,7 +5947,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Road route unavailable right now.',
+                          'No suitable motorcycle route available right now.',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12),
                         ),
@@ -5891,6 +5973,16 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
           _RouteLegend(color: AppColors.dark, label: 'Smooch Cafe'),
           _RouteLegend(color: AppColors.action, label: 'Delivery address'),
         ],
+      ),
+      const SizedBox(height: 8),
+      const Text(
+        'Motorcycle delivery · Avoids expressways and toll roads',
+        key: Key('delivery-route-policy'),
+        style: TextStyle(
+          fontSize: 11,
+          height: 1.5,
+          color: AppColors.secondaryText,
+        ),
       ),
       if (route case final road?) ...[
         const SizedBox(height: 8),

@@ -219,6 +219,11 @@ void main() {
     expect(find.byKey(const Key('delivery-route-loading')), findsNothing);
     final retry = find.byKey(const Key('delivery-route-retry'));
     expect(retry, findsOneWidget);
+    expect(
+      find.text('No suitable motorcycle route available right now.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('delivery-route-policy')), findsOneWidget);
     expect(_showsFullRoute(tester, _roadTo(_firstDropoff)), isFalse);
 
     await tester.tap(retry);
