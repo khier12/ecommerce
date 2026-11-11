@@ -9093,38 +9093,6 @@ class CoffeeScenePainter extends CustomPainter {
   }
 
   void _drawLogo(Canvas canvas, _CoffeeFrame frame, _CoffeeGroup cup) {
-    const columns = 18, rows = 4;
-    final indices = <int>[];
-    for (var y = 0; y <= rows; y++) {
-      for (var x = 0; x <= columns; x++) {
-        final u = x / columns, v = y / rows;
-        final angle = math.pi / 2 + (.5 - u) * 1.55;
-        final height = .43 - v * 1.0;
-        final radius = .70 + (height + .96) / 1.62 * .21 + .014;
-        final model = _Vector(
-          radius * math.cos(angle),
-          height,
-          radius * math.sin(angle),
-        );
-        final normal = frame.rotation.rotate(
-          _Vector(math.cos(angle), -.13, math.sin(angle)).normalized,
-        );
-        final point = frame.project(cup.point(model));
-        final i = y * (columns + 1) + x;
-        _buffers.logoPositions[i * 2] = point.dx;
-        _buffers.logoPositions[i * 2 + 1] = point.dy;
-        _buffers.logoUv[i * 2] = u * logoSize.width;
-        _buffers.logoUv[i * 2 + 1] = v * logoSize.height;
-        final shade = (200 + 55 * math.max(0.0, normal.z)).round();
-        _buffers.logoColors[i] = Color.fromARGB(
-          255,
-          shade,
-          shade,
-          shade,
-        ).toARGB32();
-        _buffers.logoFacing[i] = normal.z;
-      }
-    }
     if (logoShader == null) {
       final facing = frame.rotation.rotate(const _Vector(0, 0, 1)).z;
       if (facing < .1) return;
@@ -9154,31 +9122,51 @@ class CoffeeScenePainter extends CustomPainter {
       canvas.drawPath(heart..close(), Paint()..color = AppColors.white);
       return;
     }
-    for (var y = 0; y < rows; y++) {
-      for (var x = 0; x < columns; x++) {
-        final a = y * (columns + 1) + x,
-            b = a + 1,
-            c = a + columns + 1,
-            d = c + 1;
-        if (_buffers.logoFacing[a] + _buffers.logoFacing[b] > .2) {
-          indices.addAll([a, b, c, b, d, c]);
+    final refreshUv = _buffers.logoTextureSize != logoSize;
+    _buffers.logoTextureSize = logoSize;
+    final camera = _buffers._camera, normal = _buffers._normal;
+    final samples = _CoffeeRenderBuffers.logoSamples;
+    for (var i = 0; i < samples.length; i++) {
+      final sample = samples[i];
+      final n = sample.normal;
+      frame.rotation.rotateInto(n.x, n.y, n.z, normal);
+      cup.pointInto(sample.position, camera);
+      frame.rotation.rotateInto(camera.x, camera.y, camera.z, camera);
+      final scale = frame.unit * (7 / (7 - camera.z)) * frame.arrival;
+      _buffers.logoPositions[i * 2] = frame.center.dx + camera.x * scale;
+      _buffers.logoPositions[i * 2 + 1] = frame.center.dy + -camera.y * scale;
+      if (refreshUv) {
+        _buffers.logoUv[i * 2] = sample.u * logoSize.width;
+        _buffers.logoUv[i * 2 + 1] = sample.v * logoSize.height;
+      }
+      final shade = (200 + 55 * math.max(0.0, normal.z)).round();
+      _buffers.logoColors[i] =
+          0xFF000000 | (shade << 16) | (shade << 8) | shade;
+      _buffers.logoFacing[i] = normal.z;
+    }
+    final topology = _CoffeeRenderBuffers.logoTopology;
+    var count = 0;
+    for (var cell = 0; cell < topology.length; cell += 6) {
+      if (_buffers.logoFacing[topology[cell]] +
+              _buffers.logoFacing[topology[cell + 1]] >
+          .2) {
+        for (var index = 0; index < 6; index++) {
+          _buffers.logoIndices[count++] = topology[cell + index];
         }
       }
     }
-    if (indices.isEmpty) return;
+    if (count == 0) return;
     final vertices = ui.Vertices.raw(
       ui.VertexMode.triangles,
       _buffers.logoPositions,
       colors: _buffers.logoColors,
       textureCoordinates: _buffers.logoUv,
-      indices: Uint16List.fromList(indices),
+      indices: _buffers.logoIndexViews[count ~/ 6],
     );
     canvas.drawVertices(
       vertices,
       BlendMode.modulate,
-      Paint()
-        ..shader = logoShader
-        ..filterQuality = FilterQuality.medium,
+      _buffers.logoPaint..shader = logoShader,
     );
     vertices.dispose();
   }
@@ -9223,6 +9211,22 @@ class _CoffeeRotation {
     final y = point.y * cp - z * sp, depth = point.y * sp + z * cp;
     return _Vector(x * cr - y * sr, x * sr + y * cr, depth);
   }
+
+  // Keep the same operation order as rotate, writing into retained scratch
+  // space instead of creating vectors inside the per-vertex lighting loop.
+  void rotateInto(double px, double py, double pz, _CoffeeScratch result) {
+    final x = px * cy + pz * sy, z = -px * sy + pz * cy;
+    final y = py * cp - z * sp, depth = py * sp + z * cp;
+    result
+      ..x = x * cr - y * sr
+      ..y = x * sr + y * cr
+      ..z = depth;
+  }
+}
+
+class _CoffeeScratch {
+  double x = 0, y = 0, z = 0;
+  double dot(_Vector other) => x * other.x + y * other.y + z * other.z;
 }
 
 class _CoffeeGroup {
@@ -9231,6 +9235,20 @@ class _CoffeeGroup {
   final _Vector offset;
   final double scale;
   _Vector point(_Vector point) => rotation.rotate(point) * scale + offset;
+
+  void pointInto(_Vector point, _CoffeeScratch result) {
+    rotation.rotateInto(point.x, point.y, point.z, result);
+    result
+      ..x = result.x * scale + offset.x
+      ..y = result.y * scale + offset.y
+      ..z = result.z * scale + offset.z;
+  }
+}
+
+class _CoffeeLogoSample {
+  const _CoffeeLogoSample(this.position, this.normal, this.u, this.v);
+  final _Vector position, normal;
+  final double u, v;
 }
 
 class _CoffeeRenderBuffers {
@@ -9259,54 +9277,111 @@ class _CoffeeRenderBuffers {
       logoUv = Float32List(19 * 5 * 2),
       logoFacing = Float32List(19 * 5);
   final logoColors = Int32List(19 * 5);
+  final logoIndices = Uint16List(18 * 4 * 6);
+  // Each visible cell contributes six indices. Views share the same retained
+  // storage; Vertices.raw copies it before the next frame updates the buffer.
+  late final logoIndexViews = List<Uint16List>.generate(
+    18 * 4 + 1,
+    (cells) => Uint16List.sublistView(logoIndices, 0, cells * 6),
+    growable: false,
+  );
+  Size? logoTextureSize;
+  final logoPaint = Paint()..filterQuality = FilterQuality.medium;
+  static final logoSamples = _makeLogoSamples();
+  static final logoTopology = _makeLogoTopology();
+  final _camera = _CoffeeScratch(), _normal = _CoffeeScratch();
+  final _foreground = List<bool>.filled(7, false);
+  late final Comparator<int> _compareDepths = _compareFaceDepths;
+  final meshPaint = Paint()..filterQuality = FilterQuality.medium;
   Rect? glowRect;
   Shader? glow;
   static final keyLight = const _Vector(-.5, .75, 1).normalized;
   static final fillLight = const _Vector(.8, .3, .2).normalized;
   static final highlight = (keyLight + const _Vector(0, 0, 1)).normalized;
+
+  int _compareFaceDepths(int a, int b) =>
+      faceDepths[a].compareTo(faceDepths[b]);
+
+  static List<_CoffeeLogoSample> _makeLogoSamples() {
+    final samples = <_CoffeeLogoSample>[];
+    const columns = 18, rows = 4;
+    for (var y = 0; y <= rows; y++) {
+      for (var x = 0; x <= columns; x++) {
+        final u = x / columns, v = y / rows;
+        final angle = math.pi / 2 + (.5 - u) * 1.55;
+        final height = .43 - v * 1.0;
+        final radius = .70 + (height + .96) / 1.62 * .21 + .014;
+        samples.add(
+          _CoffeeLogoSample(
+            _Vector(radius * math.cos(angle), height, radius * math.sin(angle)),
+            _Vector(math.cos(angle), -.13, math.sin(angle)).normalized,
+            u,
+            v,
+          ),
+        );
+      }
+    }
+    return List<_CoffeeLogoSample>.unmodifiable(samples);
+  }
+
+  static Uint16List _makeLogoTopology() {
+    final indices = Uint16List(18 * 4 * 6);
+    var index = 0;
+    for (var y = 0; y < 4; y++) {
+      for (var x = 0; x < 18; x++) {
+        final a = y * 19 + x, b = a + 1, c = a + 19, d = c + 1;
+        indices[index++] = a;
+        indices[index++] = b;
+        indices[index++] = c;
+        indices[index++] = b;
+        indices[index++] = d;
+        indices[index++] = c;
+      }
+    }
+    return indices;
+  }
+
   void update(
     _CoffeeFrame frame,
     List<_CoffeeGroup> groups,
     bool texturedCoffee,
   ) {
     final mesh = _CoffeeMesh.studio;
-    final foreground = [
-      for (final group in groups) frame.rotation.rotate(group.offset).z > .95,
-    ];
+    for (var i = 0; i < groups.length; i++) {
+      final offset = groups[i].offset;
+      frame.rotation.rotateInto(offset.x, offset.y, offset.z, _camera);
+      _foreground[i] = _camera.z > .95;
+    }
     for (var i = 0; i < mesh.vertices.length; i++) {
       final vertex = mesh.vertices[i], group = groups[vertex.group];
-      final camera = frame.rotation.rotate(group.point(vertex.position));
-      final normal = frame.rotation.rotate(
-        group.rotation.rotate(vertex.normal),
-      );
-      final point = frame.projectCamera(camera);
-      positions[i * 2] = point.dx;
-      positions[i * 2 + 1] = point.dy;
-      depths[i] = camera.z;
-      facing[i] = normal.z;
+      group.pointInto(vertex.position, _camera);
+      frame.rotation.rotateInto(_camera.x, _camera.y, _camera.z, _camera);
+      final normal = vertex.normal;
+      group.rotation.rotateInto(normal.x, normal.y, normal.z, _normal);
+      frame.rotation.rotateInto(_normal.x, _normal.y, _normal.z, _normal);
+      final perspective = 7 / (7 - _camera.z);
+      final scale = frame.unit * perspective * frame.arrival;
+      positions[i * 2] = frame.center.dx + _camera.x * scale;
+      positions[i * 2 + 1] = frame.center.dy + -_camera.y * scale;
+      depths[i] = _camera.z;
+      facing[i] = _normal.z;
       final base = vertex.material == 1 && !texturedCoffee
           ? const Color(0xFFC18A4E)
           : vertex.color;
       final diffuse =
           .44 +
-          .49 * math.max(0.0, normal.dot(keyLight)) +
-          .12 * math.max(0.0, normal.dot(fillLight));
+          .49 * math.max(0.0, _normal.dot(keyLight)) +
+          .12 * math.max(0.0, _normal.dot(fillLight));
       final specular =
-          math.pow(math.max(0.0, normal.dot(highlight)), 42) *
+          math.pow(math.max(0.0, _normal.dot(highlight)), 42) *
           vertex.gloss *
           .54;
-      final rim = math.pow(1 - normal.z.abs().clamp(0.0, 1.0), 3) * .075;
-      int channel(double color, double edge) =>
-          (255 * (color * diffuse + specular + edge * rim)).round().clamp(
-            0,
-            255,
-          );
-      colors[i] = Color.fromARGB(
-        255,
-        channel(base.r, 1),
-        channel(base.g, .81),
-        channel(base.b, .48),
-      ).toARGB32();
+      final rim = math.pow(1 - _normal.z.abs().clamp(0.0, 1.0), 3) * .075;
+      colors[i] =
+          0xFF000000 |
+          (_channel(base.r, 1, diffuse, specular, rim) << 16) |
+          (_channel(base.g, .81, diffuse, specular, rim) << 8) |
+          _channel(base.b, .48, diffuse, specular, rim);
     }
     mainOrder.clear();
     frontOrder.clear();
@@ -9317,14 +9392,21 @@ class _CoffeeRenderBuffers {
         continue;
       }
       faceDepths[i] = (depths[face.a] + depths[face.b] + depths[face.c]) / 3;
-      (face.group >= 2 && foreground[face.group] ? frontOrder : mainOrder).add(
+      (face.group >= 2 && _foreground[face.group] ? frontOrder : mainOrder).add(
         i,
       );
     }
-    int compare(int a, int b) => faceDepths[a].compareTo(faceDepths[b]);
-    mainOrder.sort(compare);
-    frontOrder.sort(compare);
+    mainOrder.sort(_compareDepths);
+    frontOrder.sort(_compareDepths);
   }
+
+  static int _channel(
+    double color,
+    double edge,
+    double diffuse,
+    num specular,
+    double rim,
+  ) => (255 * (color * diffuse + specular + edge * rim)).round().clamp(0, 255);
 
   void draw(Canvas canvas, List<int> order, ui.ImageShader? coffee) {
     if (order.isEmpty) return;
@@ -9346,9 +9428,7 @@ class _CoffeeRenderBuffers {
     canvas.drawVertices(
       vertices,
       coffee == null ? BlendMode.dst : BlendMode.modulate,
-      Paint()
-        ..shader = coffee
-        ..filterQuality = FilterQuality.medium,
+      meshPaint..shader = coffee,
     );
     vertices.dispose();
   }

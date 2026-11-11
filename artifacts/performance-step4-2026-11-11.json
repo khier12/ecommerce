@@ -1,0 +1,830 @@
+{
+  "date": "2026-11-11",
+  "step": 4,
+  "beforeSourceSha256": "c5625e648fafce76edc0dee908488c954e8ea815011e98c77d70827d7159db44",
+  "afterSourceSha256": "9c51feec61dace57058e9cd67a9ae9c027d0861515ea1941efcfd5bfa9451816",
+  "renderer": "Flutter tester / native software rasterization / same local SDK and textures",
+  "meshVertices": 2092,
+  "meshTriangles": 2912,
+  "retainedWorkingVectors": 2,
+  "cachedLogoVertices": 95,
+  "cachedLogoQuads": 72,
+  "cachedLogoIndexCapacity": 432,
+  "cachedLogoIndexViews": 73,
+  "runtimeDependenciesAdded": 0,
+  "outsideRendererUnchanged": true,
+  "rasterScenarios": 44,
+  "comparedChannels": 30377600,
+  "changedChannels": 0,
+  "maximumChannelDifference": 0,
+  "scenarios": [
+    {
+      "index": 0,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "1e1c40a4201542f02ce425974e40d6ebaade8710a0239331088625c56070cefa",
+      "afterSha256": "1e1c40a4201542f02ce425974e40d6ebaade8710a0239331088625c56070cefa",
+      "changedChannels": 0
+    },
+    {
+      "index": 1,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "1e1c40a4201542f02ce425974e40d6ebaade8710a0239331088625c56070cefa",
+      "afterSha256": "1e1c40a4201542f02ce425974e40d6ebaade8710a0239331088625c56070cefa",
+      "changedChannels": 0
+    },
+    {
+      "index": 2,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0.12,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "6581ba0bfefd780cbbf762b08dae3e94281d66a8fc1e6cdf48b854dc18e59ad7",
+      "afterSha256": "6581ba0bfefd780cbbf762b08dae3e94281d66a8fc1e6cdf48b854dc18e59ad7",
+      "changedChannels": 0
+    },
+    {
+      "index": 3,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0.12,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "449d3512404ad1117cb4ae5bc3e68f69d1105fb139712a9c61cc336cec902616",
+      "afterSha256": "449d3512404ad1117cb4ae5bc3e68f69d1105fb139712a9c61cc336cec902616",
+      "changedChannels": 0
+    },
+    {
+      "index": 4,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0.5,
+      "idlePhase": 0.2,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "de2a5134a49cdbf508119871f122f421b739120bf6f18896e537b9edaf67442a",
+      "afterSha256": "de2a5134a49cdbf508119871f122f421b739120bf6f18896e537b9edaf67442a",
+      "changedChannels": 0
+    },
+    {
+      "index": 5,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0.5,
+      "idlePhase": 0.2,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "f3ce59563e97243264773ffe5d381a9114f09873cef7ad66d1345e467e7dcf23",
+      "afterSha256": "f3ce59563e97243264773ffe5d381a9114f09873cef7ad66d1345e467e7dcf23",
+      "changedChannels": 0
+    },
+    {
+      "index": 6,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "71f12e7e6dda214952fb861bb6e63231ffca922103ffbda3503b0e6c447729b3",
+      "afterSha256": "71f12e7e6dda214952fb861bb6e63231ffca922103ffbda3503b0e6c447729b3",
+      "changedChannels": 0
+    },
+    {
+      "index": 7,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "36e12adb02b92c055a64927dbc5c9bbeccc8c4964b9269a55f582c6a00766d2f",
+      "afterSha256": "36e12adb02b92c055a64927dbc5c9bbeccc8c4964b9269a55f582c6a00766d2f",
+      "changedChannels": 0
+    },
+    {
+      "index": 8,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.25,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "3cc79075e1bf3d55e457b2dd542ca083fbba0861929d4d0eb2876f89f352e2f6",
+      "afterSha256": "3cc79075e1bf3d55e457b2dd542ca083fbba0861929d4d0eb2876f89f352e2f6",
+      "changedChannels": 0
+    },
+    {
+      "index": 9,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.25,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "fef8a323ae1bebe62d4e104b82442ccc3ab30a84c36da6b11a620a0caf5b3afe",
+      "afterSha256": "fef8a323ae1bebe62d4e104b82442ccc3ab30a84c36da6b11a620a0caf5b3afe",
+      "changedChannels": 0
+    },
+    {
+      "index": 10,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.5,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "6d1874bb8098d5fb52df83b249db45dba0b1729b8168300b2462a1e865f112e8",
+      "afterSha256": "6d1874bb8098d5fb52df83b249db45dba0b1729b8168300b2462a1e865f112e8",
+      "changedChannels": 0
+    },
+    {
+      "index": 11,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.5,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "a69461b8ec3710397c66ce2eedb8834a9682fefbfe304f748de444654e516f5d",
+      "afterSha256": "a69461b8ec3710397c66ce2eedb8834a9682fefbfe304f748de444654e516f5d",
+      "changedChannels": 0
+    },
+    {
+      "index": 12,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.75,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "5d3d11d3d2ac331956dda52684eed50d01943f9f2008cb342fe0bf3f288b3807",
+      "afterSha256": "5d3d11d3d2ac331956dda52684eed50d01943f9f2008cb342fe0bf3f288b3807",
+      "changedChannels": 0
+    },
+    {
+      "index": 13,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.75,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "1ac15e5047291760dc790817878a196fdf7c0b2b8cd34f5564081154d490a38f",
+      "afterSha256": "1ac15e5047291760dc790817878a196fdf7c0b2b8cd34f5564081154d490a38f",
+      "changedChannels": 0
+    },
+    {
+      "index": 14,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 1,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "71f12e7e6dda214952fb861bb6e63231ffca922103ffbda3503b0e6c447729b3",
+      "afterSha256": "71f12e7e6dda214952fb861bb6e63231ffca922103ffbda3503b0e6c447729b3",
+      "changedChannels": 0
+    },
+    {
+      "index": 15,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 1,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "36e12adb02b92c055a64927dbc5c9bbeccc8c4964b9269a55f582c6a00766d2f",
+      "afterSha256": "36e12adb02b92c055a64927dbc5c9bbeccc8c4964b9269a55f582c6a00766d2f",
+      "changedChannels": 0
+    },
+    {
+      "index": 16,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.3,
+      "interaction": [
+        1,
+        -1
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "da19592aee3edf688ba57a559bd26043bd815613e68d976c621aab97e89efc80",
+      "afterSha256": "da19592aee3edf688ba57a559bd26043bd815613e68d976c621aab97e89efc80",
+      "changedChannels": 0
+    },
+    {
+      "index": 17,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.3,
+      "interaction": [
+        1,
+        -1
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "fd4da2e29581d5f74511032add2327df7b3a2e2a96e9aa6ed20436bf81221a0f",
+      "afterSha256": "fd4da2e29581d5f74511032add2327df7b3a2e2a96e9aa6ed20436bf81221a0f",
+      "changedChannels": 0
+    },
+    {
+      "index": 18,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.7,
+      "interaction": [
+        -1,
+        1
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "7671602a17c298278dbaebe6b93229587a3387bf4988ce5bd0d6075ec08b416e",
+      "afterSha256": "7671602a17c298278dbaebe6b93229587a3387bf4988ce5bd0d6075ec08b416e",
+      "changedChannels": 0
+    },
+    {
+      "index": 19,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 1,
+      "idlePhase": 0.7,
+      "interaction": [
+        -1,
+        1
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "1ffaf79a990abeb04faae26d33a6559b2541c11e8e5ee0402e8d2d1456e62d1e",
+      "afterSha256": "1ffaf79a990abeb04faae26d33a6559b2541c11e8e5ee0402e8d2d1456e62d1e",
+      "changedChannels": 0
+    },
+    {
+      "index": 20,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0.4,
+      "idlePhase": 0.8,
+      "interaction": [
+        0.7,
+        -0.6
+      ],
+      "reducedMotion": true,
+      "textured": true,
+      "beforeSha256": "481a40c3567ec2fc81359714d8d3a37da86dc2647b74e2fb6026ad989ec6e590",
+      "afterSha256": "481a40c3567ec2fc81359714d8d3a37da86dc2647b74e2fb6026ad989ec6e590",
+      "changedChannels": 0
+    },
+    {
+      "index": 21,
+      "size": [
+        320,
+        360
+      ],
+      "progress": 0.4,
+      "idlePhase": 0.8,
+      "interaction": [
+        0.7,
+        -0.6
+      ],
+      "reducedMotion": true,
+      "textured": false,
+      "beforeSha256": "88ffed8a4c2da9622a3dea32da5c4197c3fb58bd4e1a613a0b2a0bc95cf47c27",
+      "afterSha256": "88ffed8a4c2da9622a3dea32da5c4197c3fb58bd4e1a613a0b2a0bc95cf47c27",
+      "changedChannels": 0
+    },
+    {
+      "index": 22,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "b0ffc1a945b98ce34466aa73297c174f974fe4fc39426bccc800a1bcad29027e",
+      "afterSha256": "b0ffc1a945b98ce34466aa73297c174f974fe4fc39426bccc800a1bcad29027e",
+      "changedChannels": 0
+    },
+    {
+      "index": 23,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "b0ffc1a945b98ce34466aa73297c174f974fe4fc39426bccc800a1bcad29027e",
+      "afterSha256": "b0ffc1a945b98ce34466aa73297c174f974fe4fc39426bccc800a1bcad29027e",
+      "changedChannels": 0
+    },
+    {
+      "index": 24,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0.12,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "f449cb94879367dc2d0376d227c2015fcd92c7a7727e39b7d7367f15f3eabd49",
+      "afterSha256": "f449cb94879367dc2d0376d227c2015fcd92c7a7727e39b7d7367f15f3eabd49",
+      "changedChannels": 0
+    },
+    {
+      "index": 25,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0.12,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "c391029caee4bcc367e4d2a84eaeddaf4f7432e6f72f36289f9f8dac04670785",
+      "afterSha256": "c391029caee4bcc367e4d2a84eaeddaf4f7432e6f72f36289f9f8dac04670785",
+      "changedChannels": 0
+    },
+    {
+      "index": 26,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0.5,
+      "idlePhase": 0.2,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "37786067a6a8f25f1e5197cac112163f4dfb7f0e322c3857518015333fecdc74",
+      "afterSha256": "37786067a6a8f25f1e5197cac112163f4dfb7f0e322c3857518015333fecdc74",
+      "changedChannels": 0
+    },
+    {
+      "index": 27,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0.5,
+      "idlePhase": 0.2,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "e61a8057c4f9fdd59844568d38c44f4c14483289fdc8343bbca4b17d085b6571",
+      "afterSha256": "e61a8057c4f9fdd59844568d38c44f4c14483289fdc8343bbca4b17d085b6571",
+      "changedChannels": 0
+    },
+    {
+      "index": 28,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "326fb9edb54fee1aba0ec7316da40fea042858925355ae2689f1e15f87fcf13d",
+      "afterSha256": "326fb9edb54fee1aba0ec7316da40fea042858925355ae2689f1e15f87fcf13d",
+      "changedChannels": 0
+    },
+    {
+      "index": 29,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "ed25a9abe0996b685938596791c726654b0ce53985420e4155026d827c421b6e",
+      "afterSha256": "ed25a9abe0996b685938596791c726654b0ce53985420e4155026d827c421b6e",
+      "changedChannels": 0
+    },
+    {
+      "index": 30,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.25,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "711fad1db08f65edbd0423dc69919cadc6ef47e6691af1e438c9f3a7e16e60e3",
+      "afterSha256": "711fad1db08f65edbd0423dc69919cadc6ef47e6691af1e438c9f3a7e16e60e3",
+      "changedChannels": 0
+    },
+    {
+      "index": 31,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.25,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "7570dfa775df3eb78d41e6aaf71c58668bb424370deeed1dfb434516ce5f8ede",
+      "afterSha256": "7570dfa775df3eb78d41e6aaf71c58668bb424370deeed1dfb434516ce5f8ede",
+      "changedChannels": 0
+    },
+    {
+      "index": 32,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.5,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "5484a222ed99751b5d8bd3459d0901a7e2ebea98eab30c7ea2279167a0fcee8d",
+      "afterSha256": "5484a222ed99751b5d8bd3459d0901a7e2ebea98eab30c7ea2279167a0fcee8d",
+      "changedChannels": 0
+    },
+    {
+      "index": 33,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.5,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "7338a846e45e95ab97ec324dcdd40125b9deedf3ae951daaeb5b3351739d16be",
+      "afterSha256": "7338a846e45e95ab97ec324dcdd40125b9deedf3ae951daaeb5b3351739d16be",
+      "changedChannels": 0
+    },
+    {
+      "index": 34,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.75,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "d1974a26acfece469a93760239e70c1389c13126951d1ce3732c1294b4df41a8",
+      "afterSha256": "d1974a26acfece469a93760239e70c1389c13126951d1ce3732c1294b4df41a8",
+      "changedChannels": 0
+    },
+    {
+      "index": 35,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.75,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "43b650a1bdf7991b357d900a8aab671a4bf6e3d550b24511aeda99fcddb7ae17",
+      "afterSha256": "43b650a1bdf7991b357d900a8aab671a4bf6e3d550b24511aeda99fcddb7ae17",
+      "changedChannels": 0
+    },
+    {
+      "index": 36,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 1,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "326fb9edb54fee1aba0ec7316da40fea042858925355ae2689f1e15f87fcf13d",
+      "afterSha256": "326fb9edb54fee1aba0ec7316da40fea042858925355ae2689f1e15f87fcf13d",
+      "changedChannels": 0
+    },
+    {
+      "index": 37,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 1,
+      "interaction": [
+        0,
+        0
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "ed25a9abe0996b685938596791c726654b0ce53985420e4155026d827c421b6e",
+      "afterSha256": "ed25a9abe0996b685938596791c726654b0ce53985420e4155026d827c421b6e",
+      "changedChannels": 0
+    },
+    {
+      "index": 38,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.3,
+      "interaction": [
+        1,
+        -1
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "b9d544fb42ffc4b88e2229591e1a3e650df3a1bbcfee122c7e5a6f408ca0a578",
+      "afterSha256": "b9d544fb42ffc4b88e2229591e1a3e650df3a1bbcfee122c7e5a6f408ca0a578",
+      "changedChannels": 0
+    },
+    {
+      "index": 39,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.3,
+      "interaction": [
+        1,
+        -1
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "6f9d601ed7233c2269de0ee9f000b84e15a406b65018f44aa7fa0d836401d7c7",
+      "afterSha256": "6f9d601ed7233c2269de0ee9f000b84e15a406b65018f44aa7fa0d836401d7c7",
+      "changedChannels": 0
+    },
+    {
+      "index": 40,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.7,
+      "interaction": [
+        -1,
+        1
+      ],
+      "reducedMotion": false,
+      "textured": true,
+      "beforeSha256": "3ab992aff299f6dbfd7f05e589feccae1cf3f3e586156b30c1075b4b1deddd0f",
+      "afterSha256": "3ab992aff299f6dbfd7f05e589feccae1cf3f3e586156b30c1075b4b1deddd0f",
+      "changedChannels": 0
+    },
+    {
+      "index": 41,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 1,
+      "idlePhase": 0.7,
+      "interaction": [
+        -1,
+        1
+      ],
+      "reducedMotion": false,
+      "textured": false,
+      "beforeSha256": "60239565e8abb48f88095b149cc3c6ed4f1d1693135ce3bcdf3b5834822bd96d",
+      "afterSha256": "60239565e8abb48f88095b149cc3c6ed4f1d1693135ce3bcdf3b5834822bd96d",
+      "changedChannels": 0
+    },
+    {
+      "index": 42,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0.4,
+      "idlePhase": 0.8,
+      "interaction": [
+        0.7,
+        -0.6
+      ],
+      "reducedMotion": true,
+      "textured": true,
+      "beforeSha256": "d239899a197e541d28bab3d35d8bb8c9367169a4d0b666d7ab402f5b9faed6d6",
+      "afterSha256": "d239899a197e541d28bab3d35d8bb8c9367169a4d0b666d7ab402f5b9faed6d6",
+      "changedChannels": 0
+    },
+    {
+      "index": 43,
+      "size": [
+        500,
+        460
+      ],
+      "progress": 0.4,
+      "idlePhase": 0.8,
+      "interaction": [
+        0.7,
+        -0.6
+      ],
+      "reducedMotion": true,
+      "textured": false,
+      "beforeSha256": "bb501f5829d27e239a6e716b1e6321bfc0ce84f20837696a1b24f6ce42d8a51d",
+      "afterSha256": "bb501f5829d27e239a6e716b1e6321bfc0ce84f20837696a1b24f6ce42d8a51d",
+      "changedChannels": 0
+    }
+  ],
+  "flutterTestsPassed": 147,
+  "staticAnalysis": "No issues found",
+  "limitations": "Source-level object construction was reduced. No percentage allocation-rate reduction, device FPS, cold-start, RAM or battery claim is made. JIT/AOT compilers can eliminate some temporary objects themselves. Host diagnostic timing was not treated as a benchmark.",
+  "androidReleaseBytes": 26804192,
+  "androidReleaseBuildPassed": true,
+  "webReleaseBuildPassed": true,
+  "browser": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "normalFramesDiffer": true,
+    "reducedMotionFramesIdentical": true,
+    "menuAndBackPassed": true,
+    "pageErrors": []
+  }
+}
