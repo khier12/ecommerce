@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ecommerce/main.dart';
 
+import 'fixtures/legacy_product.dart';
+
 void main() {
   late ShopController shop;
   setUp(() => shop = ShopController(repository: const MenuRepository()));
@@ -12,8 +14,13 @@ void main() {
   test(
     'Catalog uses unique product IDs, positive prices, and existing photos',
     () {
-      expect(shop.products, hasLength(92));
-      expect(shop.products.map((product) => product.id).toSet(), hasLength(92));
+      expect(shop.products, hasLength(40));
+      expect(shop.products.map((product) => product.id).toSet(), hasLength(40));
+      expect(
+        shop.products.map((product) => product.id),
+        unorderedEquals(cafeMenuProductIds),
+        reason: 'Every selected product ID must resolve to a catalog entry.',
+      );
       for (final product in shop.products) {
         expect(product.price, greaterThan(0), reason: product.name);
         expect(File(product.image).existsSync(), isTrue, reason: product.image);
@@ -36,7 +43,101 @@ void main() {
       shop.selectCategory('Food');
       expect(shop.filteredProducts, isEmpty);
       shop.search('burger');
-      expect(shop.filteredProducts, hasLength(6));
+      expect(shop.filteredProducts.map((product) => product.name), [
+        'Classic Burger',
+      ]);
+    },
+  );
+
+  test(
+    'The smaller menu retains featured picks and omits unselected variants',
+    () {
+      expect(
+        shop.products
+            .where((product) => product.featured)
+            .map((product) => product.id),
+        unorderedEquals(
+          cafeProducts
+              .where((product) => product.featured)
+              .map((product) => product.id),
+        ),
+      );
+      for (final query in [
+        'Double Classic Burger',
+        'Healthtea',
+        'White Mocha',
+      ]) {
+        shop.search(query);
+        expect(shop.filteredProducts, isEmpty, reason: query);
+      }
+      shop.search('');
+      shop.selectCategory('Food');
+      expect(
+        shop.filteredProducts.map((product) => product.subcategory).toSet(),
+        unorderedEquals([
+          'Quarter Pounder',
+          'Sandwiches',
+          'Quesadilla',
+          'French Fries',
+          'Rice Bowls',
+          'Pasta',
+          'Nachos',
+        ]),
+        reason: 'The shorter food menu must still offer varied meal types.',
+      );
+    },
+  );
+
+  test(
+    'Receipts for products removed from browsing restore unchanged',
+    () async {
+      const retired = legacyBurger;
+      expect(
+        shop.products.map((product) => product.id),
+        isNot(contains(retired.id)),
+      );
+      final store = MemoryOrderStore();
+      final previous = ShopController(
+        repository: const MenuRepository(),
+        orderStore: store,
+      );
+      // A saved bag/receipt holds a product snapshot rather than a menu index.
+      previous.addToCart(retired, quantity: 2);
+      final saved = await previous.submitOrder(
+        customerName: 'Ana Cruz',
+        mobileNumber: '09171234567',
+        notes: 'Less sauce',
+        paymentMethod: PaymentMethod.cash,
+        deliveryAddress: '12 Rizal Street, Carmona, Cavite',
+      );
+      expect(saved, isNotNull);
+      previous.dispose();
+
+      final current = ShopController(
+        repository: const MenuRepository(),
+        orderStore: store,
+      );
+      addTearDown(current.dispose);
+      await current.restoreOrders();
+      expect(current.historyError, isNull);
+      final receipt = current.orders.single;
+      expect(receipt.reference, saved!.reference);
+      expect(receipt.items.single.product.toJson(), retired.toJson());
+      expect(receipt.items.single.quantity, 2);
+      expect(receipt.total, 360);
+      expect(receipt.notes, 'Less sauce');
+      expect(File(receipt.items.single.product.image).existsSync(), isFalse);
+      expect(current.products, hasLength(40));
+      current.addToCart(current.products.first);
+      final next = await current.submitOrder(
+        customerName: 'Ana Cruz',
+        mobileNumber: '09171234567',
+        notes: '',
+        paymentMethod: PaymentMethod.cash,
+        deliveryAddress: '12 Rizal Street, Carmona, Cavite',
+      );
+      expect(next!.reference, 'SMC-0002');
+      expect(current.orders.last.items.single.product.id, retired.id);
     },
   );
 
@@ -98,12 +199,12 @@ void main() {
 
   test('Every category filters the expected products and preserves subcategory search', () {
     const expectedCounts = {
-      'Coffee': 13,
+      'Coffee': 8,
       'Non-Coffee': 6,
-      'Food': 34,
-      'Pastries': 21,
-      'Ice Blended': 8,
-      'More Drinks': 10,
+      'Food': 8,
+      'Pastries': 6,
+      'Ice Blended': 6,
+      'More Drinks': 6,
     };
     for (final entry in expectedCounts.entries) {
       shop.selectCategory(entry.key);
@@ -122,7 +223,7 @@ void main() {
     );
     shop.selectCategory('Food');
     shop.search('quarter pounder');
-    expect(shop.filteredProducts, hasLength(5));
+    expect(shop.filteredProducts, hasLength(1));
     expect(
       shop.filteredProducts.every((p) => p.subcategory == 'Quarter Pounder'),
       isTrue,
@@ -136,7 +237,7 @@ void main() {
     expect(shop.filteredProducts, isEmpty);
     shop.search('   ');
     expect(shop.filteredProducts.every((p) => p.category == 'Food'), isTrue);
-    expect(shop.filteredProducts, hasLength(34));
+    expect(shop.filteredProducts, hasLength(8));
   });
 
   test(

@@ -709,46 +709,6 @@ const cafeProducts = <Product>[
     featured: true,
   ),
   Product(
-    id: "quarter-pounder-hawaiian-burger",
-    name: "Hawaiian Burger",
-    price: 125,
-    category: "Food",
-    subcategory: "Quarter Pounder",
-    description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Hawaiian Burger.webp",
-    featured: false,
-  ),
-  Product(
-    id: "quarter-pounder-sunrise-burger",
-    name: "Sunrise Burger",
-    price: 150,
-    category: "Food",
-    subcategory: "Quarter Pounder",
-    description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Sunrise Burger.webp",
-    featured: false,
-  ),
-  Product(
-    id: "quarter-pounder-bacon-cheese-burger",
-    name: "Bacon Cheese Burger",
-    price: 155,
-    category: "Food",
-    subcategory: "Quarter Pounder",
-    description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Bacon Cheese Burger.webp",
-    featured: false,
-  ),
-  Product(
-    id: "quarter-pounder-double-classic-burger",
-    name: "Double Classic Burger",
-    price: 180,
-    category: "Food",
-    subcategory: "Quarter Pounder",
-    description: "A comforting pick from our quarter pounder menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Double Classic Burger.webp",
-    featured: false,
-  ),
-  Product(
     id: "sandwiches-classic-chicken",
     name: "Classic Chicken",
     price: 110,
@@ -756,56 +716,6 @@ const cafeProducts = <Product>[
     subcategory: "Sandwiches",
     description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
     image: "assets/images/Classic Chicken Sandwich.webp",
-    featured: false,
-  ),
-  Product(
-    id: "sandwiches-club-house",
-    name: "Club House",
-    price: 185,
-    category: "Food",
-    subcategory: "Sandwiches",
-    description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Club House Sandwich.webp",
-    featured: false,
-  ),
-  Product(
-    id: "sandwiches-grilled-cheese",
-    name: "Grilled Cheese",
-    price: 110,
-    category: "Food",
-    subcategory: "Sandwiches",
-    description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Grilled Cheese Sandwich.webp",
-    featured: false,
-  ),
-  Product(
-    id: "sandwiches-grilled-ham-cheese",
-    name: "Grilled Ham & Cheese",
-    price: 100,
-    category: "Food",
-    subcategory: "Sandwiches",
-    description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Grilled Ham & Cheese Sandwich.webp",
-    featured: false,
-  ),
-  Product(
-    id: "sandwiches-tuna-sandwich",
-    name: "Tuna Sandwich",
-    price: 125,
-    category: "Food",
-    subcategory: "Sandwiches",
-    description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Tuna Sandwich.webp",
-    featured: false,
-  ),
-  Product(
-    id: "sandwiches-chicken-sandwich",
-    name: "Chicken Sandwich",
-    price: 130,
-    category: "Food",
-    subcategory: "Sandwiches",
-    description: "A comforting pick from our sandwiches menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Sandwich.webp",
     featured: false,
   ),
   Product(
@@ -819,46 +729,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "quesadilla-bacon-quesadilla",
-    name: "Bacon Quesadilla",
-    price: 145,
-    category: "Food",
-    subcategory: "Quesadilla",
-    description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Bacon Quesadilla.webp",
-    featured: false,
-  ),
-  Product(
-    id: "quesadilla-chicken-quesadilla",
-    name: "Chicken Quesadilla",
-    price: 150,
-    category: "Food",
-    subcategory: "Quesadilla",
-    description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Quesadilla.webp",
-    featured: false,
-  ),
-  Product(
-    id: "quesadilla-tapa-quesadilla",
-    name: "Tapa Quesadilla",
-    price: 160,
-    category: "Food",
-    subcategory: "Quesadilla",
-    description: "A comforting pick from our quesadilla menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Tapa Quesadilla.webp",
-    featured: false,
-  ),
-  Product(
-    id: "french-fries-plain-fries",
-    name: "Plain Fries",
-    price: 30,
-    category: "Food",
-    subcategory: "French Fries",
-    description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Plain Fries.webp",
-    featured: false,
-  ),
-  Product(
     id: "french-fries-bbq-fries",
     name: "BBQ Fries",
     price: 30,
@@ -866,46 +736,6 @@ const cafeProducts = <Product>[
     subcategory: "French Fries",
     description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
     image: "assets/images/BBQ Fries.webp",
-    featured: false,
-  ),
-  Product(
-    id: "french-fries-cheese-fries",
-    name: "Cheese Fries",
-    price: 30,
-    category: "Food",
-    subcategory: "French Fries",
-    description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Cheese Fries.webp",
-    featured: false,
-  ),
-  Product(
-    id: "french-fries-sour-cream-fries",
-    name: "Sour Cream Fries",
-    price: 30,
-    category: "Food",
-    subcategory: "French Fries",
-    description: "A comforting pick from our french fries menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Sour Cream Fries.webp",
-    featured: false,
-  ),
-  Product(
-    id: "rice-bowls-longganisa",
-    name: "Longganisa",
-    price: 110,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Longanisa Rice Bowl.webp",
-    featured: false,
-  ),
-  Product(
-    id: "rice-bowls-bacon",
-    name: "Bacon",
-    price: 115,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Bacon Rice Bowl.webp",
     featured: false,
   ),
   Product(
@@ -919,56 +749,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "rice-bowls-chicken-steak",
-    name: "Chicken Steak",
-    price: 130,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken Steak Rice Bowl.webp",
-    featured: false,
-  ),
-  Product(
-    id: "rice-bowls-burger-steak",
-    name: "Burger Steak",
-    price: 130,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Burger Steak Rice Bowl .webp",
-    featured: false,
-  ),
-  Product(
-    id: "rice-bowls-beef-tapa",
-    name: "Beef Tapa",
-    price: 140,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Beef Tapa Rice Bowl.webp",
-    featured: false,
-  ),
-  Product(
-    id: "rice-bowls-savory-tapa",
-    name: "Savory Tapa",
-    price: 145,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Savory Tapa Rice Bowl.webp",
-    featured: false,
-  ),
-  Product(
-    id: "rice-bowls-chicken-bbq",
-    name: "Chicken BBQ",
-    price: 125,
-    category: "Food",
-    subcategory: "Rice Bowls",
-    description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Chicken BBQ Rice Bowl.webp",
-    featured: false,
-  ),
-  Product(
     id: "rice-bowls-chicken-teriyaki",
     name: "Chicken Teriyaki",
     price: 125,
@@ -976,16 +756,6 @@ const cafeProducts = <Product>[
     subcategory: "Rice Bowls",
     description: "A comforting pick from our rice bowls menu. Pair it with your favorite handcrafted drink.",
     image: "assets/images/Chicken Teriyaki Rice Bowl.webp",
-    featured: false,
-  ),
-  Product(
-    id: "pasta-lasagna",
-    name: "Lasagna",
-    price: 130,
-    category: "Food",
-    subcategory: "Pasta",
-    description: "A comforting pick from our pasta menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Lasagana 1.png",
     featured: false,
   ),
   Product(
@@ -999,16 +769,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "pasta-spaghetti-bolognese",
-    name: "Spaghetti Bolognese",
-    price: 115,
-    category: "Food",
-    subcategory: "Pasta",
-    description: "A comforting pick from our pasta menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Spaghetti Bolognese 1.png",
-    featured: false,
-  ),
-  Product(
     id: "nachos-beef-nachos",
     name: "Beef Nachos",
     price: 130,
@@ -1016,66 +776,6 @@ const cafeProducts = <Product>[
     subcategory: "Nachos",
     description: "A comforting pick from our nachos menu. Pair it with your favorite handcrafted drink.",
     image: "assets/images/Beef Nachos 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "nachos-nacho-fries",
-    name: "Nacho Fries",
-    price: 155,
-    category: "Food",
-    subcategory: "Nachos",
-    description: "A comforting pick from our nachos menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Nacho Fries 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "nachos-cheesy-bacon-fries",
-    name: "Cheesy Bacon Fries",
-    price: 155,
-    category: "Food",
-    subcategory: "Nachos",
-    description: "A comforting pick from our nachos menu. Pair it with your favorite handcrafted drink.",
-    image: "assets/images/Cheesy Bacon Fries 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "brownies-caramel-treat",
-    name: "Caramel Treat",
-    price: 54,
-    category: "Pastries",
-    subcategory: "Brownies",
-    description: "A sweet little moment from our brownies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Caramel Treat 2.png",
-    featured: false,
-  ),
-  Product(
-    id: "brownies-brookies",
-    name: "Brookies",
-    price: 56,
-    category: "Pastries",
-    subcategory: "Brownies",
-    description: "A sweet little moment from our brownies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Brookies 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "brownies-revel-bar",
-    name: "Revel Bar",
-    price: 60,
-    category: "Pastries",
-    subcategory: "Brownies",
-    description: "A sweet little moment from our brownies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Revel Bar 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "brownies-velvet-swirl-bar",
-    name: "Velvet Swirl Bar",
-    price: 88,
-    category: "Pastries",
-    subcategory: "Brownies",
-    description: "A sweet little moment from our brownies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Velvet Swirl Bar 1.png",
     featured: false,
   ),
   Product(
@@ -1099,46 +799,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "cookies-choco-walnut-cookies",
-    name: "Choco Walnut Cookies",
-    price: 45,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Choco Walnut Cookies 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cookies-chocotrio-cookies",
-    name: "Chocotrio Cookies",
-    price: 48,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Chocotrio Cookies 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cookies-lotus-cookies",
-    name: "Lotus Cookies",
-    price: 60,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Lotus Cookies 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cookies-velvet-cookies",
-    name: "Velvet Cookies",
-    price: 60,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Velve Cookies 1.png",
-    featured: false,
-  ),
-  Product(
     id: "cookies-hershey-s-crinkles",
     name: "Hershey's Crinkles",
     price: 45,
@@ -1149,36 +809,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "cookies-mini-cookies-4pcs",
-    name: "Mini Cookies 4pcs",
-    price: 35,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/4 pcs 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cookies-mini-cookies-9pcs",
-    name: "Mini Cookies 9pcs",
-    price: 75,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/9 PCS 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cookies-mini-cookies-16pcs",
-    name: "Mini Cookies 16pcs",
-    price: 130,
-    category: "Pastries",
-    subcategory: "Cookies",
-    description: "A sweet little moment from our cookies selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/16 pcs 1.png",
-    featured: false,
-  ),
-  Product(
     id: "muffins-choco-chip-muffin",
     name: "Choco Chip Muffin",
     price: 75,
@@ -1186,46 +816,6 @@ const cafeProducts = <Product>[
     subcategory: "Muffins",
     description: "A sweet little moment from our muffins selection. Enjoy it with a hot or iced coffee.",
     image: "assets/images/Choco Chip Muffin 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "muffins-dark-choco-muffin",
-    name: "Dark Choco Muffin",
-    price: 75,
-    category: "Pastries",
-    subcategory: "Muffins",
-    description: "A sweet little moment from our muffins selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Dark Choco Muffin 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cakes-moist-chocolate-cake",
-    name: "Moist Chocolate Cake",
-    price: 100,
-    category: "Pastries",
-    subcategory: "Cakes",
-    description: "A sweet little moment from our cakes selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Moist Chocolate Cake 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "cakes-no-bake-cheesecake",
-    name: "No Bake Cheesecake",
-    price: 170,
-    category: "Pastries",
-    subcategory: "Cakes",
-    description: "A sweet little moment from our cakes selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/No Bake Cheesecake 2.png",
-    featured: false,
-  ),
-  Product(
-    id: "cakes-tiramisu",
-    name: "Tiramisu",
-    price: 180,
-    category: "Pastries",
-    subcategory: "Cakes",
-    description: "A sweet little moment from our cakes selection. Enjoy it with a hot or iced coffee.",
-    image: "assets/images/Tiramisu 1.webp",
     featured: false,
   ),
   Product(
@@ -1269,16 +859,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "coffee-white-mocha-latte",
-    name: "White Mocha Latte",
-    price: 90,
-    category: "Coffee",
-    subcategory: "Coffee",
-    description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/White Mocha Latte 5.webp",
-    featured: false,
-  ),
-  Product(
     id: "coffee-caramel-macchiato",
     name: "Caramel Macchiato",
     price: 95,
@@ -1289,36 +869,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "coffee-choco-hazelnut-latte",
-    name: "Choco Hazelnut Latte",
-    price: 95,
-    category: "Coffee",
-    subcategory: "Coffee",
-    description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Choco Hazelnut Latte 5.webp",
-    featured: false,
-  ),
-  Product(
-    id: "coffee-creamy-americano",
-    name: "Creamy Americano",
-    price: 95,
-    category: "Coffee",
-    subcategory: "Coffee",
-    description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Creamy Americano 5.webp",
-    featured: false,
-  ),
-  Product(
-    id: "coffee-vanilla-ice-cream-latte",
-    name: "Vanilla Ice Cream Latte",
-    price: 100,
-    category: "Coffee",
-    subcategory: "Coffee",
-    description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Vanilla Ice Cream Latte 5.webp",
-    featured: false,
-  ),
-  Product(
     id: "coffee-dirty-matcha-latte",
     name: "Dirty Matcha Latte",
     price: 115,
@@ -1326,16 +876,6 @@ const cafeProducts = <Product>[
     subcategory: "Coffee",
     description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
     image: "assets/images/Dirty Matcha Latte 5.webp",
-    featured: false,
-  ),
-  Product(
-    id: "coffee-dirty-ube-latte",
-    name: "Dirty Ube Latte",
-    price: 85,
-    category: "Coffee",
-    subcategory: "Coffee",
-    description: "Your next coffee moment, from our espresso-based coffee selection. Made for your everyday cravings.",
-    image: "assets/images/Dirty Ube Latte 5.webp",
     featured: false,
   ),
   Product(
@@ -1399,16 +939,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "ice-blended-white-mocha",
-    name: "White Mocha",
-    price: 115,
-    category: "Ice Blended",
-    subcategory: "Ice Blended",
-    description: "A cool, blended treat for a sweet afternoon break. Discover your favorite flavor.",
-    image: "assets/images/White Mocha 6.png",
-    featured: false,
-  ),
-  Product(
     id: "ice-blended-caramel-macchiato",
     name: "Caramel Macchiato",
     price: 120,
@@ -1426,16 +956,6 @@ const cafeProducts = <Product>[
     subcategory: "Ice Blended",
     description: "A cool, blended treat for a sweet afternoon break. Discover your favorite flavor.",
     image: "assets/images/Choco Hazelnut 7.png",
-    featured: false,
-  ),
-  Product(
-    id: "ice-blended-chocolate",
-    name: "Chocolate",
-    price: 125,
-    category: "Ice Blended",
-    subcategory: "Ice Blended",
-    description: "A cool, blended treat for a sweet afternoon break. Discover your favorite flavor.",
-    image: "assets/images/Chocolate 5.png",
     featured: false,
   ),
   Product(
@@ -1489,26 +1009,6 @@ const cafeProducts = <Product>[
     featured: false,
   ),
   Product(
-    id: "lava-series-ube-lava",
-    name: "Ube Lava",
-    price: 125,
-    category: "More Drinks",
-    subcategory: "Lava Series",
-    description: "A refreshing little break from our lava series selection. A delicious way to complete your order.",
-    image: "assets/images/Ube Lava 5.png",
-    featured: false,
-  ),
-  Product(
-    id: "lava-series-matcha-lava",
-    name: "Matcha Lava",
-    price: 155,
-    category: "More Drinks",
-    subcategory: "Lava Series",
-    description: "A refreshing little break from our lava series selection. A delicious way to complete your order.",
-    image: "assets/images/Matcha Lava 5.png",
-    featured: false,
-  ),
-  Product(
     id: "chilled-drinks-bottled-water",
     name: "Bottled Water",
     price: 12,
@@ -1526,26 +1026,6 @@ const cafeProducts = <Product>[
     subcategory: "Chilled Drinks",
     description: "A refreshing little break from our chilled drinks selection. A delicious way to complete your order.",
     image: "assets/images/Calamansi juice 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "chilled-drinks-healthtea",
-    name: "Healthtea",
-    price: 15,
-    category: "More Drinks",
-    subcategory: "Chilled Drinks",
-    description: "A refreshing little break from our chilled drinks selection. A delicious way to complete your order.",
-    image: "assets/images/Healthtea 1.png",
-    featured: false,
-  ),
-  Product(
-    id: "chilled-drinks-healthtea-float",
-    name: "Healthtea Float",
-    price: 55,
-    category: "More Drinks",
-    subcategory: "Chilled Drinks",
-    description: "A refreshing little break from our chilled drinks selection. A delicious way to complete your order.",
-    image: "assets/images/Healthea Float 2.png",
     featured: false,
   ),
   Product(
@@ -1574,10 +1054,69 @@ const cafeProducts = <Product>[
 // ============================================================
 // LOCAL MENU DATA
 // ============================================================
+// The browseable menu is intentionally limited to 40 varied choices:
+// Coffee 8, Non-Coffee 6, Food 8, Pastries 6, Ice Blended 6, More Drinks 6.
+// Saved receipts retain their own product snapshots; retired photos use a placeholder.
+// This selection sits outside the importer block so imports preserve it.
+const cafeMenuProductIds = <String>{
+  // Coffee: signatures, espresso classics, flavored and matcha options.
+  'coffee-tiramisu-latte',
+  'coffee-spanish-latte',
+  'coffee-americano',
+  'coffee-latte',
+  'coffee-french-vanilla-latte',
+  'coffee-mocha-latte',
+  'coffee-caramel-macchiato',
+  'coffee-dirty-matcha-latte',
+  // Non-Coffee: retain all six distinct choices.
+  'non-coffee-strawberry-matcha',
+  'non-coffee-chocolate',
+  'non-coffee-strawberry-latte',
+  'non-coffee-matcha-latte',
+  'non-coffee-ube-latte',
+  'non-coffee-ube-matcha',
+  // Food: cover the seven food groups without repeated flavor variants.
+  'quarter-pounder-classic-burger',
+  'sandwiches-classic-chicken',
+  'quesadilla-cheese-quesadilla',
+  'french-fries-bbq-fries',
+  'rice-bowls-sisig',
+  'rice-bowls-chicken-teriyaki',
+  'pasta-carbonara',
+  'nachos-beef-nachos',
+  // Pastries: brownies, cookies, a muffin and the featured cheesecake.
+  'brownies-chocolate-bliss',
+  'cakes-basque-cheesecake',
+  'brownies-biscoff-blondies',
+  'cookies-og-cookies',
+  'cookies-hershey-s-crinkles',
+  'muffins-choco-chip-muffin',
+  // Ice Blended: coffee, chocolate, fruit, matcha and ube.
+  'ice-blended-mocha',
+  'ice-blended-caramel-macchiato',
+  'ice-blended-choco-hazelnut',
+  'ice-blended-strawberry',
+  'ice-blended-matcha',
+  'ice-blended-ube',
+  // More Drinks: lava drinks, chilled essentials and affogato desserts.
+  'lava-series-chocolate-lava',
+  'lava-series-strawberry-lava',
+  'chilled-drinks-bottled-water',
+  'chilled-drinks-calamansi-juice',
+  'dessert-affogato',
+  'dessert-matcha-affogato',
+};
+
 class MenuRepository {
   const MenuRepository();
 
-  List<Product> get products => cafeProducts;
+  // Cache an immutable projection once; filters, Discover counts and carousel
+  // all consume the same selection without filtering again on cart rebuilds.
+  static final _menu = List<Product>.unmodifiable(
+    cafeProducts.where((product) => cafeMenuProductIds.contains(product.id)),
+  );
+
+  List<Product> get products => _menu;
 }
 
 // ============================================================
@@ -2533,30 +2072,43 @@ class ProductImage extends StatelessWidget {
   final BoxFit fit;
   final bool highResolution;
   static const thumbnailCacheWidth = 640;
-
-  @override
-  Widget build(BuildContext context) => Image.asset(
-    product.image,
-    cacheWidth: highResolution ? 1024 : thumbnailCacheWidth,
-    fit: fit,
-    gaplessPlayback: true,
-    semanticLabel: product.name,
-    frameBuilder: (context, child, frame, synchronous) =>
-        synchronous || MediaQuery.disableAnimationsOf(context)
-        ? child
-        : AnimatedOpacity(
-            opacity: frame == null ? 0 : 1,
-            duration: CafeMotion.standard,
-            curve: Curves.easeOut,
-            child: child,
-          ),
-    errorBuilder: (context, error, trace) => const ColoredBox(
-      color: AppColors.softTeal,
-      child: Center(
-        child: Icon(Icons.coffee_outlined, size: 48, color: AppColors.teal),
-      ),
+  static final _currentImages = {
+    for (final product in const MenuRepository().products)
+      product.id: product.image,
+  };
+  static const _placeholder = ColoredBox(
+    color: AppColors.softTeal,
+    child: Center(
+      child: Icon(Icons.coffee_outlined, size: 48, color: AppColors.teal),
     ),
   );
+
+  @override
+  Widget build(BuildContext context) {
+    // Receipt snapshots may reference retired products or older PNG filenames.
+    // Use the current photo by ID when available; never request a deleted asset.
+    final image = _currentImages[product.id];
+    if (image == null) {
+      return Semantics(image: true, label: product.name, child: _placeholder);
+    }
+    return Image.asset(
+      image,
+      cacheWidth: highResolution ? 1024 : thumbnailCacheWidth,
+      fit: fit,
+      gaplessPlayback: true,
+      semanticLabel: product.name,
+      frameBuilder: (context, child, frame, synchronous) =>
+          synchronous || MediaQuery.disableAnimationsOf(context)
+          ? child
+          : AnimatedOpacity(
+              opacity: frame == null ? 0 : 1,
+              duration: CafeMotion.standard,
+              curve: Curves.easeOut,
+              child: child,
+            ),
+      errorBuilder: (context, error, trace) => _placeholder,
+    );
+  }
 }
 
 Future<void> openCafeLink(BuildContext context, Uri uri) async {

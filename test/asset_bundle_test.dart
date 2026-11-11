@@ -7,17 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _startupImages = {'assets/images/logo.png'};
 
-// Former preload-only artwork remains available locally, but is neither
-// decoded at startup nor shipped now that no screen displays it.
-const _retainedUnbundledImages = {
-  'assets/images/landing1.png',
-  'assets/images/Ice Blended Choco Hazelnut transparent.png',
-};
-
 const _removedUnusedExamples = {
   'assets/images/1.png',
   'assets/images/landing2.png',
   'assets/images/Americano.png',
+  'assets/images/landing1.png',
+  'assets/images/Ice Blended Choco Hazelnut transparent.png',
+  'assets/images/Double Classic Burger.webp',
+  'assets/images/Healthtea 1.png',
 };
 
 void main() {
@@ -36,8 +33,9 @@ void main() {
   });
 
   test(
-    'The Flutter bundle includes the catalog and intentional startup images',
+    'The Flutter bundle contains exactly 40 current photos and the logo',
     () {
+      expect(catalogImages, hasLength(40));
       expect(catalogImages, isNotEmpty);
       for (final product in cafeProducts) {
         expect(
@@ -50,7 +48,7 @@ void main() {
       expect(
         bundledImages,
         unorderedEquals(requiredImages),
-        reason: 'Only images referenced by the app belong in its image bundle.',
+        reason: 'Only current product photos and the logo should be bundled.',
       );
 
       const apostropheImage = "assets/images/Hershey's Crinkles 1.png";
@@ -113,31 +111,25 @@ void main() {
     }
   });
 
-  test(
-    'Only required images are bundled; former preload artwork stays local',
-    () {
-      for (final asset in _removedUnusedExamples) {
-        expect(
-          File(asset).existsSync(),
-          isFalse,
-          reason: 'Verified unused images were removed: $asset',
-        );
-        expect(requiredImages, isNot(contains(asset)));
-      }
-      for (final asset in _retainedUnbundledImages) {
-        expect(File(asset).existsSync(), isTrue, reason: asset);
-        expect(bundledImages, isNot(contains(asset)));
-      }
-      final sourceImages = Directory('assets/images')
-          .listSync(followLinks: false)
-          .whereType<File>()
-          .map((file) => 'assets/images/${file.uri.pathSegments.last}')
-          .toSet();
+  test('Unused and retired artwork is removed from source and bundle', () {
+    for (final asset in _removedUnusedExamples) {
       expect(
-        sourceImages,
-        unorderedEquals({...requiredImages, ..._retainedUnbundledImages}),
-        reason: 'All required images and retained local artwork must remain.',
+        File(asset).existsSync(),
+        isFalse,
+        reason: 'Verified unused images were removed: $asset',
       );
-    },
-  );
+      expect(requiredImages, isNot(contains(asset)));
+      expect(bundledImages, isNot(contains(asset)));
+    }
+    final sourceImages = Directory('assets/images')
+        .listSync(followLinks: false)
+        .whereType<File>()
+        .map((file) => 'assets/images/${file.uri.pathSegments.last}')
+        .toSet();
+    expect(
+      sourceImages,
+      unorderedEquals(requiredImages),
+      reason: 'Only the 41 required images should remain on disk.',
+    );
+  });
 }

@@ -141,7 +141,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(shop.category, 'Coffee');
     expect(tabs.index, 1);
-    expect(shop.filteredProducts, hasLength(13));
+    expect(shop.filteredProducts, hasLength(8));
     expect(carousel, findsNothing);
     await tester.drag(
       find.byKey(const Key('menu-category-pages')),

@@ -4,8 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { posix } from 'node:path';
 import { syncFlutterAssets } from './sync_flutter_assets.mjs';
 import { resolveProductImage } from './product_image_assets.mjs';
+import { menuProductIds, verifySelectedProducts } from './menu_selection.mjs';
 
 const root = new URL('../', import.meta.url);
+const target = new URL('lib/main.dart', root);
+const main = readFileSync(target, 'utf8');
+const selectedIds = menuProductIds(main);
 const imageFiles = new Set(readdirSync(new URL('assets/images/', root)));
 const sourcePath = new URL('SmoochCafe/pages/products.html', root);
 if (!existsSync(sourcePath)) {
@@ -27,8 +31,12 @@ const featured = ['Tiramisu Latte', 'Classic Burger', 'Chocolate Bliss', 'Spanis
 const products = [];
 for (let i = 1; i < cards.length; i += 3) {
   const [name, price, body] = [decode(cards[i]), Number(cards[i + 1]), cards[i + 2]];
-  const image = resolveProductImage(posix.basename(decode(body.match(/<img src="([^"]+)"/)[1])), imageFiles);
   const subcategory = decode(body.match(/<div class="product-tag">([^<]+)/)[1]).trim();
+  const id = `${subcategory}-${name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  // Unselected products may no longer have local photos. Skip them before
+  // resolving images so reimporting cannot restore the retired assortment.
+  if (!selectedIds.has(id)) continue;
+  const image = resolveProductImage(posix.basename(decode(body.match(/<img src="([^"]+)"/)[1])), imageFiles);
   const category = food.includes(subcategory) ? 'Food' : pastry.includes(subcategory) ? 'Pastries' : ['Coffee', 'Non-Coffee', 'Ice Blended'].includes(subcategory) ? subcategory : 'More Drinks';
   if (!existsSync(new URL(image, root))) throw Error(`Missing image: ${image}`);
   if (!imageFiles.has(image.slice(image.lastIndexOf('/') + 1))) throw Error(`Image filename case mismatch: ${image}`);
@@ -40,14 +48,13 @@ for (let i = 1; i < cards.length; i += 3) {
     'Ice Blended': 'A cool, blended treat for a sweet afternoon break. Discover your favorite flavor.',
     'More Drinks': `A refreshing little break from our ${subcategory.toLowerCase()} selection. A delicious way to complete your order.`,
   }[category];
-  products.push({ id: `${subcategory}-${name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), name, price, category, subcategory, description, image, featured: featured.includes(name) });
+  products.push({ id, name, price, category, subcategory, description, image, featured: featured.includes(name) });
 }
+verifySelectedProducts(products, selectedIds);
 products.sort((a, b) => (a.featured ? featured.indexOf(a.name) : 100) - (b.featured ? featured.indexOf(b.name) : 100));
 const dart = (value) => typeof value === 'string' ? JSON.stringify(value).replaceAll('$', '\\$') : String(value);
 const output = ['// BEGIN CAFE CATALOG', '// Generated from SmoochCafe/pages/products.html by tools/import_menu.mjs.', 'const cafeProducts = <Product>[',
   ...products.map((product) => `  Product(\n${Object.entries(product).map(([key, value]) => `    ${key}: ${dart(value)},`).join('\n')}\n  ),`), '];', '// END CAFE CATALOG'].join('\n');
-const target = new URL('lib/main.dart', root);
-const main = readFileSync(target, 'utf8');
 const startMarker = '// BEGIN CAFE CATALOG';
 const endMarker = '// END CAFE CATALOG';
 const start = main.indexOf(startMarker);

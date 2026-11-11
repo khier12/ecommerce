@@ -1,0 +1,520 @@
+{
+  "date": "2026-11-11",
+  "beforeImages": 95,
+  "remainingImages": 41,
+  "removedImages": 54,
+  "retiredProductPhotos": 52,
+  "oldSplashPhotos": 2,
+  "beforeBytes": 23566050,
+  "removedBytes": 17651387,
+  "remainingBytes": 5914663,
+  "previousReleaseBytes": 40009613,
+  "removed": [
+    {
+      "asset": "assets/images/16 pcs 1.png",
+      "bytes": 229483,
+      "sha256": "a29a342f40ba879b4a0b369a3525c1834ea5cec27eb63536c60e3662ecc6f20f"
+    },
+    {
+      "asset": "assets/images/4 pcs 1.png",
+      "bytes": 202563,
+      "sha256": "505639d095a1aa407c453e6e50663f1f09880d5381808c3a4563ebb5d27c5e08"
+    },
+    {
+      "asset": "assets/images/9 PCS 1.png",
+      "bytes": 216390,
+      "sha256": "6c7704ab10d4b0743e38e47b57fdf3b58d5776a59ee33be419d69e5b468ff4b2"
+    },
+    {
+      "asset": "assets/images/Bacon Cheese Burger.webp",
+      "bytes": 268886,
+      "sha256": "354d69ebfd1417d13daaad4b878fe85a015ee7ac9cde43abbb21175713eef157"
+    },
+    {
+      "asset": "assets/images/Bacon Quesadilla.webp",
+      "bytes": 511276,
+      "sha256": "e65f67d6265d6a2775066a8c9a40acd79542e2e017db2e0d00fe3e626862949c"
+    },
+    {
+      "asset": "assets/images/Bacon Rice Bowl.webp",
+      "bytes": 458916,
+      "sha256": "12fff3f616b4712ee3d26ae1807a43db9da2de3c6033f1c445bde1c74fc78c34"
+    },
+    {
+      "asset": "assets/images/Beef Tapa Rice Bowl.webp",
+      "bytes": 286518,
+      "sha256": "bf5db46c6aa16d2d95d25cc60cb2372ae1949106ae2be2c5f67465361e69aff1"
+    },
+    {
+      "asset": "assets/images/Brookies 1.png",
+      "bytes": 132165,
+      "sha256": "5a8670aa9cb8caf863d7e94db69a49ef0330757bea3959012bf2c7fa36db1349"
+    },
+    {
+      "asset": "assets/images/Burger Steak Rice Bowl .webp",
+      "bytes": 289680,
+      "sha256": "52e8f56435bc437e7157702b33c6c582b80c4a6546e81919fa44f2019042eaba"
+    },
+    {
+      "asset": "assets/images/Caramel Treat 2.png",
+      "bytes": 122431,
+      "sha256": "f75ff449f51691c36958c5f1ff4ac4b4411900520df85acb18fabba8691c433b"
+    },
+    {
+      "asset": "assets/images/Cheese Fries.webp",
+      "bytes": 535450,
+      "sha256": "564b7ddc34cf8e0a383fc8d252784377d489d5061cc3281885f59f16dc5769c9"
+    },
+    {
+      "asset": "assets/images/Cheesy Bacon Fries 1.png",
+      "bytes": 342921,
+      "sha256": "49d9ff44b07557528ca6e250dfc35755fb2bd34783d170d909f1648847a8b6c8"
+    },
+    {
+      "asset": "assets/images/Chicken BBQ Rice Bowl.webp",
+      "bytes": 243884,
+      "sha256": "f50b796f7301e13d94d7a104dace48c2e77e6acea1beeaee4d348cc5b453f655"
+    },
+    {
+      "asset": "assets/images/Chicken Quesadilla.webp",
+      "bytes": 543754,
+      "sha256": "bcf18a61b9f83480c46fa8ed179be8b91e7d97e452ff505eb531c1b1c696ce80"
+    },
+    {
+      "asset": "assets/images/Chicken Sandwich.webp",
+      "bytes": 398988,
+      "sha256": "1ae53db75009c1a17c5f1b31316f9b602dc080bfdafcf9c3d75765aa86739bcc"
+    },
+    {
+      "asset": "assets/images/Chicken Steak Rice Bowl.webp",
+      "bytes": 289196,
+      "sha256": "403c0c8144fc9011e2b44364478dc959cd5e7d9fdad44ded8a9d3119603711bd"
+    },
+    {
+      "asset": "assets/images/Choco Hazelnut Latte 5.webp",
+      "bytes": 108176,
+      "sha256": "e550421827312bbff0242010c67242bd84e2a83ebfe352c527f147ab6d200d08"
+    },
+    {
+      "asset": "assets/images/Choco Walnut Cookies 1.png",
+      "bytes": 137087,
+      "sha256": "a8808249fa8b55766b09e333e0b2ab00abc638e014e021a24b7f0800d08d8d77"
+    },
+    {
+      "asset": "assets/images/Chocolate 5.png",
+      "bytes": 60651,
+      "sha256": "fdc54243eba4df591f44c720490e9d4e000181b4ed18580ba9882c30b3a8b725"
+    },
+    {
+      "asset": "assets/images/Chocotrio Cookies 1.png",
+      "bytes": 135251,
+      "sha256": "9d12c6ed732768647be37ad81a2dc9b27fa5cc7b836a46013b901d6d7a6a9cef"
+    },
+    {
+      "asset": "assets/images/Club House Sandwich.webp",
+      "bytes": 407894,
+      "sha256": "a88d29283918da6b931cf78ce4710623cb59d330fa45c9ab79e0bc43fc784158"
+    },
+    {
+      "asset": "assets/images/Creamy Americano 5.webp",
+      "bytes": 87120,
+      "sha256": "c8c18d2c4d0d02b609079fbed5a93235f03c9056615aacd74336732e000ec7c8"
+    },
+    {
+      "asset": "assets/images/Dark Choco Muffin 1.png",
+      "bytes": 219385,
+      "sha256": "34ba36c94c7764979329f7f40b10f07126a4dd78d3bc179b5350f24d2b8aa639"
+    },
+    {
+      "asset": "assets/images/Dirty Ube Latte 5.webp",
+      "bytes": 45044,
+      "sha256": "c2f3839e626eb6c776e6ad23480c38904d6166cb341a1ae4f234a88df05db958"
+    },
+    {
+      "asset": "assets/images/Double Classic Burger.webp",
+      "bytes": 388198,
+      "sha256": "ffd22e7e2b093972c4dbc67da1f5d8dab20fa583d0a82cf077a09e6e33420bd9"
+    },
+    {
+      "asset": "assets/images/Grilled Cheese Sandwich.webp",
+      "bytes": 441054,
+      "sha256": "e570ac17caaad7124dccdabf94502f68ffdff6ab030c4e59ae4e6ce6bdc3729c"
+    },
+    {
+      "asset": "assets/images/Grilled Ham & Cheese Sandwich.webp",
+      "bytes": 465238,
+      "sha256": "3a68c273a2661dcc05e77a11cbd67af2532321a743054d2e5495726977bc7bf2"
+    },
+    {
+      "asset": "assets/images/Hawaiian Burger.webp",
+      "bytes": 387838,
+      "sha256": "daa7085055398c39b8348ab09b461410ec25081aa0b078629fd49aaadaeaf69e"
+    },
+    {
+      "asset": "assets/images/Healthea Float 2.png",
+      "bytes": 189413,
+      "sha256": "dc152a89b3d1bf6724c87e1539fd7105daf1a4002f61a7bea636084480e5a14e"
+    },
+    {
+      "asset": "assets/images/Healthtea 1.png",
+      "bytes": 75233,
+      "sha256": "a0605e9a703b757a16683f19a6420ffffe16e278d851cfe982555160a8106163"
+    },
+    {
+      "asset": "assets/images/Ice Blended Choco Hazelnut transparent.png",
+      "bytes": 1783724,
+      "sha256": "86ca4d436e3beacbb85499f428428d814b5fe683af4bf6fb37b6a82b4e67b3fc"
+    },
+    {
+      "asset": "assets/images/landing1.png",
+      "bytes": 2673203,
+      "sha256": "85418efc705493d4bf669927b3a3b0b2dbfd91eefd7a16ef973439d3217db06a"
+    },
+    {
+      "asset": "assets/images/Lasagana 1.png",
+      "bytes": 281379,
+      "sha256": "eafb830428b07ab281b73605908a305289447d2bbe6969643475f2cfae79f390"
+    },
+    {
+      "asset": "assets/images/Longanisa Rice Bowl.webp",
+      "bytes": 447614,
+      "sha256": "154b8cc7073b10a4e7871b66e3c3b5870dacf773487bd74ba7bedae0a9863305"
+    },
+    {
+      "asset": "assets/images/Lotus Cookies 1.png",
+      "bytes": 138202,
+      "sha256": "db92fbc09885c8305aa0662ccee134f5436b00e86c7ce8adf75198538c1969ab"
+    },
+    {
+      "asset": "assets/images/Matcha Lava 5.png",
+      "bytes": 70754,
+      "sha256": "3fd61295d6803809c520c1428e1219fab3f4cb2355b2f5f5b617766623a23c5c"
+    },
+    {
+      "asset": "assets/images/Moist Chocolate Cake 1.png",
+      "bytes": 364148,
+      "sha256": "43a6bb726f7fca915bb59bca2721c991ca2f2fd3fba7851546a05c1c1a3334f3"
+    },
+    {
+      "asset": "assets/images/Nacho Fries 1.png",
+      "bytes": 7506,
+      "sha256": "2c448242b9f6c885e7d1cbaf18de51cf82dd8b42ec5ebbda6300cc974b2454f1"
+    },
+    {
+      "asset": "assets/images/No Bake Cheesecake 2.png",
+      "bytes": 5448,
+      "sha256": "9040168fabbe7033a7c13f50efaf7b25aa3695e4b3d520a9122c6b193e7caf37"
+    },
+    {
+      "asset": "assets/images/Plain Fries.webp",
+      "bytes": 523066,
+      "sha256": "b7648aa48829ec40f13436f6fd12458c1e6e00d2a60bbfee93a28aedc657fea5"
+    },
+    {
+      "asset": "assets/images/Revel Bar 1.png",
+      "bytes": 5242,
+      "sha256": "2bf1c5c30b85364e023708c86b12e96344781d4dfa167863296872279684fc3e"
+    },
+    {
+      "asset": "assets/images/Savory Tapa Rice Bowl.webp",
+      "bytes": 285762,
+      "sha256": "fd5a1778c6821e15da7b2b2554b516f922bacbcc666592a68e70a22c2b4d78e9"
+    },
+    {
+      "asset": "assets/images/Sour Cream Fries.webp",
+      "bytes": 463254,
+      "sha256": "686feab9e1a544753b22df52ee0cc53d077cd2fa9f6e11cf00df34ba99e28964"
+    },
+    {
+      "asset": "assets/images/Spaghetti Bolognese 1.png",
+      "bytes": 296865,
+      "sha256": "c11e960b96a235aeea4475521bc06554ba7b4d0348d693fe7acb74c7268907fe"
+    },
+    {
+      "asset": "assets/images/Sunrise Burger.webp",
+      "bytes": 417144,
+      "sha256": "83e07e7ba768708c6577310d47c218f2e11d219874a34dc988a4eefd66eec808"
+    },
+    {
+      "asset": "assets/images/Tapa Quesadilla.webp",
+      "bytes": 543896,
+      "sha256": "5ac2df2a69d5b9c6a1a955788341d905a41f080c8015239dfb428c9ebd065a6b"
+    },
+    {
+      "asset": "assets/images/Tiramisu 1.webp",
+      "bytes": 91754,
+      "sha256": "2c57d3e82451611598fe332f5d32558c76f107a8f9d30f93d69487dd5bb3b084"
+    },
+    {
+      "asset": "assets/images/Tuna Sandwich.webp",
+      "bytes": 492634,
+      "sha256": "3ced86a7f905eae179868abec932e237c86823a3bb26ed37247ef9cadea37f68"
+    },
+    {
+      "asset": "assets/images/Ube Lava 5.png",
+      "bytes": 71516,
+      "sha256": "c98b614572cb56e345d5932ee1eae2cbe5bdfb62b88ab801f55f84c3cefcdf5d"
+    },
+    {
+      "asset": "assets/images/Vanilla Ice Cream Latte 5.webp",
+      "bytes": 50578,
+      "sha256": "696904d201ad860b14849db57f31ce7ef871a645d426bf1cedec2cc8886cf171"
+    },
+    {
+      "asset": "assets/images/Velve Cookies 1.png",
+      "bytes": 145882,
+      "sha256": "a8c8ec2fb6a2128191f601dfc0a28abeebc4bfd7df660459b4f6afa3f16c0e00"
+    },
+    {
+      "asset": "assets/images/Velvet Swirl Bar 1.png",
+      "bytes": 129104,
+      "sha256": "ad0b9390488ac4a5883bd42728c2b379bf2a40745218d3f8012dbec852e3b164"
+    },
+    {
+      "asset": "assets/images/White Mocha 6.png",
+      "bytes": 50679,
+      "sha256": "58684fe583efd0e1fb078e050ea551636f768bbcdd2b07fc177352120b29d905"
+    },
+    {
+      "asset": "assets/images/White Mocha Latte 5.webp",
+      "bytes": 91950,
+      "sha256": "a14ad1350c316882ea819dc13d7253562a2c49ac5c330009daba070ed64a07f4"
+    }
+  ],
+  "retained": [
+    {
+      "asset": "assets/images/Affogato 4.png",
+      "bytes": 131100,
+      "sha256": "f99a9c0b5e6c43ae26e8066da7d1420699f91e44e305e7a713a3ed79e551c9cc"
+    },
+    {
+      "asset": "assets/images/Americano 3.webp",
+      "bytes": 56364,
+      "sha256": "86e5d94b893dfaba04423ec79bda45e6576e408f470f89d9f723b52a78a4661d"
+    },
+    {
+      "asset": "assets/images/Basque Cheesecake 1.png",
+      "bytes": 110934,
+      "sha256": "f8ebe78df8f6a82119b6eb93055450c8ff9035b7e890a56b4fc4f5441ee21eb9"
+    },
+    {
+      "asset": "assets/images/BBQ Fries.webp",
+      "bytes": 592400,
+      "sha256": "abf8a26c9a3213a0bbb6ab1b822965fe6d155cfe69114eccb1e14bace7d830c9"
+    },
+    {
+      "asset": "assets/images/Beef Nachos 1.png",
+      "bytes": 342731,
+      "sha256": "96f79ea0eaeb80f3fbd2ec813347a3ab14adfb2d113df6829097b289e1cbf961"
+    },
+    {
+      "asset": "assets/images/Biscoff Blandies 1.png",
+      "bytes": 139637,
+      "sha256": "55d399e574eadcd08991728ed1e94dbccc82acc89bc62a0caf465e9460dc8eed"
+    },
+    {
+      "asset": "assets/images/Bottled Water 1.png",
+      "bytes": 79121,
+      "sha256": "8e35d8ee4420c20a8463722369ac0431c2648ad090caa1e13b77619a3d57557f"
+    },
+    {
+      "asset": "assets/images/Calamansi juice 1.png",
+      "bytes": 59006,
+      "sha256": "974b62ca838fc13537e8b545af8d6e5d9bd1180d46ea3f30084f52a75edb2cc8"
+    },
+    {
+      "asset": "assets/images/Caramel Macchiato 5.webp",
+      "bytes": 95428,
+      "sha256": "485046a2f30090e7cb355a72aabaf8755047b40c19c6cec4bcf3d7c8326478f4"
+    },
+    {
+      "asset": "assets/images/Caramel Macchiato 7.png",
+      "bytes": 56609,
+      "sha256": "c0b18f425b7e45dacd352f33e29aeb5114b61ee9474644a9307275581c3a8bba"
+    },
+    {
+      "asset": "assets/images/Carbonara 1.png",
+      "bytes": 278834,
+      "sha256": "6fde848c3b47fc10534983965aaafa1ddc97f316264c54af13e37819c29dca30"
+    },
+    {
+      "asset": "assets/images/Cheese Quesadilla.webp",
+      "bytes": 529780,
+      "sha256": "e5db37f93ecd66bbe31f182d0e06f848dbb33897d1e79eca1ffcbcf0ffd6a417"
+    },
+    {
+      "asset": "assets/images/Chicken Teriyaki Rice Bowl.webp",
+      "bytes": 264942,
+      "sha256": "4be6d5c2c0dbceb43598df4526ceb007bbf12b0a91b34975b22d857141d67cb3"
+    },
+    {
+      "asset": "assets/images/Choco Chip Muffin 1.png",
+      "bytes": 207079,
+      "sha256": "2454eb394f9c33a486650b71c201ba30a26d83a99c34b1d654df786e00709c1f"
+    },
+    {
+      "asset": "assets/images/Choco Hazelnut 7.png",
+      "bytes": 63610,
+      "sha256": "757b2b32a36e8026c7ef10f23006ff240bdf031e58e99442d2d28d6a2fd89a7d"
+    },
+    {
+      "asset": "assets/images/Chocolate 1.webp",
+      "bytes": 43076,
+      "sha256": "ea60845a2d937e49bd7658cb01e4df2deb2651363f66987102f1a487b2914679"
+    },
+    {
+      "asset": "assets/images/Chocolate Bliss 2.png",
+      "bytes": 128168,
+      "sha256": "3dad80730e3ab2b2bb819b4c5a91b39f70ac07daa18d5eb2e149f7b7d6aa079b"
+    },
+    {
+      "asset": "assets/images/Chocolate Lava 5.webp",
+      "bytes": 80306,
+      "sha256": "dc3691f83a7361251d2652ce90e048fb992bc9a419fc7f00e18e6eeacdff5a0c"
+    },
+    {
+      "asset": "assets/images/Classic Burger.webp",
+      "bytes": 302926,
+      "sha256": "3edce19caf20645805f7f0f96ffae162fe695b67787d00642bd9ac79dfc4fe26"
+    },
+    {
+      "asset": "assets/images/Classic Chicken Sandwich.webp",
+      "bytes": 366416,
+      "sha256": "968f899921699b4b73f7bde03585d30db3adad50750d6e8c8d736aa89f163640"
+    },
+    {
+      "asset": "assets/images/Dirty Matcha Latte 5.webp",
+      "bytes": 56158,
+      "sha256": "47e2afc60f22aeeda60350812414163981bb2be223985424e9b553e343eda70a"
+    },
+    {
+      "asset": "assets/images/French Vanilla Latte 5.webp",
+      "bytes": 64566,
+      "sha256": "b6525d584b2ba097dd7927a317196cd2715b25aff99879872d818aae57243697"
+    },
+    {
+      "asset": "assets/images/Hershey's Crinkles 1.png",
+      "bytes": 145772,
+      "sha256": "4a96a5b6252431121312d8af1d8638951e281d315da6bfc93dcdc85757636fca"
+    },
+    {
+      "asset": "assets/images/Latte 5.webp",
+      "bytes": 64838,
+      "sha256": "603977af9c2007c03e7618e616737e66751f7c84be75ec494e33977b41252165"
+    },
+    {
+      "asset": "assets/images/logo.png",
+      "bytes": 125182,
+      "sha256": "ad032d7cb0b28bd265f5a8959ba41f5e6e78549270e72e98026974e34a0b6448"
+    },
+    {
+      "asset": "assets/images/Matcha 4.png",
+      "bytes": 64633,
+      "sha256": "955eb9bf4d5af977888ee5e97cc8e7b0dbd4c49199e0e262efa6986ded54c586"
+    },
+    {
+      "asset": "assets/images/Matcha Affogato 2.png",
+      "bytes": 135592,
+      "sha256": "b4a7a15a88c63aa9c9a4926bcc576f84ef42bd1f51d9110446d08afe68f43041"
+    },
+    {
+      "asset": "assets/images/Matcha Latte 1.webp",
+      "bytes": 57388,
+      "sha256": "fab62548f9cff26b2f1a767489e74bdfeca86c6dd69ded1a73b2d8939040475c"
+    },
+    {
+      "asset": "assets/images/Mocha 6.png",
+      "bytes": 64947,
+      "sha256": "fd2ee096e04e89af66039e14bdb49e3787290fc1ed92a31d61de9cb3cda505b1"
+    },
+    {
+      "asset": "assets/images/Mocha Latte 5.webp",
+      "bytes": 59136,
+      "sha256": "e66b500777327f40f17a0b6e13d84b77ad5d3daf41874c2c23b2b45404fcd9a1"
+    },
+    {
+      "asset": "assets/images/OG Chookies 1.png",
+      "bytes": 134230,
+      "sha256": "9098542f35fea7d7cf3b095db8fad643df913a7d4f0b1631c0b197409d51ab80"
+    },
+    {
+      "asset": "assets/images/Sisig Rice Bowl.webp",
+      "bytes": 486940,
+      "sha256": "2bb83be687f1b8158b8ae29bcfdc1dfff9bc5fd286cb39bf3222e32877054d0d"
+    },
+    {
+      "asset": "assets/images/Spanish Latte 5.webp",
+      "bytes": 68272,
+      "sha256": "e2078683674640375f02a758f711d2bee1d51a319077bd14ec2221c0c5ded11e"
+    },
+    {
+      "asset": "assets/images/Strawberry 6.png",
+      "bytes": 63786,
+      "sha256": "36629441f62c2d2116767522ae22b6ea05a7a6fdc691fb59994a89961a1ff5fe"
+    },
+    {
+      "asset": "assets/images/Strawberry Latte 1.webp",
+      "bytes": 50414,
+      "sha256": "a8288c53b3318f67cda8dc0ea18f8ceb6d5a100192d7d62a15101529e3c13539"
+    },
+    {
+      "asset": "assets/images/Strawberry Lava 5.png",
+      "bytes": 74848,
+      "sha256": "926dfa896e945f23cdc0af6818e3d1398a3999bd5f9712e788c5215fd7312aa3"
+    },
+    {
+      "asset": "assets/images/Strawberry Matcha 1.webp",
+      "bytes": 47512,
+      "sha256": "8565485ebccf33387fad6f1a9dcbbc2c6d2164e1c3ff697913e2e4ee50ee7474"
+    },
+    {
+      "asset": "assets/images/Tiramisu Latte 5.webp",
+      "bytes": 63710,
+      "sha256": "da6b1a1ea5784a574952311c28e6343d4c1e266caf3c8ffdc9f942830b1f9267"
+    },
+    {
+      "asset": "assets/images/Ube 2.png",
+      "bytes": 67082,
+      "sha256": "5e46bb5acf89b1917d4c4c214279070debfd798119ef83385800f92c5b9a01df"
+    },
+    {
+      "asset": "assets/images/Ube Latte 1.webp",
+      "bytes": 36932,
+      "sha256": "843cfa81894813757d42164f1fff3af5bcdd05e1d5ae5b3f75ae71f102e05d3b"
+    },
+    {
+      "asset": "assets/images/Ube Matcha.webp",
+      "bytes": 54258,
+      "sha256": "0c093309d05ba895dc65bfa7fc1570e6aa22bad463fe359b97f72a14f5f4a1e4"
+    }
+  ],
+  "releaseBytes": 26804192,
+  "savedApkBytes": 13205421,
+  "apkReductionPercent": 33.006,
+  "allRetainedImageHashesUnchanged": true,
+  "allRemovedFilesAbsent": true,
+  "androidPackagedImages": 41,
+  "webPackagedImages": 41,
+  "packagedImageHashesMatchSource": true,
+  "flutterTestsPassed": 146,
+  "nodeTestsPassed": 21,
+  "staticAnalysis": "No issues found",
+  "browser": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "categoryCounts": {
+      "All": 40,
+      "Coffee": 8,
+      "Non-Coffee": 6,
+      "Food": 8,
+      "Pastries": 6,
+      "Ice Blended": 6,
+      "More Drinks": 6
+    },
+    "detailOpened": "Matcha Affogato",
+    "pageErrors": [],
+    "assetHttpErrors": []
+  }
+}

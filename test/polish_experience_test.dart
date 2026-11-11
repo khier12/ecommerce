@@ -169,7 +169,7 @@ void main() {
       await tester.pumpAndSettle();
       final semantics = tester.ensureSemantics();
       expect(
-        find.bySemanticsLabel('Browse Pastries. 21 items.'),
+        find.bySemanticsLabel('Browse Pastries. 6 items.'),
         findsOneWidget,
       );
       semantics.dispose();
@@ -211,7 +211,7 @@ void main() {
               child: CafeSection(
                 onBrowse: () {},
                 onCategory: (_) {},
-                products: cafeProducts,
+                products: const MenuRepository().products,
               ),
             ),
           ),

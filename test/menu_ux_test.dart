@@ -112,7 +112,7 @@ void main() {
       final last = find.byKey(const Key('category-More Drinks'));
       expect(last.hitTestable(), findsOneWidget);
       expect(shop.category, 'More Drinks');
-      expect(shop.filteredProducts, hasLength(10));
+      expect(shop.filteredProducts, hasLength(6));
       expect(
         shop.filteredProducts.every((p) => p.category == 'More Drinks'),
         isTrue,
@@ -121,7 +121,7 @@ void main() {
       expect(shop.category, 'More Drinks');
       await tapCategory(tester, 'All');
       expect(shop.category, 'All');
-      expect(shop.filteredProducts, hasLength(92));
+      expect(shop.filteredProducts, hasLength(40));
       expect(tester.takeException(), isNull);
     },
   );
@@ -148,7 +148,7 @@ void main() {
       expect(shop.query, isEmpty);
       expect(shop.category, 'All');
       expect(shop.sort, MenuSort.recommended);
-      expect(shop.filteredProducts, hasLength(92));
+      expect(shop.filteredProducts, hasLength(40));
       expect(
         tester
             .widget<TextField>(find.byKey(const Key('menu-search')))
@@ -186,7 +186,7 @@ void main() {
     expect(shop.query, isEmpty);
     expect(shop.category, 'Coffee');
     expect(shop.sort, MenuSort.priceLow);
-    expect(shop.filteredProducts, hasLength(13));
+    expect(shop.filteredProducts, hasLength(8));
     expect(tester.takeException(), isNull);
   });
 
