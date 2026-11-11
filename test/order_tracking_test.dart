@@ -149,21 +149,21 @@ void main() {
       OrderStage.onTheWay,
     );
     expect(
-      order.stageAt(placedAt.add(const Duration(seconds: 40))),
+      order.stageAt(placedAt.add(const Duration(seconds: 38))),
       OrderStage.onTheWay,
     );
     expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 30))), 0);
     expect(
-      order.riderProgressAt(placedAt.add(const Duration(seconds: 35))),
+      order.riderProgressAt(placedAt.add(const Duration(seconds: 34))),
       .5,
     );
-    expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 40))), 1);
+    expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 38))), 1);
     expect(
-      order.stageAt(placedAt.add(const Duration(milliseconds: 40999))),
+      order.stageAt(placedAt.add(const Duration(milliseconds: 38999))),
       OrderStage.onTheWay,
     );
     expect(
-      order.stageAt(placedAt.add(const Duration(seconds: 41))),
+      order.stageAt(placedAt.add(const Duration(seconds: 39))),
       OrderStage.delivered,
     );
     final restored = OrderReceipt.fromJson(order.toJson());

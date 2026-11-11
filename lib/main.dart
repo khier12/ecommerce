@@ -571,10 +571,10 @@ class OrderReceipt {
 
   static const stageInterval = Duration(seconds: 10);
   static const riderDeparture = Duration(seconds: 30);
-  static const riderTravel = Duration(seconds: 10);
-  static const riderArrival = Duration(seconds: 40);
+  static const riderTravel = Duration(seconds: 8);
+  static const riderArrival = Duration(seconds: 38);
   static const arrivalHold = Duration(seconds: 1);
-  static const deliveryComplete = Duration(seconds: 41);
+  static const deliveryComplete = Duration(seconds: 39);
 
   List<Duration> get journeyEvents => fulfillment == FulfillmentMethod.delivery
       ? const [
@@ -588,10 +588,9 @@ class OrderReceipt {
 
   OrderStage stageAt(DateTime now) {
     final elapsed = now.difference(createdAt);
-    if (fulfillment == FulfillmentMethod.delivery &&
-        elapsed >= riderArrival &&
-        elapsed < deliveryComplete) {
-      return OrderStage.onTheWay;
+    if (fulfillment == FulfillmentMethod.delivery) {
+      if (elapsed >= deliveryComplete) return OrderStage.delivered;
+      if (elapsed >= riderDeparture) return OrderStage.onTheWay;
     }
     final index = (elapsed.inSeconds ~/ 10).clamp(0, stages.length - 1);
     return stages[index];
@@ -6224,22 +6223,17 @@ class _DeliveryMotorcycle extends StatelessWidget {
               child: Semantics(
                 label: label,
                 image: true,
-                child: Container(
+                child: SizedBox(
                   width: size,
                   height: size,
-                  padding: const EdgeInsets.all(3),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(color: Color(0x33000000), blurRadius: 6),
-                    ],
-                  ),
-                  child: Image.asset(
-                    deliveryMotorcycleAsset,
-                    cacheWidth: 144,
-                    filterQuality: FilterQuality.medium,
-                    excludeFromSemantics: true,
+                  child: Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: Image.asset(
+                      deliveryMotorcycleAsset,
+                      cacheWidth: 144,
+                      filterQuality: FilterQuality.medium,
+                      excludeFromSemantics: true,
+                    ),
                   ),
                 ),
               ),

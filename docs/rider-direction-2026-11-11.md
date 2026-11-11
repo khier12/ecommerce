@@ -1,5 +1,9 @@
 # Rider artwork, direction and alignment — 11 November 2026
 
+Latest adjustment: the motorcycle now has no background disk or shadow, and On the way lasts **8 seconds**. Arrival occurs at 38 seconds after placing the order, followed by Delivered at 39 seconds. The checks below record the preceding version; the adjustment passed 28 targeted map/tracking tests and static analysis. The supplied transparent PNG, marker size, road alignment and facing behavior are unchanged.
+
+Updated release web and Android ARM64 builds passed. The release-browser check measured 7,984.7 ms of travel and a 1,005.4 ms arrival hold, consistent with the 8-second and 1-second logical intervals within browser frame scheduling. No page errors occurred. The [updated screenshot](../artifacts/transparent-rider-on-the-way-2026-11-11.png) confirms the background disk and shadow are gone; the isolated test context was closed afterward.
+
 The route marker now uses the exact motorcycle PNG supplied by the user. `assets/icons/delivery-motorcycle.png` is an unchanged copy of the supplied `7053332.png`: 512 × 512, transparent, 52,754 bytes. Both files have SHA-256 `42ff82532ba7b97797e3ee1e0a1d9795ddc8be727c73b19e02ee9480e6bdcf69`. It is explicitly declared in `pubspec.yaml`, separately from the 41 product/logo files in `assets/images/`. A 144-pixel decode bounds memory for the 48-logical-pixel map marker.
 
 ## Alignment correction
