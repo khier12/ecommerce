@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-11",
+  "motorcycleAsset": {
+    "path": "assets/icons/delivery-motorcycle.png",
+    "sourceFilename": "7053332.png",
+    "unchangedCopy": true,
+    "sha256": "42ff82532ba7b97797e3ee1e0a1d9795ddc8be727c73b19e02ee9480e6bdcf69",
+    "bytes": 52754,
+    "dimensions": [512, 512],
+    "transparent": true,
+    "decodeWidth": 144,
+    "logicalMarkerSize": 48
+  },
+  "alignment": {
+    "previousCenterVerticalOffsetPixels": -32,
+    "currentCenterOffsetPixels": [0, 0],
+    "polylineSimplificationTolerance": 0,
+    "addsEndpointShortcuts": false,
+    "panZoomRotationRegressionTolerancePixels": 0.02,
+    "headingLookAroundMaxPixels": 4,
+    "mirrorsWestboundRider": true
+  },
+  "flutterTests": { "passed": 172, "routeMapAndPathTests": 15 },
+  "staticAnalysis": "passed",
+  "diffCheck": "passed",
+  "assetSyncCheck": "passed",
+  "releaseWebBuild": "passed",
+  "androidArm64ReleaseBuild": "passed",
+  "apkBytes": 26857068,
+  "browser": {
+    "viewport": [390, 844],
+    "roadDistanceKm": 17.0,
+    "assetHttpStatus": 200,
+    "eventsPerformanceMilliseconds": [
+      { "state": "assigned", "time": 5013.100000023842 },
+      { "state": "onTheWay", "time": 15049 },
+      { "state": "arrived", "time": 25002.600000023842 },
+      { "state": "delivered", "time": 26013.600000023842 }
+    ],
+    "arrivalHoldMilliseconds": 1011,
+    "pageErrors": [],
+    "routeFailureMessages": 0,
+    "isolatedContextClosed": true,
+    "regularPreviewSavedOrderKeys": []
+  }
+}

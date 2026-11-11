@@ -1,5 +1,7 @@
 # Motorcycle tracking — 11 November 2026
 
+The subsequent [rider artwork and alignment update](rider-direction-2026-11-11.md) replaces the teal badge described here with the user's supplied PNG, centers it on the road and adds direction changes. The timeline below remains unchanged; validation results below record this earlier implementation.
+
 The repeating yellow route highlight has been replaced by a teal motorcycle marker. The existing teal road, cafe and destination pins, scooter routing policy, 30 km delivery area, payment and stored receipt format remain in place. All application Dart remains in `lib/main.dart`.
 
 ## Order timing

@@ -5744,7 +5744,6 @@ class _CafeMap extends StatelessWidget {
     this.mapKey = const Key('delivery-map'),
     this.initialCameraFit,
     this.layers = const [],
-    this.markers = const [],
   });
 
   static const _tileUrl = String.fromEnvironment(
@@ -5761,7 +5760,6 @@ class _CafeMap extends StatelessWidget {
   final Key mapKey;
   final CameraFit? initialCameraFit;
   final List<Widget> layers;
-  final List<Marker> markers;
 
   @override
   Widget build(BuildContext context) => FlutterMap(
@@ -5782,22 +5780,20 @@ class _CafeMap extends StatelessWidget {
         userAgentPackageName: 'SmoochCafeFlutter',
       ),
       ...layers,
-      if (pin != null || markers.isNotEmpty)
+      if (pin != null)
         MarkerLayer(
           markers: [
-            ...markers,
-            if (pin != null)
-              Marker(
-                point: pin!,
-                width: 48,
-                height: 48,
-                child: const Icon(
-                  Icons.location_on,
-                  size: 46,
-                  color: AppColors.action,
-                  shadows: [Shadow(color: Color(0x66000000), blurRadius: 8)],
-                ),
+            Marker(
+              point: pin!,
+              width: 48,
+              height: 48,
+              child: const Icon(
+                Icons.location_on,
+                size: 46,
+                color: AppColors.action,
+                shadows: [Shadow(color: Color(0x66000000), blurRadius: 8)],
               ),
+            ),
           ],
         ),
       Align(
@@ -6014,31 +6010,11 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                   mapReady = true;
                   fitRoute();
                 },
-                markers: [
-                  Marker(
-                    point: widget.origin,
-                    width: 40,
-                    height: 40,
-                    child: const _RoutePin(
-                      label: 'Smooch Cafe. Route start',
-                      color: AppColors.dark,
-                      icon: Icons.storefront_outlined,
-                    ),
-                  ),
-                  Marker(
-                    point: widget.destination,
-                    width: 40,
-                    height: 40,
-                    child: const _RoutePin(
-                      label: 'Delivery destination',
-                      color: AppColors.action,
-                      icon: Icons.home_outlined,
-                    ),
-                  ),
-                ],
                 layers: [
                   if (route case final road?) ...[
                     PolylineLayer(
+                      // The rider and visible road use identical vertices.
+                      simplificationTolerance: 0,
                       polylines: [
                         Polyline(
                           points: road.points,
@@ -6050,15 +6026,39 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                       ],
                     ),
                   ],
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: widget.origin,
+                        width: 40,
+                        height: 40,
+                        child: const _RoutePin(
+                          label: 'Smooch Cafe. Route start',
+                          color: AppColors.dark,
+                          icon: Icons.storefront_outlined,
+                        ),
+                      ),
+                      Marker(
+                        point: widget.destination,
+                        width: 40,
+                        height: 40,
+                        child: const _RoutePin(
+                          label: 'Delivery destination',
+                          color: AppColors.action,
+                          icon: Icons.home_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
                   if (timeline.stage == OrderStage.riderAssigned ||
                       timeline.stage == OrderStage.delivered ||
                       (timeline.stage == OrderStage.onTheWay && route != null))
                     _DeliveryMotorcycle(
-                      points: [
-                        widget.origin,
-                        ...?route?.points,
-                        widget.destination,
-                      ],
+                      // Never draw a shortcut between a map pin and the
+                      // provider's snapped road endpoint.
+                      points: timeline.stage == OrderStage.riderAssigned
+                          ? [widget.origin]
+                          : route?.points ?? [widget.destination],
                       progress: timeline.rider,
                       label: riderLabel,
                     ),
@@ -6195,6 +6195,8 @@ class _RouteLegend extends StatelessWidget {
   );
 }
 
+const deliveryMotorcycleAsset = 'assets/icons/delivery-motorcycle.png';
+
 class _DeliveryMotorcycle extends StatelessWidget {
   const _DeliveryMotorcycle({
     required this.points,
@@ -6204,6 +6206,7 @@ class _DeliveryMotorcycle extends StatelessWidget {
   final List<LatLng> points;
   final Animation<double> progress;
   final String label;
+  static const size = 48.0;
 
   @override
   Widget build(BuildContext context) {
@@ -6214,32 +6217,68 @@ class _DeliveryMotorcycle extends StatelessWidget {
     return SizedBox.expand(
       child: IgnorePointer(
         child: RepaintBoundary(
-          child: AnimatedBuilder(
-            animation: progress,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: _RoutePin(
-                  label: label,
-                  color: AppColors.teal,
-                  icon: Icons.delivery_dining_rounded,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: AnimatedBuilder(
+              animation: progress,
+              child: Semantics(
+                label: label,
+                image: true,
+                child: Container(
+                  width: size,
+                  height: size,
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Color(0x33000000), blurRadius: 6),
+                    ],
+                  ),
+                  child: Image.asset(
+                    deliveryMotorcycleAsset,
+                    cacheWidth: 144,
+                    filterQuality: FilterQuality.medium,
+                    excludeFromSemantics: true,
+                  ),
                 ),
               ),
-            ),
-            builder: (context, child) => Transform.translate(
-              key: const Key('delivery-motorcycle'),
-              // The badge sits above its road position so the store and home
-              // remain visible at departure and arrival.
-              offset: path.positionAt(progress.value) - const Offset(22, 54),
-              child: child,
+              builder: (context, child) {
+                final pose = path.poseAt(progress.value);
+                return Transform.translate(
+                  key: const Key('delivery-motorcycle'),
+                  // Center the marker on the actual road, not above it.
+                  offset: pose.position - const Offset(size / 2, size / 2),
+                  child: Transform.rotate(
+                    key: const Key('delivery-motorcycle-direction'),
+                    angle: pose.rotation,
+                    child: Transform.flip(
+                      key: const Key('delivery-motorcycle-facing'),
+                      flipX: pose.facesLeft,
+                      child: child,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
       ),
     );
   }
+}
+
+@immutable
+class DeliveryRiderPose {
+  const DeliveryRiderPose(this.position, this.heading);
+  final Offset position;
+  final double heading;
+
+  bool get facesLeft => math.cos(heading) < -0.000001;
+  // The supplied side-view motorcycle faces right. Mirror westbound travel
+  // rather than turning the rider upside down.
+  double get rotation =>
+      facesLeft ? heading - (heading > 0 ? math.pi : -math.pi) : heading;
 }
 
 // Project and measure the road only when the map camera or geometry changes.
@@ -6269,6 +6308,27 @@ class DeliveryRiderPath {
             .getTangentForOffset(line.length * progress.clamp(0.0, 1.0))
             ?.position ??
         start;
+  }
+
+  DeliveryRiderPose poseAt(double progress) {
+    final position = positionAt(progress);
+    final line = metric;
+    if (line == null || line.length == 0) return DeliveryRiderPose(position, 0);
+    final distance = line.length * progress.clamp(0.0, 1.0);
+    // Ease the heading through corners using a small look-around window.
+    // Position remains exactly on the unmodified road throughout the turn.
+    final look = math.min(4.0, line.length * .025);
+    final before = line.getTangentForOffset(math.max(0.0, distance - look));
+    final after = line.getTangentForOffset(
+      math.min(line.length, distance + look),
+    );
+    final direction = before != null && after != null
+        ? after.position - before.position
+        : Offset.zero;
+    final heading = direction.distanceSquared > .000001
+        ? math.atan2(direction.dy, direction.dx)
+        : line.getTangentForOffset(distance)?.angle ?? 0.0;
+    return DeliveryRiderPose(position, heading);
   }
 }
 

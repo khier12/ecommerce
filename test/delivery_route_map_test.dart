@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:ecommerce/main.dart';
 import 'package:flutter/foundation.dart' show listEquals;
@@ -252,7 +253,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 19950));
       expect(timeline.stage, OrderStage.riderAssigned);
       expect(find.text('Rider assigned'), findsOneWidget);
-      expect(find.byIcon(Icons.delivery_dining_rounded), findsOneWidget);
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(
+        (image.image as ResizeImage).imageProvider,
+        const AssetImage(deliveryMotorcycleAsset),
+      );
       final store = _motorcyclePosition(tester);
       await tester.pump(const Duration(seconds: 5));
       expect(_motorcyclePosition(tester), store);
@@ -500,6 +505,148 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       delivered.dispose();
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Motorcycle center stays on the visible road after pan, zoom and rotation',
+    (tester) async {
+      final timeline = OrderTimeline(
+        order: _order(
+          tester.binding.clock.now().subtract(const Duration(seconds: 35)),
+        ),
+        vsync: tester,
+        now: tester.binding.clock.now,
+      );
+      final service = _PendingRouteService();
+      await tester.pumpWidget(
+        _routeApp(service, timeline: timeline, tickerEnabled: false),
+      );
+      // Equal horizontal legs place half the road distance exactly at the middle
+      // of the vertical leg, independent of camera rotation and zoom.
+      final road = DeliveryRoute(
+        points: const [
+          LatLng(14.3158, 121.0561),
+          LatLng(14.3158, 121.0661),
+          LatLng(14.3258, 121.0661),
+          LatLng(14.3258, 121.0561),
+        ],
+        distanceMeters: 3000,
+      );
+      service.requests.single.result.complete(road);
+      await _flushRoute(tester);
+      final map = tester.widget<FlutterMap>(
+        find.byKey(const Key('delivery-route-map')),
+      );
+      final controller = map.mapController!;
+      void checkAlignment() {
+        final camera = controller.camera;
+        final expected =
+            (camera.latLngToScreenOffset(road.points[1]) +
+                camera.latLngToScreenOffset(road.points[2])) /
+            2;
+        final actual = _motorcyclePosition(tester) + const Offset(24, 24);
+        expect((actual - expected).distance, lessThan(.02));
+      }
+
+      expect(timeline.rider.value, .5);
+      checkAlignment();
+      controller.move(const LatLng(14.321, 121.06), 15);
+      await tester.pump();
+      checkAlignment();
+      controller.rotate(73);
+      await tester.pump();
+      checkAlignment();
+      final layer = tester.widget<PolylineLayer>(find.byType(PolylineLayer));
+      expect(layer.simplificationTolerance, 0);
+      expect(layer.polylines.single.points, road.points);
+      await tester.pumpWidget(const SizedBox.shrink());
+      timeline.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('Snapped road endpoints do not create off-road shortcuts', (
+    tester,
+  ) async {
+    final timeline = OrderTimeline(
+      order: _order(
+        tester.binding.clock.now().subtract(const Duration(seconds: 30)),
+      ),
+      vsync: tester,
+      now: tester.binding.clock.now,
+    );
+    final service = _PendingRouteService();
+    await tester.pumpWidget(
+      _routeApp(service, timeline: timeline, tickerEnabled: false),
+    );
+    const snappedStart = LatLng(14.317, 121.057);
+    final road = DeliveryRoute(
+      points: const [snappedStart, _firstDropoff],
+      distanceMeters: 800,
+    );
+    service.requests.single.result.complete(road);
+    await _flushRoute(tester);
+    final camera = tester
+        .widget<FlutterMap>(find.byKey(const Key('delivery-route-map')))
+        .mapController!
+        .camera;
+    final actual = _motorcyclePosition(tester) + const Offset(24, 24);
+    expect(
+      (actual - camera.latLngToScreenOffset(snappedStart)).distance,
+      lessThan(.01),
+    );
+    expect(
+      (actual - camera.latLngToScreenOffset(CheckoutValidation.deliveryCenter))
+          .distance,
+      greaterThan(1),
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    timeline.dispose();
+    expect(tester.takeException(), isNull);
+  });
+
+  test(
+    'Motorcycle faces each road direction and stays upright when westbound',
+    () {
+      for (final sample in <(Offset, double, bool)>[
+        (const Offset(100, 0), 0, false),
+        (const Offset(0, -100), -math.pi / 2, false),
+        (const Offset(0, 100), math.pi / 2, false),
+        (const Offset(-100, 0), math.pi, true),
+      ]) {
+        final pose = DeliveryRiderPath([Offset.zero, sample.$1]).poseAt(.5);
+        expect(pose.heading, closeTo(sample.$2, .0001));
+        expect(pose.facesLeft, sample.$3);
+        expect(pose.rotation.abs(), lessThanOrEqualTo(math.pi / 2));
+        final front =
+            Offset(math.cos(pose.rotation), math.sin(pose.rotation)) *
+            (pose.facesLeft ? -1 : 1);
+        final travel = sample.$1 / sample.$1.distance;
+        expect((front - travel).distance, lessThan(.0001));
+      }
+    },
+  );
+
+  test(
+    'Heading eases through a corner without rounding the motorcycle position',
+    () {
+      final path = DeliveryRiderPath(const [
+        Offset.zero,
+        Offset(100, 0),
+        Offset(100, -100),
+      ]);
+      final before = path.poseAt(.49);
+      final corner = path.poseAt(.5);
+      final after = path.poseAt(.51);
+      expect(before.position, const Offset(98, 0));
+      expect(corner.position, const Offset(100, 0));
+      expect(after.position, const Offset(100, -2));
+      expect(before.heading, lessThan(0));
+      expect(before.heading, greaterThan(corner.heading));
+      expect(corner.heading, closeTo(-math.pi / 4, .001));
+      expect(after.heading, lessThan(corner.heading));
+      expect(after.heading, greaterThan(-math.pi / 2));
     },
   );
 
