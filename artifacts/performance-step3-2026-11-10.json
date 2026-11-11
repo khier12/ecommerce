@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "step": 3,
+  "catalogProducts": 92,
+  "previousScheduledProductPreloads": 92,
+  "maxInitialProductPreloads": 6,
+  "fewerScheduledProductPreloadsPercent": 93.478,
+  "thumbnailDecodeWidth": 640,
+  "preloadsAreSequential": true,
+  "preloadsPauseOnNavigationAndBackground": true,
+  "alreadyStartedDecodeMayFinish": true,
+  "filteredAndSortedPreview": true,
+  "remainingImages": "On demand through existing lazy grids and page views, including their normal viewport cache buffer.",
+  "catalogUnchanged": true,
+  "step2OptimizedImageHashesUnchanged": true,
+  "bundledImageCount": 93,
+  "sourceImageCount": 95,
+  "excludedFormerPreloadArtwork": [
+    "assets/images/Ice Blended Choco Hazelnut transparent.png",
+    "assets/images/landing1.png"
+  ],
+  "excludedSourceBytes": 4456927,
+  "previousReleaseBytes": 44467003,
+  "releaseBytes": 40009613,
+  "savedApkBytes": 4457390,
+  "allPackagedImageHashesMatchSource": true,
+  "webBundleVerified": true,
+  "flutterTestsPassed": 141,
+  "newPreloadWidgetTestsPassed": 10,
+  "nodeTestsPassed": 17,
+  "staticAnalysis": "No issues found",
+  "runtimeDependenciesAdded": 0,
+  "browser": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "reducedMotion": true,
+    "startupProductImages": [
+      "Tiramisu Latte 5.webp",
+      "Classic Burger.webp",
+      "Chocolate Bliss 2.png",
+      "Spanish Latte 5.webp",
+      "Strawberry Matcha 1.webp",
+      "Basque Cheesecake 1.png"
+    ],
+    "lazyCategoryChecked": "More Drinks",
+    "lastProductDetailOpened": "Matcha Affogato",
+    "pageErrors": [],
+    "assetHttpErrors": []
+  },
+  "limits": "Loading behavior and packaged bytes verified. No new physical-device FPS, RAM, cold-start, battery or thermal measurements were made."
+}

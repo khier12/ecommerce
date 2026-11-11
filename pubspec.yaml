@@ -125,7 +125,6 @@ flutter:
     - "assets/images/Healthea Float 2.png"
     - "assets/images/Healthtea 1.png"
     - "assets/images/Hershey's Crinkles 1.png"
-    - "assets/images/Ice Blended Choco Hazelnut transparent.png"
     - "assets/images/Lasagana 1.png"
     - "assets/images/Latte 5.webp"
     - "assets/images/Longanisa Rice Bowl.webp"
@@ -165,7 +164,6 @@ flutter:
     - "assets/images/Velvet Swirl Bar 1.png"
     - "assets/images/White Mocha 6.png"
     - "assets/images/White Mocha Latte 5.webp"
-    - "assets/images/landing1.png"
     - "assets/images/logo.png"
     # END REQUIRED IMAGE ASSETS
   fonts:

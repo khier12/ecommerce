@@ -2532,11 +2532,12 @@ class ProductImage extends StatelessWidget {
   final Product product;
   final BoxFit fit;
   final bool highResolution;
+  static const thumbnailCacheWidth = 640;
 
   @override
   Widget build(BuildContext context) => Image.asset(
     product.image,
-    cacheWidth: highResolution ? 1024 : 640,
+    cacheWidth: highResolution ? 1024 : thumbnailCacheWidth,
     fit: fit,
     gaplessPlayback: true,
     semanticLabel: product.name,
@@ -2941,7 +2942,8 @@ class _StartScreenState extends State<StartScreen>
   bool _checkedReleaseNotes = false;
   Timer? _preloadTimer;
   List<String> _warmAssets = const [];
-  int _essentialImages = 0;
+  int _nextWarmAsset = 0;
+  bool _warmingImage = false;
 
   @override
   void initState() {
@@ -2964,42 +2966,76 @@ class _StartScreenState extends State<StartScreen>
         });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final foreground = <String>{
-        'assets/images/logo.png',
-        'assets/images/Ice Blended Choco Hazelnut transparent.png',
-        ...widget.controller.products.take(6).map((product) => product.image),
-      };
-      final background = <String>{
-        'assets/images/landing1.png',
-        ...widget.controller.products.map((product) => product.image),
-      }..removeAll(foreground);
-      _essentialImages = foreground.length;
-      _warmAssets = [...foreground, ...background];
-      unawaited(_warmNextImage(0));
+      _prepareMenuImages();
       unawaited(_checkReleaseNotes());
     });
   }
 
-  Future<void> _warmNextImage(int index) async {
-    if (!mounted || index >= _warmAssets.length) return;
-    final path = _warmAssets[index];
-    final provider =
-        widget.controller.products.any((product) => product.image == path)
-        ? ResizeImage.resizeIfNeeded(640, null, AssetImage(path))
-        : AssetImage(path);
-    await precacheImage(
-      provider,
-      context,
-      onError: (Object _, StackTrace? _) {},
+  bool get _canWarmImages =>
+      mounted &&
+      _foreground &&
+      !_leaving &&
+      ModalRoute.of(context)?.isCurrent != false;
+
+  void _prepareMenuImages() {
+    final shop = widget.controller;
+    // Match the first carousel cards and the current filtered/sorted grid.
+    // Six unique thumbnails are enough for the initial menu preview; lazy
+    // grid/page builders resolve the remaining images as users browse.
+    final initialImages = <String>{
+      if (shop.category == 'All' && shop.query.trim().isEmpty)
+        ...shop.products
+            .where((product) => product.featured)
+            .take(2)
+            .map((product) => product.image),
+      ...shop.filteredProducts.take(6).map((product) => product.image),
+    };
+    _warmAssets = initialImages.take(6).toList(growable: false);
+    _nextWarmAsset = 0;
+    _scheduleImageWarmup();
+  }
+
+  void _scheduleImageWarmup() {
+    if (!_canWarmImages ||
+        _warmingImage ||
+        _preloadTimer?.isActive == true ||
+        _nextWarmAsset >= _warmAssets.length) {
+      return;
+    }
+    _preloadTimer = Timer(
+      const Duration(milliseconds: 16),
+      () => unawaited(_warmNextImage()),
     );
-    if (!mounted) return;
-    if (index + 1 < _essentialImages) {
-      unawaited(_warmNextImage(index + 1));
-    } else {
-      _preloadTimer = Timer(
-        const Duration(milliseconds: 16),
-        () => unawaited(_warmNextImage(index + 1)),
+  }
+
+  void _pauseImageWarmup() {
+    _preloadTimer?.cancel();
+    _preloadTimer = null;
+  }
+
+  Future<void> _warmNextImage() async {
+    if (!_canWarmImages ||
+        _warmingImage ||
+        _nextWarmAsset >= _warmAssets.length) {
+      return;
+    }
+    final path = _warmAssets[_nextWarmAsset++];
+    _warmingImage = true;
+    try {
+      await precacheImage(
+        ResizeImage.resizeIfNeeded(
+          ProductImage.thumbnailCacheWidth,
+          null,
+          AssetImage(path),
+        ),
+        context,
+        onError: (Object _, StackTrace? _) {},
       );
+    } finally {
+      // A started decode may finish after navigation; never queue more work
+      // unless this route is visible and the app is in the foreground.
+      _warmingImage = false;
+      _scheduleImageWarmup();
     }
   }
 
@@ -3054,6 +3090,8 @@ class _StartScreenState extends State<StartScreen>
       await prefs.setString(key, current);
     } catch (_) {
       /* Release notes never block ordering. */
+    } finally {
+      _scheduleImageWarmup();
     }
   }
 
@@ -3071,6 +3109,11 @@ class _StartScreenState extends State<StartScreen>
     final foreground = state == AppLifecycleState.resumed;
     if (_foreground != foreground) {
       setState(() => _foreground = foreground);
+    }
+    if (foreground) {
+      _scheduleImageWarmup();
+    } else {
+      _pauseImageWarmup();
     }
     _syncMotion();
   }
@@ -3094,6 +3137,7 @@ class _StartScreenState extends State<StartScreen>
     if (!mounted || _leaving) return;
     CafeHaptics.light();
     setState(() => _leaving = true);
+    _pauseImageWarmup();
     _syncMotion();
     try {
       await Navigator.push<void>(
@@ -3106,6 +3150,7 @@ class _StartScreenState extends State<StartScreen>
     } finally {
       if (mounted) {
         setState(() => _leaving = false);
+        _prepareMenuImages();
         _syncMotion();
       }
     }
@@ -3114,7 +3159,7 @@ class _StartScreenState extends State<StartScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _preloadTimer?.cancel();
+    _pauseImageWarmup();
     _animation.dispose();
     _idle.dispose();
     super.dispose();

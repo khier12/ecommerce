@@ -5,8 +5,11 @@ import 'package:ecommerce/main.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _startupImages = {
-  'assets/images/logo.png',
+const _startupImages = {'assets/images/logo.png'};
+
+// Former preload-only artwork remains available locally, but is neither
+// decoded at startup nor shipped now that no screen displays it.
+const _retainedUnbundledImages = {
   'assets/images/landing1.png',
   'assets/images/Ice Blended Choco Hazelnut transparent.png',
 };
@@ -110,24 +113,31 @@ void main() {
     }
   });
 
-  test('The image directory contains only required images after cleanup', () {
-    for (final asset in _removedUnusedExamples) {
+  test(
+    'Only required images are bundled; former preload artwork stays local',
+    () {
+      for (final asset in _removedUnusedExamples) {
+        expect(
+          File(asset).existsSync(),
+          isFalse,
+          reason: 'Verified unused images were removed: $asset',
+        );
+        expect(requiredImages, isNot(contains(asset)));
+      }
+      for (final asset in _retainedUnbundledImages) {
+        expect(File(asset).existsSync(), isTrue, reason: asset);
+        expect(bundledImages, isNot(contains(asset)));
+      }
+      final sourceImages = Directory('assets/images')
+          .listSync(followLinks: false)
+          .whereType<File>()
+          .map((file) => 'assets/images/${file.uri.pathSegments.last}')
+          .toSet();
       expect(
-        File(asset).existsSync(),
-        isFalse,
-        reason: 'Verified unused images were removed: $asset',
+        sourceImages,
+        unorderedEquals({...requiredImages, ..._retainedUnbundledImages}),
+        reason: 'All required images and retained local artwork must remain.',
       );
-      expect(requiredImages, isNot(contains(asset)));
-    }
-    final sourceImages = Directory('assets/images')
-        .listSync(followLinks: false)
-        .whereType<File>()
-        .map((file) => 'assets/images/${file.uri.pathSegments.last}')
-        .toSet();
-    expect(
-      sourceImages,
-      unorderedEquals(requiredImages),
-      reason: 'Required image files must remain after removing unused files.',
-    );
-  });
+    },
+  );
 }
