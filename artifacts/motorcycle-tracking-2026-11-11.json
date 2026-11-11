@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-11",
+  "timelineSeconds": {
+    "confirmed": 0,
+    "preparing": 10,
+    "riderAssigned": 20,
+    "onTheWay": 30,
+    "riderArrives": 40,
+    "delivered": 41
+  },
+  "logicalArrivalHoldMilliseconds": 1000,
+  "flutterTests": { "passed": 168, "routeMapAndPathTests": 11 },
+  "staticAnalysis": "passed",
+  "diffCheck": "passed",
+  "releaseWebBuild": "passed",
+  "androidArm64ReleaseBuild": "passed",
+  "apkBytes": 26804180,
+  "browser": {
+    "viewport": { "width": 390, "height": 844 },
+    "reducedMotion": "no-preference",
+    "routeDestination": "Alabang Town Center public landmark",
+    "roadDistanceLabelKm": 17.0,
+    "eventsPerformanceMilliseconds": [
+      { "state": "assigned", "time": 5005.199999988079 },
+      { "state": "onTheWay", "time": 15020.199999988079 },
+      { "state": "arrived", "time": 25003.80000001192 },
+      { "state": "delivered", "time": 26007.30000001192 }
+    ],
+    "observedArrivalHoldMilliseconds": 1003.5,
+    "pageErrors": [],
+    "routeFailureMessages": 0,
+    "isolatedContextClosed": true,
+    "regularPreviewSavedOrderKeys": [],
+    "screenshots": [
+      "motorcycle-assigned-2026-11-11.png",
+      "motorcycle-on-the-way-2026-11-11.png",
+      "motorcycle-arrived-2026-11-11.png",
+      "motorcycle-delivered-2026-11-11.png"
+    ]
+  }
+}

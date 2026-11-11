@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:ecommerce/main.dart';
 import 'package:flutter/foundation.dart' show listEquals;
@@ -13,6 +12,21 @@ import 'package:latlong2/latlong.dart' show LatLng;
 const _firstDropoff = LatLng(14.322, 121.061);
 const _secondDropoff = LatLng(14.319, 121.049);
 const _thirdDropoff = LatLng(14.308, 121.054);
+
+OrderReceipt _order(DateTime createdAt) => OrderReceipt(
+  reference: 'SMC-RIDER',
+  items: const [],
+  customerName: 'Ana Cruz',
+  mobileNumber: '09171234567',
+  notes: '',
+  paymentMethod: PaymentMethod.cash,
+  createdAt: createdAt,
+  fulfillment: FulfillmentMethod.delivery,
+  deliveryAddress: 'Carmona',
+  deliveryLatitude: _firstDropoff.latitude,
+  deliveryLongitude: _firstDropoff.longitude,
+);
+final _defaultOrder = _order(DateTime.now());
 
 class _RouteRequest {
   _RouteRequest(this.origin, this.destination);
@@ -50,6 +64,7 @@ Widget _routeApp(
   bool reducedMotion = false,
   bool tickerEnabled = true,
   double textScale = 1,
+  OrderTimeline? timeline,
 }) => MaterialApp(
   theme: AppTheme.theme,
   builder: (context, child) => MediaQuery(
@@ -63,9 +78,21 @@ Widget _routeApp(
     body: SingleChildScrollView(
       child: TickerMode(
         enabled: tickerEnabled,
-        child: DeliveryRouteMap(
-          destination: destination,
-          routeService: service,
+        child: Column(
+          children: [
+            if (timeline != null)
+              OrderTracking(
+                order: timeline.order,
+                timeline: timeline,
+                compact: true,
+              ),
+            DeliveryRouteMap(
+              order: timeline?.order ?? _defaultOrder,
+              timeline: timeline,
+              destination: destination,
+              routeService: service,
+            ),
+          ],
         ),
       ),
     ),
@@ -84,46 +111,11 @@ bool _showsFullRoute(WidgetTester tester, DeliveryRoute route) => tester
     .expand((layer) => layer.polylines)
     .any((line) => listEquals(line.points, route.points));
 
-DeliveryRouteHighlightPainter _routePainter(WidgetTester tester) =>
-    tester
-            .widget<CustomPaint>(
-              find.byKey(const Key('delivery-route-highlight')),
-            )
-            .painter!
-        as DeliveryRouteHighlightPainter;
-
-Future<Uint8List> _rasterHighlight(double phase) async {
-  final recorder = ui.PictureRecorder();
-  DeliveryRouteHighlightPainter(
-    points: const [
-      Offset(20, 100),
-      Offset(120, 100),
-      Offset(120, 180),
-      Offset(270, 180),
-    ],
-    animation: AlwaysStoppedAnimation<double>(phase),
-    moving: true,
-  ).paint(ui.Canvas(recorder), const Size(320, 260));
-  final picture = recorder.endRecording();
-  ui.Image? image;
-  try {
-    image = await picture.toImage(320, 260);
-    final bytes = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-    return Uint8List.fromList(
-      bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
-    );
-  } finally {
-    image?.dispose();
-    picture.dispose();
-  }
-}
-
-int _visiblePixels(Uint8List rgba) {
-  var visible = 0;
-  for (var alpha = 3; alpha < rgba.length; alpha += 4) {
-    if (rgba[alpha] > 0) visible++;
-  }
-  return visible;
+Offset _motorcyclePosition(WidgetTester tester) {
+  final matrix = tester
+      .widget<Transform>(find.byKey(const Key('delivery-motorcycle')))
+      .transform;
+  return Offset(matrix.storage[12], matrix.storage[13]);
 }
 
 void main() {
@@ -155,12 +147,8 @@ void main() {
     expect(find.byKey(const Key('delivery-route-map')), findsOneWidget);
     expect(_showsFullRoute(tester, route), isTrue);
     final mapSize = tester.getSize(find.byKey(const Key('delivery-route-map')));
-    final highlightSize = tester.getSize(
-      find.byKey(const Key('delivery-route-highlight')),
-    );
-    expect(highlightSize.width, greaterThan(0));
-    expect(highlightSize.height, 260);
-    expect(highlightSize, mapSize);
+    expect(mapSize.height, 260);
+    expect(find.byKey(const Key('delivery-motorcycle')), findsNothing);
     final markers = tester
         .widgetList<MarkerLayer>(find.byType(MarkerLayer))
         .expand((layer) => layer.markers);
@@ -249,86 +237,115 @@ void main() {
   });
 
   testWidgets(
-    'Route motion pauses on request and while the app is backgrounded',
+    'Rider waits at store, travels only on the way, then holds for one second',
     (tester) async {
-      addTearDown(
-        () => tester.binding.handleAppLifecycleStateChanged(
-          AppLifecycleState.resumed,
-        ),
+      final timeline = OrderTimeline(
+        order: _order(tester.binding.clock.now()),
+        vsync: tester,
+        now: tester.binding.clock.now,
       );
       final service = _PendingRouteService();
-      await tester.pumpWidget(_routeApp(service));
+      await tester.pumpWidget(_routeApp(service, timeline: timeline));
       service.requests.single.result.complete(_roadTo(_firstDropoff));
       await _flushRoute(tester);
-      final initial = _routePainter(tester).animation.value;
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(_routePainter(tester).animation.value, isNot(initial));
-      expect(_routePainter(tester).moving, isTrue);
-
-      await tester.tap(find.byKey(const Key('delivery-route-toggle')));
+      expect(find.byKey(const Key('delivery-motorcycle')), findsNothing);
+      await tester.pump(const Duration(milliseconds: 19950));
+      expect(timeline.stage, OrderStage.riderAssigned);
+      expect(find.text('Rider assigned'), findsOneWidget);
+      expect(find.byIcon(Icons.delivery_dining_rounded), findsOneWidget);
+      final store = _motorcyclePosition(tester);
+      await tester.pump(const Duration(seconds: 5));
+      expect(_motorcyclePosition(tester), store);
+      expect(timeline.rider.isAnimating, isFalse);
+      await tester.pump(const Duration(seconds: 5));
+      expect(timeline.stage, OrderStage.onTheWay);
+      expect(find.text('On the way'), findsOneWidget);
       await tester.pump();
-      expect(find.byTooltip('Play route animation'), findsOneWidget);
-      final manuallyPaused = _routePainter(tester).animation.value;
-      await tester.pump(const Duration(seconds: 1));
-      expect(_routePainter(tester).animation.value, manuallyPaused);
-
-      await tester.tap(find.byKey(const Key('delivery-route-toggle')));
-      await tester.pump();
-      expect(_routePainter(tester).moving, isTrue);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-      await tester.pump();
-      final backgroundPaused = _routePainter(tester).animation.value;
-      await tester.pump(const Duration(seconds: 1));
-      expect(_routePainter(tester).animation.value, backgroundPaused);
-
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(_routePainter(tester).moving, isTrue);
-      expect(_routePainter(tester).animation.value, isNot(backgroundPaused));
+      await tester.pump(const Duration(seconds: 5));
+      expect(timeline.rider.value, closeTo(.5, .001));
+      expect(_motorcyclePosition(tester), isNot(store));
+      await tester.pump(const Duration(seconds: 5));
+      expect(timeline.rider.value, 1);
+      expect(timeline.stage, OrderStage.onTheWay);
+      final arrived = _motorcyclePosition(tester);
+      await tester.pump(const Duration(milliseconds: 999));
+      expect(timeline.stage, OrderStage.onTheWay);
+      expect(_motorcyclePosition(tester), arrived);
+      await tester.pump(const Duration(milliseconds: 1));
+      expect(timeline.stage, OrderStage.delivered);
+      expect(find.text('Delivered'), findsOneWidget);
+      expect(_motorcyclePosition(tester), arrived);
+      await tester.pump(const Duration(seconds: 20));
+      expect(_motorcyclePosition(tester), arrived);
+      expect(timeline.rider.isAnimating, isFalse);
       expect(service.requests, hasLength(1));
       await tester.pumpWidget(const SizedBox.shrink());
+      timeline.dispose();
       expect(tester.takeException(), isNull);
     },
   );
 
-  testWidgets('Reduced motion and disabled tickers keep a static road route', (
-    tester,
-  ) async {
-    final service = _PendingRouteService();
-    final route = _roadTo(_firstDropoff);
-    await tester.pumpWidget(_routeApp(service));
-    service.requests.single.result.complete(route);
-    await _flushRoute(tester);
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(_routePainter(tester).moving, isTrue);
+  testWidgets(
+    'Reduced motion keeps the rider static without delaying delivery',
+    (tester) async {
+      final service = _PendingRouteService();
+      final route = _roadTo(_firstDropoff);
+      final timeline = OrderTimeline(
+        order: _order(
+          tester.binding.clock.now().subtract(const Duration(seconds: 30)),
+        ),
+        vsync: tester,
+        now: tester.binding.clock.now,
+      );
+      await tester.pumpWidget(_routeApp(service, timeline: timeline));
+      service.requests.single.result.complete(route);
+      await _flushRoute(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(timeline.rider.isAnimating, isTrue);
 
-    await tester.pumpWidget(
-      _routeApp(service, reducedMotion: true, textScale: 2),
-    );
-    await tester.pump();
-    expect(_routePainter(tester).moving, isFalse);
-    expect(find.byKey(const Key('delivery-route-toggle')), findsNothing);
-    final still = _routePainter(tester).animation.value;
-    await tester.pump(const Duration(seconds: 1));
-    expect(_routePainter(tester).animation.value, still);
-    expect(_showsFullRoute(tester, route), isTrue);
+      await tester.pumpWidget(
+        _routeApp(
+          service,
+          timeline: timeline,
+          reducedMotion: true,
+          textScale: 2,
+        ),
+      );
+      await tester.pump();
+      expect(timeline.rider.isAnimating, isFalse);
+      expect(find.byKey(const Key('delivery-route-toggle')), findsNothing);
+      final still = _motorcyclePosition(tester);
+      await tester.pump(const Duration(seconds: 1));
+      expect(_motorcyclePosition(tester), still);
+      expect(_showsFullRoute(tester, route), isTrue);
 
-    await tester.pumpWidget(_routeApp(service, tickerEnabled: false));
-    await tester.pump();
-    final muted = _routePainter(tester).animation.value;
-    await tester.pump(const Duration(seconds: 1));
-    expect(_routePainter(tester).animation.value, muted);
+      await tester.pumpWidget(
+        _routeApp(service, timeline: timeline, tickerEnabled: false),
+      );
+      await tester.pump();
+      final muted = _motorcyclePosition(tester);
+      await tester.pump(const Duration(seconds: 1));
+      expect(_motorcyclePosition(tester), muted);
 
-    await tester.pumpWidget(_routeApp(service));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(_routePainter(tester).moving, isTrue);
-    expect(_routePainter(tester).animation.value, isNot(muted));
-    expect(service.requests, hasLength(1));
-    await tester.pumpWidget(const SizedBox.shrink());
-    expect(tester.takeException(), isNull);
-  });
+      await tester.pumpWidget(_routeApp(service, timeline: timeline));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(timeline.rider.isAnimating, isTrue);
+      expect(_motorcyclePosition(tester), isNot(muted));
+      await tester.pumpWidget(
+        _routeApp(service, timeline: timeline, reducedMotion: true),
+      );
+      await tester.pump(const Duration(seconds: 7));
+      expect(timeline.rider.value, 1);
+      expect(timeline.stage, OrderStage.onTheWay);
+      await tester.pump(const Duration(seconds: 1));
+      expect(timeline.stage, OrderStage.delivered);
+      expect(service.requests, hasLength(1));
+      await tester.pumpWidget(const SizedBox.shrink());
+      timeline.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('Show full route restores both endpoints after map movement', (
     tester,
@@ -372,20 +389,137 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('The route highlight visibly moves along the painted road', (
+  testWidgets('A late road response joins the trip instead of restarting it', (
     tester,
   ) async {
-    await tester.runAsync(() async {
-      final first = await _rasterHighlight(.4);
-      final later = await _rasterHighlight(.7);
-      expect(_visiblePixels(first), greaterThan(50));
-      expect(_visiblePixels(later), greaterThan(50));
-      expect(
-        listEquals(first, later),
-        isFalse,
-        reason:
-            'The highlight must visibly travel, not only advance its clock.',
-      );
-    });
+    final timeline = OrderTimeline(
+      order: _order(
+        tester.binding.clock.now().subtract(const Duration(seconds: 20)),
+      ),
+      vsync: tester,
+      now: tester.binding.clock.now,
+    );
+    final service = _PendingRouteService();
+    await tester.pumpWidget(_routeApp(service, timeline: timeline));
+    expect(find.byKey(const Key('delivery-motorcycle')), findsOneWidget);
+    await tester.pump(const Duration(seconds: 15));
+    expect(timeline.stage, OrderStage.onTheWay);
+    expect(find.byKey(const Key('delivery-motorcycle')), findsNothing);
+    service.requests.single.result.complete(_roadTo(_firstDropoff));
+    await _flushRoute(tester);
+    expect(timeline.rider.value, closeTo(.5, .01));
+    expect(find.byKey(const Key('delivery-motorcycle')), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    expect(timeline.rider.value, 1);
+    expect(timeline.stage, OrderStage.onTheWay);
+    await tester.pump(const Duration(seconds: 1));
+    expect(timeline.stage, OrderStage.delivered);
+    await tester.pumpWidget(const SizedBox.shrink());
+    timeline.dispose();
+    expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'Backgrounding stops frame updates and resumes at current order time',
+    (tester) async {
+      addTearDown(
+        () => tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        ),
+      );
+      final timeline = OrderTimeline(
+        order: _order(
+          tester.binding.clock.now().subtract(const Duration(seconds: 30)),
+        ),
+        vsync: tester,
+        now: tester.binding.clock.now,
+      );
+      final service = _PendingRouteService();
+      await tester.pumpWidget(_routeApp(service, timeline: timeline));
+      service.requests.single.result.complete(_roadTo(_firstDropoff));
+      await _flushRoute(tester);
+      await tester.pump(const Duration(seconds: 2));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      expect(timeline.rider.isAnimating, isFalse);
+      final stopped = _motorcyclePosition(tester);
+      await tester.pump(const Duration(seconds: 3));
+      expect(_motorcyclePosition(tester), stopped);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      expect(timeline.rider.value, closeTo(.505, .002));
+      expect(_motorcyclePosition(tester), isNot(stopped));
+      expect(timeline.rider.isAnimating, isTrue);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump(const Duration(seconds: 20));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      expect(timeline.stage, OrderStage.delivered);
+      expect(timeline.rider.value, 1);
+      expect(timeline.rider.isAnimating, isFalse);
+      expect(service.requests, hasLength(1));
+      await tester.pumpWidget(const SizedBox.shrink());
+      timeline.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Saved trips resume their position and delivered trips never replay',
+    (tester) async {
+      final service = _PendingRouteService();
+      final timeline = OrderTimeline(
+        order: _order(
+          tester.binding.clock.now().subtract(const Duration(seconds: 35)),
+        ),
+        vsync: tester,
+        now: tester.binding.clock.now,
+      );
+      await tester.pumpWidget(_routeApp(service, timeline: timeline));
+      service.requests.single.result.complete(_roadTo(_firstDropoff));
+      await _flushRoute(tester);
+      expect(timeline.rider.value, closeTo(.5, .01));
+      expect(timeline.stage, OrderStage.onTheWay);
+      await tester.pumpWidget(const SizedBox.shrink());
+      timeline.dispose();
+      final delivered = OrderTimeline(
+        order: _order(
+          tester.binding.clock.now().subtract(const Duration(minutes: 2)),
+        ),
+        vsync: tester,
+        now: tester.binding.clock.now,
+      );
+      await tester.pumpWidget(_routeApp(service, timeline: delivered));
+      service.requests.last.result.complete(_roadTo(_firstDropoff));
+      await _flushRoute(tester);
+      expect(delivered.stage, OrderStage.delivered);
+      final destination = _motorcyclePosition(tester);
+      await tester.pump(const Duration(seconds: 15));
+      expect(_motorcyclePosition(tester), destination);
+      expect(delivered.rider.isAnimating, isFalse);
+      await tester.pumpWidget(const SizedBox.shrink());
+      delivered.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  test(
+    'The motorcycle follows road corners at a steady distance per frame',
+    () {
+      final path = DeliveryRiderPath(const [
+        Offset(20, 100),
+        Offset(120, 100),
+        Offset(120, 180),
+        Offset(270, 180),
+      ]);
+      expect(path.positionAt(0), const Offset(20, 100));
+      expect(path.positionAt(100 / 330), const Offset(120, 100));
+      expect(path.positionAt(140 / 330), const Offset(120, 140));
+      expect(path.positionAt(1), const Offset(270, 180));
+      expect(
+        DeliveryRiderPath(const [Offset(4, 6), Offset(4, 6)]).positionAt(.5),
+        const Offset(4, 6),
+      );
+    },
+  );
 }

@@ -512,7 +512,7 @@ extension OrderStageDetails on OrderStage {
     OrderStage.preparing =>
       'The kitchen is preparing and packaging your order.',
     OrderStage.riderAssigned =>
-      'A delivery partner has been assigned and picked up your order.',
+      'Your rider is at Smooch Cafe, collecting your order.',
     OrderStage.onTheWay => 'Your rider is heading to your delivery address.',
     OrderStage.delivered => 'Your order has arrived at your address.',
     OrderStage.readyForPickup => 'Your order is ready for collection.',
@@ -569,11 +569,38 @@ class OrderReceipt {
           OrderStage.readyForPickup,
         ];
 
+  static const stageInterval = Duration(seconds: 10);
+  static const riderDeparture = Duration(seconds: 30);
+  static const riderTravel = Duration(seconds: 10);
+  static const riderArrival = Duration(seconds: 40);
+  static const arrivalHold = Duration(seconds: 1);
+  static const deliveryComplete = Duration(seconds: 41);
+
+  List<Duration> get journeyEvents => fulfillment == FulfillmentMethod.delivery
+      ? const [
+          stageInterval,
+          Duration(seconds: 20),
+          riderDeparture,
+          riderArrival,
+          deliveryComplete,
+        ]
+      : const [stageInterval, Duration(seconds: 20)];
+
   OrderStage stageAt(DateTime now) {
-    final elapsedSeconds = now.difference(createdAt).inSeconds;
-    final index = (elapsedSeconds ~/ 10).clamp(0, stages.length - 1);
+    final elapsed = now.difference(createdAt);
+    if (fulfillment == FulfillmentMethod.delivery &&
+        elapsed >= riderArrival &&
+        elapsed < deliveryComplete) {
+      return OrderStage.onTheWay;
+    }
+    final index = (elapsed.inSeconds ~/ 10).clamp(0, stages.length - 1);
     return stages[index];
   }
+
+  double riderProgressAt(DateTime now) =>
+      ((now.difference(createdAt) - riderDeparture).inMicroseconds /
+              riderTravel.inMicroseconds)
+          .clamp(0.0, 1.0);
 
   String get paymentStatus => paymentMethod == PaymentMethod.cash
       ? fulfillment == FulfillmentMethod.delivery
@@ -616,6 +643,112 @@ class OrderReceipt {
     deliveryLatitude: (json['deliveryLatitude'] as num?)?.toDouble(),
     deliveryLongitude: (json['deliveryLongitude'] as num?)?.toDouble(),
   );
+}
+
+// One clock drives the receipt status and rider. Only milestone changes notify
+// widgets; animation frames are confined to the motorcycle overlay.
+class OrderTimeline extends ChangeNotifier with WidgetsBindingObserver {
+  OrderTimeline({
+    required this.order,
+    required TickerProvider vsync,
+    DateTime Function()? now,
+  }) : now = now ?? DateTime.now,
+       rider = AnimationController(
+         vsync: vsync,
+         duration: OrderReceipt.riderTravel,
+         animationBehavior: AnimationBehavior.preserve,
+       ) {
+    observedAt = this.now();
+    stage = order.stageAt(observedAt);
+    WidgetsBinding.instance.addObserver(this);
+    synchronize(observedAt, notify: false);
+  }
+
+  final OrderReceipt order;
+  final DateTime Function() now;
+  final AnimationController rider;
+  late DateTime observedAt;
+  late OrderStage stage;
+  Timer? transition;
+  bool motionEnabled = false;
+  bool foreground = true;
+  bool disposed = false;
+
+  DateTime sampleTime() {
+    var current = now();
+    if (current.isBefore(observedAt)) current = observedAt;
+    if (stage == OrderStage.onTheWay) {
+      final animatedAt = order.createdAt.add(
+        OrderReceipt.riderDeparture +
+            Duration(
+              microseconds:
+                  (OrderReceipt.riderTravel.inMicroseconds * rider.value)
+                      .round(),
+            ),
+      );
+      if (current.isBefore(animatedAt)) current = animatedAt;
+    }
+    return current;
+  }
+
+  void setMotionEnabled(bool enabled) {
+    if (motionEnabled == enabled) return;
+    motionEnabled = enabled;
+    final previous = stage;
+    synchronize(sampleTime(), notify: false);
+    if (previous != stage) {
+      // Motion preferences can change during layout; deliver the status change
+      // after that build rather than rebuilding a sibling tracking widget.
+      scheduleMicrotask(() {
+        if (!disposed) notifyListeners();
+      });
+    }
+  }
+
+  void synchronize(DateTime current, {bool notify = true}) {
+    transition?.cancel();
+    observedAt = current;
+    stage = order.stageAt(current);
+    rider.stop();
+    rider.value = order.riderProgressAt(current);
+    if (motionEnabled &&
+        foreground &&
+        stage == OrderStage.onTheWay &&
+        rider.value < 1) {
+      rider.animateTo(
+        1,
+        duration: order.createdAt
+            .add(OrderReceipt.riderArrival)
+            .difference(current),
+        curve: Curves.linear,
+      );
+    }
+    for (final offset in order.journeyEvents) {
+      final deadline = order.createdAt.add(offset);
+      if (!deadline.isAfter(current)) continue;
+      transition = Timer(deadline.difference(current), () {
+        final actual = now();
+        synchronize(actual.isAfter(deadline) ? actual : deadline);
+      });
+      break;
+    }
+    if (notify) notifyListeners();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    foreground = state == AppLifecycleState.resumed;
+    synchronize(sampleTime());
+  }
+
+  @override
+  void dispose() {
+    disposed = true;
+    transition?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    rider.dispose();
+    super.dispose();
+  }
 }
 
 enum PaymentMethod { cash, digital }
@@ -5698,42 +5831,63 @@ class _CafeMap extends StatelessWidget {
 class DeliveryRouteMap extends StatefulWidget {
   const DeliveryRouteMap({
     super.key,
+    required this.order,
     required this.destination,
     this.origin = CheckoutValidation.deliveryCenter,
     this.routeService,
+    this.timeline,
   });
 
+  final OrderReceipt order;
   final LatLng origin;
   final LatLng destination;
   final DeliveryRouteService? routeService;
+  final OrderTimeline? timeline;
 
   @override
   State<DeliveryRouteMap> createState() => _DeliveryRouteMapState();
 }
 
 class _DeliveryRouteMapState extends State<DeliveryRouteMap>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   final mapController = MapController();
-  late final flow = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 6500),
-  );
+  late OrderTimeline timeline;
   DeliveryRoute? route;
   bool loading = true;
   bool failed = false;
-  bool paused = false;
   bool reduced = false;
   bool foreground = true;
   bool tickerEnabled = true;
   bool mapReady = false;
   int request = 0;
 
+  void attachTimeline() {
+    timeline =
+        widget.timeline ?? OrderTimeline(order: widget.order, vsync: this);
+    timeline.addListener(refresh);
+  }
+
+  void detachTimeline(OrderTimeline? supplied) {
+    timeline.removeListener(refresh);
+    if (supplied == null) timeline.dispose();
+  }
+
+  void refresh() => setState(() {});
+
   DeliveryRouteService get service =>
       widget.routeService ?? DeliveryRouteService.shared;
 
+  String get riderLabel => switch (timeline.stage) {
+    OrderStage.riderAssigned => 'Rider at Smooch Cafe',
+    OrderStage.onTheWay when timeline.rider.value == 1 => 'Rider has arrived',
+    OrderStage.onTheWay => 'Rider on the way',
+    OrderStage.delivered => 'Delivered to your address',
+    _ => 'Your route is ready',
+  };
+
   CameraFit get cameraFit => CameraFit.coordinates(
     coordinates: [widget.origin, ...?route?.points, widget.destination],
-    padding: const EdgeInsets.fromLTRB(42, 48, 42, 42),
+    padding: const EdgeInsets.fromLTRB(42, 70, 42, 42),
     maxZoom: 17,
   );
 
@@ -5741,6 +5895,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    attachTimeline();
     unawaited(loadRoute());
   }
 
@@ -5755,6 +5910,12 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
   @override
   void didUpdateWidget(DeliveryRouteMap oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.order != widget.order ||
+        oldWidget.timeline != widget.timeline) {
+      detachTimeline(oldWidget.timeline);
+      attachTimeline();
+      syncMotion();
+    }
     if (oldWidget.origin != widget.origin ||
         oldWidget.destination != widget.destination ||
         oldWidget.routeService != widget.routeService) {
@@ -5769,17 +5930,14 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
   }
 
   void syncMotion() {
-    if (route != null && !paused && !reduced && foreground && tickerEnabled) {
-      if (!flow.isAnimating) flow.repeat();
-    } else {
-      flow.stop();
-    }
+    timeline.setMotionEnabled(
+      route != null && !reduced && foreground && tickerEnabled,
+    );
   }
 
   Future<void> loadRoute() async {
     final generation = ++request;
-    flow.stop();
-    flow.value = 0;
+    timeline.setMotionEnabled(false);
     setState(() {
       route = null;
       loading = true;
@@ -5815,7 +5973,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
   void dispose() {
     request++;
     WidgetsBinding.instance.removeObserver(this);
-    flow.dispose();
+    detachTimeline(widget.timeline);
     mapController.dispose();
     super.dispose();
   }
@@ -5832,21 +5990,6 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
             ),
           ),
-          if (route != null && !reduced)
-            IconButton(
-              key: const Key('delivery-route-toggle'),
-              tooltip: paused
-                  ? 'Play route animation'
-                  : 'Pause route animation',
-              onPressed: () {
-                setState(() => paused = !paused);
-                syncMotion();
-              },
-              icon: Icon(
-                paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                size: 20,
-              ),
-            ),
           IconButton(
             key: const Key('delivery-route-fit'),
             tooltip: 'Show full route',
@@ -5906,12 +6049,19 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                         ),
                       ],
                     ),
-                    _DeliveryRouteHighlight(
-                      points: road.points,
-                      animation: flow,
-                      moving: !reduced,
-                    ),
                   ],
+                  if (timeline.stage == OrderStage.riderAssigned ||
+                      timeline.stage == OrderStage.delivered ||
+                      (timeline.stage == OrderStage.onTheWay && route != null))
+                    _DeliveryMotorcycle(
+                      points: [
+                        widget.origin,
+                        ...?route?.points,
+                        widget.destination,
+                      ],
+                      progress: timeline.rider,
+                      label: riderLabel,
+                    ),
                 ],
               ),
               if (loading)
@@ -5987,7 +6137,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
       if (route case final road?) ...[
         const SizedBox(height: 8),
         Text(
-          '${(road.distanceMeters / 1000).toStringAsFixed(1)} km by road · Highlight shows route direction.',
+          '${(road.distanceMeters / 1000).toStringAsFixed(1)} km by road · $riderLabel',
           style: const TextStyle(
             fontSize: 11,
             height: 1.5,
@@ -6045,32 +6195,45 @@ class _RouteLegend extends StatelessWidget {
   );
 }
 
-class _DeliveryRouteHighlight extends StatelessWidget {
-  const _DeliveryRouteHighlight({
+class _DeliveryMotorcycle extends StatelessWidget {
+  const _DeliveryMotorcycle({
     required this.points,
-    required this.animation,
-    required this.moving,
+    required this.progress,
+    required this.label,
   });
   final List<LatLng> points;
-  final Animation<double> animation;
-  final bool moving;
+  final Animation<double> progress;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
+    final path = DeliveryRiderPath(
+      points.map(camera.latLngToScreenOffset).toList(growable: false),
+    );
     return SizedBox.expand(
       child: IgnorePointer(
-        child: ExcludeSemantics(
-          child: RepaintBoundary(
-            child: CustomPaint(
-              key: const Key('delivery-route-highlight'),
-              painter: DeliveryRouteHighlightPainter(
-                points: points
-                    .map(camera.latLngToScreenOffset)
-                    .toList(growable: false),
-                animation: animation,
-                moving: moving,
+        child: RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: progress,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: _RoutePin(
+                  label: label,
+                  color: AppColors.teal,
+                  icon: Icons.delivery_dining_rounded,
+                ),
               ),
+            ),
+            builder: (context, child) => Transform.translate(
+              key: const Key('delivery-motorcycle'),
+              // The badge sits above its road position so the store and home
+              // remain visible at departure and arrival.
+              offset: path.positionAt(progress.value) - const Offset(22, 54),
+              child: child,
             ),
           ),
         ),
@@ -6079,12 +6242,11 @@ class _DeliveryRouteHighlight extends StatelessWidget {
   }
 }
 
-class DeliveryRouteHighlightPainter extends CustomPainter {
-  DeliveryRouteHighlightPainter({
-    required this.points,
-    required this.animation,
-    required this.moving,
-  }) : super(repaint: animation) {
+// Project and measure the road only when the map camera or geometry changes.
+// Each animation frame samples the cached metric instead of rebuilding a map.
+class DeliveryRiderPath {
+  DeliveryRiderPath(List<Offset> points)
+    : start = points.isEmpty ? Offset.zero : points.first {
     final path = Path();
     for (var i = 0; i < points.length; i++) {
       if (i == 0) {
@@ -6097,59 +6259,17 @@ class DeliveryRouteHighlightPainter extends CustomPainter {
     metric = iterator.moveNext() ? iterator.current : null;
   }
 
-  final List<Offset> points;
-  final Animation<double> animation;
-  final bool moving;
+  final Offset start;
   late final ui.PathMetric? metric;
 
-  @override
-  void paint(Canvas canvas, Size size) {
+  Offset positionAt(double progress) {
     final line = metric;
-    if (line == null || line.length < 1 || size.isEmpty) return;
-    final length = line.length;
-    final tail = (length * .22).clamp(28.0, 90.0);
-    final head = moving
-        ? animation.value * (length + tail * 2) - tail
-        : length * .62;
-    final start = (head - tail).clamp(0.0, length);
-    final end = head.clamp(0.0, length);
-    if (end <= start) return;
-    canvas.save();
-    canvas.clipRect(Offset.zero & size);
-    canvas.drawPath(
-      line.extractPath(start, end),
-      Paint()
-        ..color = AppColors.gold
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4
-        ..strokeCap = StrokeCap.round,
-    );
-    // A directional chevron is decorative, rather than a rider position.
-    final tangent = line.getTangentForOffset(end);
-    if (tangent != null) {
-      canvas.translate(tangent.position.dx, tangent.position.dy);
-      canvas.rotate(tangent.angle);
-      canvas.drawPath(
-        Path()
-          ..moveTo(-4, -4)
-          ..lineTo(0, 0)
-          ..lineTo(-4, 4),
-        Paint()
-          ..color = AppColors.dark
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round,
-      );
-    }
-    canvas.restore();
+    if (line == null || line.length == 0) return start;
+    return line
+            .getTangentForOffset(line.length * progress.clamp(0.0, 1.0))
+            ?.position ??
+        start;
   }
-
-  @override
-  bool shouldRepaint(DeliveryRouteHighlightPainter oldDelegate) =>
-      points != oldDelegate.points ||
-      animation != oldDelegate.animation ||
-      moving != oldDelegate.moving;
 }
 
 class DeliveryMapPicker extends StatefulWidget {
@@ -7479,26 +7599,43 @@ class _PaymentDemoNotice extends StatelessWidget {
 // ORDER CONFIRMATION
 // ============================================================
 class OrderTracking extends StatefulWidget {
-  const OrderTracking({super.key, required this.order, this.compact = false});
+  const OrderTracking({
+    super.key,
+    required this.order,
+    this.compact = false,
+    this.timeline,
+  });
 
   final OrderReceipt order;
   final bool compact;
+  final OrderTimeline? timeline;
 
   @override
   State<OrderTracking> createState() => _OrderTrackingState();
 }
 
 class _OrderTrackingState extends State<OrderTracking>
-    with WidgetsBindingObserver {
-  late OrderStage stage;
-  Timer? transitionTimer;
+    with TickerProviderStateMixin {
+  late OrderTimeline timeline;
+  OrderStage get stage => timeline.stage;
+
+  void attachTimeline() {
+    timeline =
+        widget.timeline ?? OrderTimeline(order: widget.order, vsync: this);
+    timeline.addListener(refresh);
+  }
+
+  void detachTimeline(OrderTimeline? supplied) {
+    timeline.removeListener(refresh);
+    if (supplied == null) timeline.dispose();
+  }
+
+  void refresh() => setState(() {});
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    stage = widget.order.stageAt(DateTime.now());
-    scheduleNextTransition();
+    attachTimeline();
   }
 
   @override
@@ -7506,54 +7643,16 @@ class _OrderTrackingState extends State<OrderTracking>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.order.reference != widget.order.reference ||
         oldWidget.order.createdAt != widget.order.createdAt ||
-        oldWidget.order.fulfillment != widget.order.fulfillment) {
-      transitionTimer?.cancel();
-      stage = widget.order.stageAt(DateTime.now());
-      scheduleNextTransition();
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) return;
-    final current = widget.order.stageAt(DateTime.now());
-    if (widget.order.stages.indexOf(current) >
-        widget.order.stages.indexOf(stage)) {
-      setState(() => stage = current);
-    }
-    transitionTimer?.cancel();
-    scheduleNextTransition();
-  }
-
-  void scheduleNextTransition() {
-    if (stage == widget.order.stages.last) return;
-    final nextAt = widget.order.createdAt.add(
-      Duration(seconds: (widget.order.stages.indexOf(stage) + 1) * 10),
-    );
-    final remaining = nextAt.difference(DateTime.now());
-    transitionTimer = Timer(
-      remaining > Duration.zero ? remaining : const Duration(milliseconds: 1),
-      advance,
-    );
-  }
-
-  void advance() {
-    if (!mounted) return;
-    final actual = widget.order.stageAt(DateTime.now());
-    final next =
-        widget.order.stages.indexOf(actual) > widget.order.stages.indexOf(stage)
-        ? actual
-        : widget.order.stages[widget.order.stages.indexOf(stage) + 1];
-    setState(() => stage = next);
-    if (stage != widget.order.stages.last) {
-      transitionTimer = Timer(const Duration(seconds: 10), advance);
+        oldWidget.order.fulfillment != widget.order.fulfillment ||
+        oldWidget.timeline != widget.timeline) {
+      detachTimeline(oldWidget.timeline);
+      attachTimeline();
     }
   }
 
   @override
   void dispose() {
-    transitionTimer?.cancel();
-    WidgetsBinding.instance.removeObserver(this);
+    detachTimeline(widget.timeline);
     super.dispose();
   }
 
@@ -7610,9 +7709,14 @@ class _OrderTrackingState extends State<OrderTracking>
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Updates every 10 seconds.',
-            style: TextStyle(fontSize: 11, color: AppColors.secondaryText),
+          Text(
+            stage == OrderStage.onTheWay && timeline.rider.value == 1
+                ? 'Your rider has arrived.'
+                : 'Follow your order from our kitchen to your door.',
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.secondaryText,
+            ),
           ),
           const SizedBox(height: 18),
           ExcludeSemantics(
@@ -7734,7 +7838,7 @@ class _OrderTrackingState extends State<OrderTracking>
   }
 }
 
-class OrderConfirmationScreen extends StatelessWidget {
+class OrderConfirmationScreen extends StatefulWidget {
   const OrderConfirmationScreen({
     super.key,
     required this.order,
@@ -7743,6 +7847,38 @@ class OrderConfirmationScreen extends StatelessWidget {
   static const routeName = '/order-confirmation';
   final OrderReceipt order;
   final bool fromHistory;
+
+  @override
+  State<OrderConfirmationScreen> createState() =>
+      _OrderConfirmationScreenState();
+}
+
+class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
+    with TickerProviderStateMixin {
+  late OrderTimeline timeline;
+  OrderReceipt get order => widget.order;
+  bool get fromHistory => widget.fromHistory;
+
+  @override
+  void initState() {
+    super.initState();
+    timeline = OrderTimeline(order: order, vsync: this);
+  }
+
+  @override
+  void didUpdateWidget(OrderConfirmationScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.order != order) {
+      timeline.dispose();
+      timeline = OrderTimeline(order: order, vsync: this);
+    }
+  }
+
+  @override
+  void dispose() {
+    timeline.dispose();
+    super.dispose();
+  }
 
   void _continueShopping(BuildContext context) {
     if (fromHistory) {
@@ -7799,7 +7935,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 28),
-                OrderTracking(order: order),
+                OrderTracking(order: order, timeline: timeline),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -7852,7 +7988,11 @@ class OrderConfirmationScreen extends StatelessWidget {
                         Text(order.deliveryAddress),
                         if (order.deliveryPoint case final point?) ...[
                           const SizedBox(height: 12),
-                          DeliveryRouteMap(destination: point),
+                          DeliveryRouteMap(
+                            order: order,
+                            timeline: timeline,
+                            destination: point,
+                          ),
                         ],
                       ],
                       if (order.notes.isNotEmpty) ...[

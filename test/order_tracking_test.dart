@@ -124,7 +124,7 @@ void main() {
         : '',
   );
 
-  test('Saved order time determines the stage at each ten-second boundary', () {
+  test('Delivery finishes exactly one second after the rider arrives', () {
     final placedAt = DateTime.utc(2026, 1, 1, 12);
     final order = receipt(placedAt);
     expect(order.stageAt(placedAt), OrderStage.confirmed);
@@ -150,6 +150,20 @@ void main() {
     );
     expect(
       order.stageAt(placedAt.add(const Duration(seconds: 40))),
+      OrderStage.onTheWay,
+    );
+    expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 30))), 0);
+    expect(
+      order.riderProgressAt(placedAt.add(const Duration(seconds: 35))),
+      .5,
+    );
+    expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 40))), 1);
+    expect(
+      order.stageAt(placedAt.add(const Duration(milliseconds: 40999))),
+      OrderStage.onTheWay,
+    );
+    expect(
+      order.stageAt(placedAt.add(const Duration(seconds: 41))),
       OrderStage.delivered,
     );
     final restored = OrderReceipt.fromJson(order.toJson());
@@ -210,7 +224,9 @@ void main() {
     expect(restored.deliveryLongitude, 121.0561);
   });
 
-  testWidgets('Receipt timeline advances every ten seconds', (tester) async {
+  testWidgets('Receipt timeline includes the one-second arrival hold', (
+    tester,
+  ) async {
     final order = receipt(DateTime.now());
     await tester.pumpWidget(
       MaterialApp(
@@ -220,7 +236,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('order-stage-confirmed')), findsOneWidget);
-    expect(find.text('Updates every 10 seconds.'), findsOneWidget);
+    expect(
+      find.text('Follow your order from our kitchen to your door.'),
+      findsOneWidget,
+    );
 
     await tester.pump(const Duration(seconds: 10));
     await tester.pump(const Duration(milliseconds: 350));
