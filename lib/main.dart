@@ -5855,6 +5855,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
   bool tickerEnabled = true;
   bool mapReady = false;
   int request = 0;
+  Size? mapViewportSize;
 
   void attachTimeline() {
     timeline =
@@ -5882,8 +5883,14 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
 
   CameraFit get cameraFit => CameraFit.coordinates(
     coordinates: [widget.origin, ...?route?.points, widget.destination],
-    padding: const EdgeInsets.fromLTRB(42, 70, 42, 42),
-    maxZoom: 17,
+    // Fit tightly while keeping the 48px rider, pins and map credit visible.
+    padding: EdgeInsets.fromLTRB(
+      30,
+      30,
+      30,
+      38 + MediaQuery.textScalerOf(context).scale(10),
+    ),
+    maxZoom: 19,
   );
 
   @override
@@ -5964,6 +5971,16 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
     if (mapReady) mapController.fitCamera(cameraFit);
   }
 
+  void updateViewport(Size size) {
+    if (mapViewportSize == size) return;
+    final resized = mapViewportSize != null;
+    mapViewportSize = size;
+    if (!resized) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && mapViewportSize == size) fitRoute();
+    });
+  }
+
   @override
   void dispose() {
     request++;
@@ -5974,177 +5991,198 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Row(
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final height = (constraints.maxWidth * .9).clamp(280.0, 340.0);
+      updateViewport(Size(constraints.maxWidth, height));
+      final showButtonLabel =
+          constraints.maxWidth >= 280 &&
+          MediaQuery.textScalerOf(context).scale(12) <= 16;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Expanded(
-            child: Text(
-              'Delivery route',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-            ),
-          ),
-          IconButton(
-            key: const Key('delivery-route-fit'),
-            tooltip: 'Show full route',
-            onPressed: fitRoute,
-            icon: const Icon(Icons.fit_screen_rounded, size: 20),
-          ),
-        ],
-      ),
-      ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: 260,
-          child: Stack(
-            fit: StackFit.expand,
+          Row(
             children: [
-              _CafeMap(
-                mapKey: const Key('delivery-route-map'),
-                center: widget.origin,
-                controller: mapController,
-                initialCameraFit: cameraFit,
-                onReady: () {
-                  mapReady = true;
-                  fitRoute();
-                },
-                layers: [
-                  if (route case final road?) ...[
-                    PolylineLayer(
-                      // The rider and visible road use identical vertices.
-                      simplificationTolerance: 0,
-                      polylines: [
-                        Polyline(
-                          points: road.points,
-                          strokeWidth: 6,
-                          color: AppColors.teal,
-                          borderStrokeWidth: 4,
-                          borderColor: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ],
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: widget.origin,
-                        width: 40,
-                        height: 40,
-                        child: const _RoutePin(
-                          label: 'Smooch Cafe. Route start',
-                          color: AppColors.dark,
-                          icon: Icons.storefront_outlined,
-                        ),
-                      ),
-                      Marker(
-                        point: widget.destination,
-                        width: 40,
-                        height: 40,
-                        child: const _RoutePin(
-                          label: 'Delivery destination',
-                          color: AppColors.action,
-                          icon: Icons.home_outlined,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (timeline.stage == OrderStage.riderAssigned ||
-                      timeline.stage == OrderStage.delivered ||
-                      (timeline.stage == OrderStage.onTheWay && route != null))
-                    _DeliveryMotorcycle(
-                      // Never draw a shortcut between a map pin and the
-                      // provider's snapped road endpoint.
-                      points: timeline.stage == OrderStage.riderAssigned
-                          ? [widget.origin]
-                          : route?.points ?? [widget.destination],
-                      progress: timeline.rider,
-                      label: riderLabel,
-                    ),
-                ],
-              ),
-              if (loading)
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    key: const Key('delivery-route-loading'),
-                    margin: const EdgeInsets.all(12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Finding a motorcycle route…',
-                      style: TextStyle(fontSize: 12, color: AppColors.ink),
-                    ),
+              const Expanded(
+                child: Text(
+                  'Delivery route',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.dark,
                   ),
                 ),
-              if (failed)
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(14),
+              ),
+              const SizedBox(width: 8),
+              if (showButtonLabel)
+                Tooltip(
+                  message: 'Show full route',
+                  child: TextButton.icon(
+                    key: const Key('delivery-route-fit'),
+                    onPressed: fitRoute,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.teal,
+                      backgroundColor: AppColors.softTeal,
+                      minimumSize: const Size(48, 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'No suitable motorcycle route available right now.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        TextButton.icon(
-                          key: const Key('delivery-route-retry'),
-                          onPressed: () => unawaited(loadRoute()),
-                          icon: const Icon(Icons.refresh, size: 16),
-                          label: const Text('Try again'),
-                        ),
-                      ],
-                    ),
+                    icon: const Icon(Icons.fit_screen_rounded, size: 18),
+                    label: const Text('Full route'),
                   ),
+                )
+              else
+                IconButton.filledTonal(
+                  key: const Key('delivery-route-fit'),
+                  tooltip: 'Show full route',
+                  style: IconButton.styleFrom(
+                    foregroundColor: AppColors.teal,
+                    backgroundColor: AppColors.softTeal,
+                    minimumSize: const Size(48, 48),
+                  ),
+                  onPressed: fitRoute,
+                  icon: const Icon(Icons.fit_screen_rounded, size: 20),
                 ),
             ],
           ),
-        ),
-      ),
-      const SizedBox(height: 10),
-      const Wrap(
-        spacing: 16,
-        runSpacing: 6,
-        children: [
-          _RouteLegend(color: AppColors.dark, label: 'Smooch Cafe'),
-          _RouteLegend(color: AppColors.action, label: 'Delivery address'),
-        ],
-      ),
-      const SizedBox(height: 8),
-      const Text(
-        'Motorcycle delivery · Avoids expressways and toll roads',
-        key: Key('delivery-route-policy'),
-        style: TextStyle(
-          fontSize: 11,
-          height: 1.5,
-          color: AppColors.secondaryText,
-        ),
-      ),
-      if (route case final road?) ...[
-        const SizedBox(height: 8),
-        Text(
-          '${(road.distanceMeters / 1000).toStringAsFixed(1)} km by road · $riderLabel',
-          style: const TextStyle(
-            fontSize: 11,
-            height: 1.5,
-            color: AppColors.secondaryText,
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(CafeShape.card),
+            child: SizedBox(
+              height: height,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _CafeMap(
+                    mapKey: const Key('delivery-route-map'),
+                    center: widget.origin,
+                    controller: mapController,
+                    initialCameraFit: cameraFit,
+                    onReady: () {
+                      mapReady = true;
+                      fitRoute();
+                    },
+                    layers: [
+                      if (route case final road?) ...[
+                        PolylineLayer(
+                          // The rider and visible road use identical vertices.
+                          simplificationTolerance: 0,
+                          polylines: [
+                            Polyline(
+                              points: road.points,
+                              strokeWidth: 6,
+                              color: AppColors.teal,
+                              borderStrokeWidth: 4,
+                              borderColor: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ],
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: widget.origin,
+                            width: 40,
+                            height: 40,
+                            child: const _RoutePin(
+                              label: 'Smooch Cafe. Route start',
+                              color: AppColors.dark,
+                              icon: Icons.storefront_outlined,
+                            ),
+                          ),
+                          Marker(
+                            point: widget.destination,
+                            width: 40,
+                            height: 40,
+                            child: const _RoutePin(
+                              label: 'Delivery destination',
+                              color: AppColors.action,
+                              icon: Icons.home_outlined,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (timeline.stage == OrderStage.riderAssigned ||
+                          timeline.stage == OrderStage.delivered ||
+                          (timeline.stage == OrderStage.onTheWay &&
+                              route != null))
+                        _DeliveryMotorcycle(
+                          // Never draw a shortcut between a map pin and the
+                          // provider's snapped road endpoint.
+                          points: timeline.stage == OrderStage.riderAssigned
+                              ? [widget.origin]
+                              : route?.points ?? [widget.destination],
+                          progress: timeline.rider,
+                          label: riderLabel,
+                        ),
+                    ],
+                  ),
+                  if (loading)
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        key: const Key('delivery-route-loading'),
+                        margin: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Finding a motorcycle route…',
+                          style: TextStyle(fontSize: 12, color: AppColors.ink),
+                        ),
+                      ),
+                    ),
+                  if (failed)
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'No suitable motorcycle route available right now.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            TextButton.icon(
+                              key: const Key('delivery-route-retry'),
+                              onPressed: () => unawaited(loadRoute()),
+                              icon: const Icon(Icons.refresh, size: 16),
+                              label: const Text('Try again'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ],
-    ],
+          const SizedBox(height: 14),
+          _DeliveryRouteSummary(
+            road: route,
+            label: riderLabel,
+            stage: timeline.stage,
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -6178,19 +6216,97 @@ class _RoutePin extends StatelessWidget {
   );
 }
 
-class _RouteLegend extends StatelessWidget {
-  const _RouteLegend({required this.color, required this.label});
-  final Color color;
+class _DeliveryRouteSummary extends StatelessWidget {
+  const _DeliveryRouteSummary({
+    required this.road,
+    required this.label,
+    required this.stage,
+  });
+  final DeliveryRoute? road;
   final String label;
+  final OrderStage stage;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(Icons.circle, size: 8, color: color),
-      const SizedBox(width: 6),
-      Flexible(child: Text(label, style: const TextStyle(fontSize: 11))),
-    ],
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final status = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            stage == OrderStage.delivered
+                ? Icons.check_circle_rounded
+                : Icons.delivery_dining_rounded,
+            color: AppColors.teal,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              key: const Key('delivery-rider-status'),
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                fontWeight: FontWeight.w700,
+                color: AppColors.dark,
+              ),
+            ),
+          ),
+        ],
+      );
+      final distance = Text(
+        road == null
+            ? ''
+            : '${(road!.distanceMeters / 1000).toStringAsFixed(1)} km by road',
+        key: const Key('delivery-route-distance'),
+        style: const TextStyle(fontSize: 11, color: AppColors.secondaryText),
+      );
+      final stack =
+          constraints.maxWidth < 360 ||
+          MediaQuery.textScalerOf(context).scale(13) > 17;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (road != null) ...[
+            if (stack) ...[
+              status,
+              const SizedBox(height: 4),
+              distance,
+            ] else
+              Row(
+                children: [
+                  Expanded(child: status),
+                  const SizedBox(width: 12),
+                  distance,
+                ],
+              ),
+            const SizedBox(height: 8),
+          ],
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.route_outlined,
+                size: 14,
+                color: AppColors.secondaryText,
+              ),
+              SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Avoids expressways and toll roads',
+                  key: Key('delivery-route-policy'),
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.4,
+                    color: AppColors.secondaryText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
   );
 }
 

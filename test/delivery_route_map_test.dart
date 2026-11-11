@@ -148,7 +148,7 @@ void main() {
     expect(find.byKey(const Key('delivery-route-map')), findsOneWidget);
     expect(_showsFullRoute(tester, route), isTrue);
     final mapSize = tester.getSize(find.byKey(const Key('delivery-route-map')));
-    expect(mapSize.height, 260);
+    expect(mapSize.height, inInclusiveRange(280, 340));
     expect(find.byKey(const Key('delivery-motorcycle')), findsNothing);
     final markers = tester
         .widgetList<MarkerLayer>(find.byType(MarkerLayer))
@@ -377,6 +377,7 @@ void main() {
     );
     expect(controller.camera.visibleBounds.contains(_firstDropoff), isTrue);
     controller.move(const LatLng(15.0, 121.0), 17);
+    controller.rotate(37);
     await tester.pump();
     expect(controller.camera.visibleBounds.contains(_firstDropoff), isFalse);
 
@@ -389,10 +390,99 @@ void main() {
       isTrue,
     );
     expect(controller.camera.visibleBounds.contains(_firstDropoff), isTrue);
+    final mapSize = tester.getSize(find.byKey(const Key('delivery-route-map')));
+    final points = _roadTo(_firstDropoff).points
+        .map(controller.camera.latLngToScreenOffset)
+        .toList();
+    final safeArea = Rect.fromLTWH(
+      24,
+      24,
+      mapSize.width - 48,
+      mapSize.height - 48,
+    );
+    for (final point in points) {
+      expect(
+        safeArea.contains(point),
+        isTrue,
+        reason: 'Pins and rider must remain inside the map.',
+      );
+    }
+    final xs = points.map((point) => point.dx);
+    final ys = points.map((point) => point.dy);
+    final coverage = math.max(
+      (xs.reduce(math.max) - xs.reduce(math.min)) / mapSize.width,
+      (ys.reduce(math.max) - ys.reduce(math.min)) / mapSize.height,
+    );
+    expect(
+      coverage,
+      greaterThan(.68),
+      reason: 'The fitted route should use the available map area.',
+    );
     expect(service.requests, hasLength(1));
     await tester.pumpWidget(const SizedBox.shrink());
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'Resizing refits every road bend and keeps large-text controls usable',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(232, 844);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final service = _PendingRouteService();
+      await tester.pumpWidget(
+        _routeApp(service, reducedMotion: true, textScale: 2),
+      );
+      final road = DeliveryRoute(
+        points: const [
+          CheckoutValidation.deliveryCenter,
+          LatLng(14.31, 121.08),
+          LatLng(14.33, 121.08),
+          _firstDropoff,
+        ],
+        distanceMeters: 6000,
+      );
+      service.requests.single.result.complete(road);
+      await _flushRoute(tester);
+      for (final size in const [
+        Size(232, 844),
+        Size(768, 1024),
+        Size(390, 844),
+      ]) {
+        tester.view.physicalSize = size;
+        await _flushRoute(tester);
+        final mapFinder = find.byKey(const Key('delivery-route-map'));
+        final camera = tester
+            .widget<FlutterMap>(mapFinder)
+            .mapController!
+            .camera;
+        final viewport = tester.getSize(mapFinder);
+        final safe = Rect.fromLTWH(
+          24,
+          24,
+          viewport.width - 48,
+          viewport.height - 48,
+        );
+        for (final point in road.points) {
+          expect(
+            safe.contains(camera.latLngToScreenOffset(point)),
+            isTrue,
+            reason: 'The complete detour must fit after resizing to $size.',
+          );
+        }
+        final control = tester.getSize(
+          find.byKey(const Key('delivery-route-fit')),
+        );
+        expect(control.shortestSide, greaterThanOrEqualTo(48));
+        expect(tester.takeException(), isNull);
+      }
+      expect(service.requests, hasLength(1));
+      expect(find.byKey(const Key('delivery-rider-status')), findsOneWidget);
+      expect(find.text('6.0 km by road'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets('A late road response joins the trip instead of restarting it', (
     tester,

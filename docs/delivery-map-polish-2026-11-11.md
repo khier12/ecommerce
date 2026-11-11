@@ -1,0 +1,13 @@
+# Delivery map framing and visual polish — 11 November 2026
+
+The delivery map gives the route more room and makes its current status easier to scan. Application changes are in `lib/main.dart`; regression coverage is in `test/delivery_route_map_test.dart`.
+
+- **Full route** uses fractional zoom with 30-pixel left/top/right padding and a bottom inset that accommodates the map attribution and text scaling. Previously, top padding alone was 70 pixels. Close deliveries can fit up to zoom 19 instead of 17. The entire road geometry, cafe and destination remain inside the fitted area; the route is not stretched or cropped to fill both axes.
+- The map height adapts from 280 to 340 pixels. Resizing between phone and tablet dimensions refits the existing route after layout without refetching it. Normal rider updates preserve the user's camera position.
+- The teal Full route control has a visible label where space permits and an accessible icon-only version for narrow or large-text layouts. Both retain a 48-pixel tap target.
+- A stronger rider-status line and road distance replace the small combined caption. The summary stacks on narrow screens and uses one row on wider screens. Redundant dot legends are removed; the store/home map pins and their semantic labels identify the endpoints. The road-policy note remains below the summary.
+- Existing cafe colors, typography and shape tokens are reused. The supplied transparent motorcycle, road alignment, direction changes, eight-second travel and one-second arrival hold remain in place.
+
+Validation: 29 targeted map/order-tracking tests passed and static analysis reports no issues. The fit regression checks safe on-screen marker bounds after pan and rotation, plus route coverage above 68% of a limiting viewport dimension at 2× text scale. A new resize test checks all vertices of a road detour at 232, 390 and 768 pixels wide, large text, control touch targets and no extra route requests.
+
+Release web and Android ARM64 builds passed. An isolated release-browser context loaded the real 17.0 km Alabang road, panned the map and used Full route to restore its framing. Inspected screenshots cover [390px phone](../artifacts/delivery-map-fit-phone-2026-11-11.png), [768px tablet](../artifacts/delivery-map-fit-tablet-2026-11-11.png) and [320px phone](../artifacts/delivery-map-fit-narrow-2026-11-11.png). Resizing automatically adjusted the framing, summary and button variant; there were no JavaScript page errors. The isolated context was closed afterward. Visual checks were performed in the browser; native device visuals and device frame rates were not measured for this change.
