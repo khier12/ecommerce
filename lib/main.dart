@@ -445,7 +445,8 @@ abstract final class CheckoutValidation {
       (value ?? '').trim().length < 8 ? 'Enter your delivery address' : null;
 
   static const deliveryCenter = LatLng(14.3158, 121.0561);
-  static const deliveryRadiusKm = 10.0;
+  static const deliveryRadiusKm = 30;
+  static const deliveryRadiusLabel = '$deliveryRadiusKm km';
 
   static bool isWithinDeliveryArea(LatLng? point) {
     if (point == null ||
@@ -467,7 +468,8 @@ abstract final class CheckoutValidation {
             math.sin(longitudeDelta / 2) *
             math.sin(longitudeDelta / 2);
     final distanceKm = earthRadiusKm * 2 * math.asin(math.sqrt(a));
-    return distanceKm <= deliveryRadiusKm;
+    // Include the boundary despite floating-point roundoff in the distance.
+    return distanceKm <= deliveryRadiusKm + 1e-9;
   }
 }
 
@@ -6115,7 +6117,9 @@ class _DeliveryMapPickerState extends State<DeliveryMapPicker> {
       if (!mounted || request != locationRequest) return;
       setState(() {
         pin = location;
-        error = CheckoutValidation.isWithinDeliveryArea(location) ? null : 'This location is outside our 10 km delivery area around Carmona.';
+        error = CheckoutValidation.isWithinDeliveryArea(location)
+            ? null
+            : 'This location is outside our ${CheckoutValidation.deliveryRadiusLabel} delivery area around Carmona.';
       });
       if (!CheckoutValidation.isWithinDeliveryArea(location)) {
         CafeHaptics.warning();
@@ -6146,7 +6150,8 @@ class _DeliveryMapPickerState extends State<DeliveryMapPicker> {
         !CheckoutValidation.isWithinDeliveryArea(pin)) {
       CafeHaptics.warning();
       setState(
-        () => error = 'Choose a location within 10 km of Carmona to continue.',
+        () => error =
+            'Choose a location within ${CheckoutValidation.deliveryRadiusLabel} of Carmona to continue.',
       );
       return;
     }
@@ -6202,7 +6207,7 @@ class _DeliveryMapPickerState extends State<DeliveryMapPicker> {
                         pin = point;
                         error = CheckoutValidation.isWithinDeliveryArea(point)
                             ? null
-                            : 'This location is outside our 10 km delivery area around Carmona.';
+                            : 'This location is outside our ${CheckoutValidation.deliveryRadiusLabel} delivery area around Carmona.';
                       });
                     },
             ),
@@ -6222,7 +6227,7 @@ class _DeliveryMapPickerState extends State<DeliveryMapPicker> {
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                     child: Text(
-                      'Delivery available within 10 km of Carmona. Tap to place your pin.',
+                      'Delivery available within ${CheckoutValidation.deliveryRadiusLabel} of Carmona. Tap to place your pin.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 11,
@@ -6566,14 +6571,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             !CheckoutValidation.isWithinDeliveryArea(
                               deliveryPin,
                             )) {
-                          return 'That pin is outside our 10 km delivery area';
+                          return 'That pin is outside our ${CheckoutValidation.deliveryRadiusLabel} delivery area';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Delivery is available within 10 km of Carmona, Cavite. If you use the map, your pin must be within this area. Include your house number, street and city.',
+                      'Delivery is available within ${CheckoutValidation.deliveryRadiusLabel} of Carmona, Cavite. If you use the map, your pin must be within this area. Include your house number, street and city.',
                       style: TextStyle(
                         color: AppColors.secondaryText,
                         fontSize: 12,
@@ -8069,7 +8074,7 @@ class CafeSection extends StatelessWidget {
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Delivery within 10 km of Carmona',
+                        'Delivery within ${CheckoutValidation.deliveryRadiusLabel} of Carmona',
                         style: TextStyle(
                           fontSize: 12,
                           height: 1.5,

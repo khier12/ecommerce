@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:ecommerce/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +7,94 @@ import 'package:flutter_map/flutter_map.dart' show FlutterMap, TapPosition;
 import 'package:latlong2/latlong.dart' show LatLng;
 
 void main() {
+  LatLng northOfCafe(double km) => LatLng(
+    CheckoutValidation.deliveryCenter.latitude + km / 6371 * 180 / math.pi,
+    CheckoutValidation.deliveryCenter.longitude,
+  );
+
+  test(
+    'The 30 km delivery boundary is inclusive and rejects locations beyond it',
+    () {
+      expect(CheckoutValidation.deliveryRadiusLabel, '30 km');
+      for (final distance in [0.0, 10.0, 20.0, 29.999, 30.0]) {
+        expect(
+          CheckoutValidation.isWithinDeliveryArea(northOfCafe(distance)),
+          isTrue,
+          reason: '$distance km',
+        );
+      }
+      for (final distance in [30.001, 31.0, 50.0]) {
+        expect(
+          CheckoutValidation.isWithinDeliveryArea(northOfCafe(distance)),
+          isFalse,
+          reason: '$distance km',
+        );
+      }
+    },
+  );
+
+  test(
+    'Ordering accepts a 25 km pin and preserves the bag for a pin beyond 30 km',
+    () async {
+      final shop = ShopController(repository: const MenuRepository());
+      addTearDown(shop.dispose);
+      shop.addToCart(shop.products.first);
+      Future<OrderReceipt?> place(LatLng pin) => shop.submitOrder(
+        customerName: 'Ana Cruz',
+        mobileNumber: '09171234567',
+        notes: '',
+        paymentMethod: PaymentMethod.cash,
+        deliveryAddress: '12 Example Street, delivery address',
+        deliveryLatitude: pin.latitude,
+        deliveryLongitude: pin.longitude,
+      );
+      expect(await place(northOfCafe(31)), isNull);
+      expect(shop.cartCount, 1);
+      expect(shop.orders, isEmpty);
+      final point = northOfCafe(25);
+      final saved = await place(point);
+      expect(saved, isNotNull);
+      expect(saved!.deliveryPoint, point);
+      expect(saved.reference, 'SMC-0001');
+      expect(shop.cartCount, 0);
+    },
+  );
+
+  testWidgets('Map pin controls and labels use the 30 km delivery area', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: DeliveryMapPicker()));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Delivery available within 30 km of Carmona. Tap to place your pin.',
+      ),
+      findsOneWidget,
+    );
+    final map = tester.widget<FlutterMap>(
+      find.byKey(const Key('delivery-map')),
+    );
+    final confirm = find.byKey(const Key('confirm-delivery-pin'));
+    for (final distance in [25.0, 30.0]) {
+      map.options.onTap!(
+        const TapPosition(Offset.zero, null),
+        northOfCafe(distance),
+      );
+      await tester.pump();
+      expect(tester.widget<FilledButton>(confirm).onPressed, isNotNull);
+    }
+    map.options.onTap!(const TapPosition(Offset.zero, null), northOfCafe(31));
+    await tester.pump();
+    expect(tester.widget<FilledButton>(confirm).onPressed, isNull);
+    expect(
+      find.text(
+        'This location is outside our 30 km delivery area around Carmona.',
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   test('Delivery area accepts Carmona and rejects distant locations', () {
     expect(
       CheckoutValidation.isWithinDeliveryArea(const LatLng(14.3158, 121.0561)),
