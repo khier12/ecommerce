@@ -459,4 +459,141 @@ void main() {
       expect(contrast, greaterThanOrEqualTo(4.5));
     }
   });
+
+  testWidgets('Drink size options create separate cart lines with size price', (
+    tester,
+  ) async {
+    final latte = shop.products.firstWhere(
+      (item) => item.id == 'coffee-tiramisu-latte',
+    );
+    shop.addToCart(latte);
+    expect(shop.cartItems.single.option, 'Regular · 16 oz');
+    expect(shop.cartItems.single.unitPrice, 145);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.theme,
+        home: ProductDetailsScreen(product: latte, controller: shop),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('size-Regular')), findsOneWidget);
+    expect(find.byKey(const Key('size-Large')), findsOneWidget);
+
+    await Scrollable.ensureVisible(
+      tester.element(find.byKey(const Key('size-Large'))),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('size-Large')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('details-add-to-cart')));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(shop.cartItems, hasLength(2));
+    expect(shop.cartItems.last.option, 'Large · 22 oz');
+    expect(shop.cartItems.last.unitPrice, 165);
+    expect(shop.total, 310);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        key: const ValueKey('cart-app'),
+        theme: AppTheme.theme,
+        home: CartScreen(controller: shop),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('COFFEE · REGULAR · 16 OZ'), findsOneWidget);
+    expect(find.text('COFFEE · LARGE · 22 OZ'), findsOneWidget);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(find.text('Subtotal (2 items)'), findsOneWidget);
+    expect(find.text('Free'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Sold-out items show status badges and cannot be added to bag', (
+    tester,
+  ) async {
+    final soldOut = shop.products.firstWhere(
+      (item) => item.id == 'ice-blended-ube',
+    );
+    expect(soldOut.available, isFalse);
+    shop.addToCart(soldOut);
+    expect(shop.cartCount, 0);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.theme,
+        home: ProductDetailsScreen(product: soldOut, controller: shop),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Temporarily sold out'), findsOneWidget);
+    expect(find.text('Out of stock'), findsOneWidget);
+    final addButton = tester.widget<ButtonStyleButton>(
+      find.byKey(const Key('details-add-to-cart')),
+    );
+    expect(addButton.onPressed, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Filter sheet filters by price range and in-stock availability', (
+    tester,
+  ) async {
+    await openMenu(tester);
+    final filterButton = find.byKey(const Key('open-menu-filters'));
+    await Scrollable.ensureVisible(tester.element(filterButton), alignment: .5);
+    await tester.pumpAndSettle();
+    await tester.tap(filterButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Filter & sort'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('filter-price-under80')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('filter-in-stock')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('apply-menu-filters')));
+    await tester.pumpAndSettle();
+
+    expect(shop.priceRange, PriceRange.under80);
+    expect(shop.inStockOnly, isTrue);
+    expect(
+      shop.filteredProducts.every((item) => item.price < 80 && item.available),
+      isTrue,
+    );
+    expect(find.text('Under ₱80'), findsOneWidget);
+    expect(find.text('In stock only'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Saved items wishlist toggles favorites and renders Saved tab', (
+    tester,
+  ) async {
+    await openMenu(tester);
+    final saveButton = find.byKey(const Key('save-coffee-tiramisu-latte'));
+    await tester.scrollUntilVisible(
+      saveButton,
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(CustomScrollView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(saveButton);
+    await tester.pumpAndSettle();
+
+    expect(shop.savedCount, 1);
+    expect(shop.savedProducts.single.id, 'coffee-tiramisu-latte');
+
+    await tester.tap(find.text('Saved'));
+    await tester.pumpAndSettle();
+    expect(find.text('Saved for later.'), findsOneWidget);
+    expect(find.text('Tiramisu Latte'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

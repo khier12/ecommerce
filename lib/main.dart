@@ -49,7 +49,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
   ErrorWidget.builder = (details) => FriendlyErrorView(details: details);
-  runApp(MiniShopApp(orderStore: PreferencesOrderStore()));
+  runApp(
+    MiniShopApp(
+      orderStore: PreferencesOrderStore(),
+      savedStore: PreferencesSavedItemsStore(),
+    ),
+  );
 }
 
 // ============================================================
@@ -82,6 +87,73 @@ abstract final class AppColors {
   static const softCoral = Color(0xFFFBE9E5);
   static const oat = Color(0xFFEEE5D6);
   static const gold = Color(0xFFE9C587);
+  // Status colors. Each foreground meets 4.5:1 on its soft background.
+  static const success = Color(0xFF1C6B45);
+  static const successSoft = Color(0xFFE3F2E8);
+  static const danger = Color(0xFFA8322C);
+  static const dangerSoft = Color(0xFFFBE7E5);
+  static const favorite = Color(0xFFD23C4A);
+  static const scrim = Color(0x99163B3D);
+}
+
+// ============================================================
+// DESIGN TOKENS
+// Spacing, radii and type scale mirror the Figma variables so
+// every screen composes from the same values.
+// ============================================================
+abstract final class CafeSpace {
+  static const xxs = 4.0;
+  static const xs = 8.0;
+  static const sm = 12.0;
+  static const md = 16.0;
+  static const lg = 20.0;
+  static const xl = 24.0;
+  static const xxl = 32.0;
+  static const xxxl = 48.0;
+
+  /// Minimum interactive size (Material and WCAG 2.5.8 friendly).
+  static const touch = 48.0;
+}
+
+abstract final class CafeType {
+  static const title = TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w700,
+    height: 1.3,
+    color: AppColors.ink,
+  );
+  static const subtitle = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w700,
+    height: 1.35,
+    color: AppColors.ink,
+  );
+  static const body = TextStyle(
+    fontSize: 14,
+    height: 1.6,
+    color: AppColors.ink,
+  );
+  static const bodyMuted = TextStyle(
+    fontSize: 14,
+    height: 1.6,
+    color: AppColors.secondaryText,
+  );
+  static const label = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink,
+  );
+  static const caption = TextStyle(
+    fontSize: 12,
+    height: 1.45,
+    color: AppColors.secondaryText,
+  );
+  static const price = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    color: AppColors.dark,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
 }
 
 abstract final class CafeMotion {
@@ -94,8 +166,11 @@ abstract final class CafeMotion {
 }
 
 abstract final class CafeShape {
-  static const card = 22.0;
+  static const badge = 8.0;
+  static const control = 14.0;
+  static const card = 20.0;
   static const panel = 28.0;
+  static const pill = 999.0;
 }
 
 abstract final class AppTheme {
@@ -134,7 +209,62 @@ abstract final class AppTheme {
       backgroundColor: AppColors.dark,
       foregroundColor: AppColors.white,
       surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
+      elevation: 0,
       centerTitle: false,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
+      titleTextStyle: TextStyle(
+        fontFamily: 'Montserrat',
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: AppColors.white,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      dragHandleColor: AppColors.border,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(CafeShape.panel),
+        ),
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.dark,
+      secondarySelectedColor: AppColors.dark,
+      checkmarkColor: AppColors.white,
+      side: const BorderSide(color: AppColors.border),
+      labelStyle: const TextStyle(
+        fontFamily: 'Montserrat',
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
+      secondaryLabelStyle: const TextStyle(
+        fontFamily: 'Montserrat',
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+        color: AppColors.white,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(CafeShape.pill),
+      ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.white
+            : AppColors.secondaryText,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.teal
+            : AppColors.softTeal,
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -147,7 +277,9 @@ abstract final class AppTheme {
           fontWeight: FontWeight.w700,
           fontSize: 13,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CafeShape.pill),
+        ),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -155,7 +287,25 @@ abstract final class AppTheme {
         foregroundColor: AppColors.ink,
         minimumSize: const Size(48, 52),
         side: const BorderSide(color: AppColors.secondaryText),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        textStyle: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CafeShape.pill),
+        ),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.teal,
+        minimumSize: const Size(48, 48),
+        textStyle: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+        ),
       ),
     ),
     textSelectionTheme: TextSelectionThemeData(
@@ -169,26 +319,38 @@ abstract final class AppTheme {
       hintStyle: const TextStyle(color: AppColors.secondaryText, fontSize: 14),
       prefixIconColor: AppColors.secondaryText,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(CafeShape.control),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(CafeShape.control),
         borderSide: const BorderSide(color: AppColors.secondaryText),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(CafeShape.control),
         borderSide: const BorderSide(color: AppColors.teal, width: 2),
       ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(CafeShape.control),
+        borderSide: const BorderSide(color: AppColors.action),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(CafeShape.control),
+        borderSide: const BorderSide(color: AppColors.action, width: 2),
+      ),
+      errorStyle: const TextStyle(color: AppColors.action, fontSize: 12),
     ),
-    snackBarTheme: const SnackBarThemeData(
+    snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.dark,
-      contentTextStyle: TextStyle(
+      contentTextStyle: const TextStyle(
         color: AppColors.white,
         fontFamily: 'Montserrat',
       ),
-      actionTextColor: AppColors.white,
+      actionTextColor: AppColors.gold,
       behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(CafeShape.control),
+      ),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: AppColors.surface,
@@ -326,24 +488,79 @@ class Product {
     image: json['image'] as String,
     featured: json['featured'] as bool? ?? false,
   );
+
+  /// Items temporarily out of stock stay visible so customers can still save
+  /// them, but they cannot be added to the bag.
+  bool get available => !soldOutProductIds.contains(id);
+
+  /// Cup sizes for handcrafted drinks. Food, pastries and bottled drinks have
+  /// a single serving and therefore no options.
+  List<ProductOption> get sizeOptions =>
+      const {'Coffee', 'Non-Coffee', 'Ice Blended'}.contains(category) ||
+          subcategory == 'Lava Series'
+      ? ProductOption.cupSizes
+      : const [];
 }
 
 @immutable
+class ProductOption {
+  const ProductOption({
+    required this.label,
+    required this.detail,
+    this.priceDelta = 0,
+  });
+  final String label;
+  final String detail;
+  final int priceDelta;
+
+  static const cupSizes = [
+    ProductOption(label: 'Regular', detail: '16 oz'),
+    ProductOption(label: 'Large', detail: '22 oz', priceDelta: 20),
+  ];
+}
+
+/// Menu items that are currently sold out. Kept outside the generated catalog
+/// so imports never overwrite stock status.
+const soldOutProductIds = <String>{
+  'ice-blended-ube',
+  'dessert-matcha-affogato',
+};
+
+@immutable
 class CartItem {
-  const CartItem({required this.product, required this.quantity});
+  const CartItem({
+    required this.product,
+    required this.quantity,
+    this.option,
+    this.customUnitPrice,
+  });
 
   final Product product;
   final int quantity;
-  int get total => product.price * quantity;
+
+  /// Selected size label, such as "Large · 22 oz". Null for single-serving
+  /// items and receipts saved before options existed.
+  final String? option;
+  final int? customUnitPrice;
+  int get unitPrice => customUnitPrice ?? product.price;
+  int get total => unitPrice * quantity;
+  String get key => cartKey(product, option);
+
+  static String cartKey(Product product, String? option) =>
+      option == null ? product.id : '${product.id}::$option';
 
   Map<String, Object?> toJson() => {
     'product': product.toJson(),
     'quantity': quantity,
+    if (option != null) 'option': option,
+    if (customUnitPrice != null) 'unitPrice': customUnitPrice,
   };
 
   factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
     product: Product.fromJson(json['product'] as Map<String, dynamic>),
     quantity: json['quantity'] as int,
+    option: json['option'] as String?,
+    customUnitPrice: json['unitPrice'] as int?,
   );
 }
 
@@ -1266,14 +1483,61 @@ enum MenuSort {
   final String label;
 }
 
+enum PriceRange {
+  any('Any price'),
+  under80('Under ₱80'),
+  mid('₱80 – ₱120'),
+  over120('Over ₱120');
+
+  const PriceRange(this.label);
+  final String label;
+
+  bool includes(int price) => switch (this) {
+    PriceRange.any => true,
+    PriceRange.under80 => price < 80,
+    PriceRange.mid => price >= 80 && price <= 120,
+    PriceRange.over120 => price > 120,
+  };
+}
+
+abstract class SavedItemsStore {
+  Future<List<String>?> read();
+  Future<void> write(List<String> ids);
+}
+
+class PreferencesSavedItemsStore implements SavedItemsStore {
+  final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
+  static const _key = 'smooch_saved_items_v1';
+
+  @override
+  Future<List<String>?> read() => _preferences.getStringList(_key);
+
+  @override
+  Future<void> write(List<String> ids) => _preferences.setStringList(_key, ids);
+}
+
+class MemorySavedItemsStore implements SavedItemsStore {
+  List<String>? value;
+  @override
+  Future<List<String>?> read() async => value;
+  @override
+  Future<void> write(List<String> ids) async => value = List.of(ids);
+}
+
 class ShopController extends ChangeNotifier {
-  ShopController({required this.repository, OrderStore? orderStore})
-    : orderStore = orderStore ?? MemoryOrderStore();
+  ShopController({
+    required this.repository,
+    OrderStore? orderStore,
+    SavedItemsStore? savedStore,
+  }) : orderStore = orderStore ?? MemoryOrderStore(),
+       savedStore = savedStore ?? MemorySavedItemsStore();
 
   final MenuRepository repository;
   final OrderStore orderStore;
+  final SavedItemsStore savedStore;
   final Map<String, CartItem> _cart = {};
   final List<OrderReceipt> _orders = [];
+  final Set<String> _saved = {};
   bool _placingOrder = false;
   bool loadingOrders = false;
   String? historyError;
@@ -1284,6 +1548,8 @@ class ShopController extends ChangeNotifier {
   List<String> _queryWords = const [];
   String _category = 'All';
   MenuSort _sort = MenuSort.recommended;
+  PriceRange _priceRange = PriceRange.any;
+  bool _inStockOnly = false;
 
   static const categories = [
     'All',
@@ -1298,12 +1564,19 @@ class ShopController extends ChangeNotifier {
   String get query => _query;
   String get category => _category;
   MenuSort get sort => _sort;
+  PriceRange get priceRange => _priceRange;
+  bool get inStockOnly => _inStockOnly;
   bool get placingOrder => _placingOrder;
   List<OrderReceipt> get orders => List.unmodifiable(_orders);
+
+  /// Number of refinements chosen in the Filters sheet.
+  int get activeFilterCount =>
+      (_priceRange == PriceRange.any ? 0 : 1) + (_inStockOnly ? 1 : 0);
   bool get hasActiveFilters =>
       _query.trim().isNotEmpty ||
       _category != 'All' ||
-      _sort != MenuSort.recommended;
+      _sort != MenuSort.recommended ||
+      activeFilterCount > 0;
   List<Product> get products => repository.products;
   List<Product> get filteredProducts => productsForCategory(_category);
 
@@ -1311,7 +1584,10 @@ class ShopController extends ChangeNotifier {
   List<Product> productsForCategory(String category) {
     final matches = products.where((product) {
       final matchesCategory = category == 'All' || product.category == category;
-      return matchesCategory && _matchesQuery(product);
+      return matchesCategory &&
+          _priceRange.includes(product.price) &&
+          (!_inStockOnly || product.available) &&
+          _matchesQuery(product);
     }).toList();
     switch (_sort) {
       case MenuSort.recommended:
@@ -1334,7 +1610,9 @@ class ShopController extends ChangeNotifier {
     return _queryWords.every(text.contains);
   }
 
-  int quantityOf(Product product) => _cart[product.id]?.quantity ?? 0;
+  int quantityOf(Product product) => _cart.values
+      .where((item) => item.product.id == product.id)
+      .fold(0, (sum, item) => sum + item.quantity);
 
   void sortBy(MenuSort value) {
     if (_sort == value) return;
@@ -1342,9 +1620,51 @@ class ShopController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void applyFilters({required PriceRange priceRange, required bool inStock}) {
+    if (_priceRange == priceRange && _inStockOnly == inStock) return;
+    _priceRange = priceRange;
+    _inStockOnly = inStock;
+    notifyListeners();
+  }
+
+  // ---- Saved items (wishlist) ----
+  bool isSaved(Product product) => _saved.contains(product.id);
+  int get savedCount => _saved.length;
+  List<Product> get savedProducts =>
+      products.where((product) => _saved.contains(product.id)).toList();
+
+  void toggleSaved(Product product) {
+    if (!_saved.remove(product.id)) _saved.add(product.id);
+    notifyListeners();
+    unawaited(
+      savedStore.write(_saved.toList()).catchError((Object _) {
+        // Saving favorites is a convenience; a storage failure keeps the
+        // in-memory list for this session.
+      }),
+    );
+  }
+
+  Future<void> restoreSaved() async {
+    try {
+      final ids = await savedStore.read();
+      if (_disposed || ids == null) return;
+      final known = products.map((product) => product.id).toSet();
+      _saved
+        ..clear()
+        ..addAll(ids.where(known.contains));
+      notifyListeners();
+    } catch (_) {
+      // Ignore unreadable favorites; the customer can save items again.
+    }
+  }
+
   List<CartItem> get cartItems => List.unmodifiable(_cart.values);
   int get cartCount => _cart.values.fold(0, (sum, item) => sum + item.quantity);
   int get total => _cart.values.fold(0, (sum, item) => sum + item.total);
+
+  /// Delivery is free within the service area; kept explicit so totals and
+  /// summaries can show the breakdown.
+  static const deliveryFee = 0;
 
   void search(String value) {
     if (_query == value) return;
@@ -1364,37 +1684,69 @@ class ShopController extends ChangeNotifier {
     _queryWords = const [];
     _category = 'All';
     _sort = MenuSort.recommended;
+    _priceRange = PriceRange.any;
+    _inStockOnly = false;
     notifyListeners();
   }
 
-  void addToCart(Product product, {int quantity = 1}) {
-    if (quantity < 1 || _placingOrder) return;
-    final previous = _cart[product.id]?.quantity ?? 0;
-    _cart[product.id] = CartItem(
+  /// Resolves the size label stored on a cart line. Drinks default to the
+  /// first (Regular) size so quick-add and details produce the same line.
+  static String? optionLabel(Product product, ProductOption? option) {
+    final sizes = product.sizeOptions;
+    if (sizes.isEmpty) return null;
+    final chosen = option ?? sizes.first;
+    return '${chosen.label} · ${chosen.detail}';
+  }
+
+  void addToCart(
+    Product product, {
+    int quantity = 1,
+    ProductOption? option,
+    String? optionLabel,
+    int? unitPrice,
+  }) {
+    if (quantity < 1 || _placingOrder || !product.available) return;
+    final label = optionLabel ?? ShopController.optionLabel(product, option);
+    final key = CartItem.cartKey(product, label);
+    final previous = _cart[key];
+    _cart[key] = CartItem(
       product: product,
-      quantity: previous + quantity,
+      quantity: (previous?.quantity ?? 0) + quantity,
+      option: label,
+      customUnitPrice:
+          previous?.customUnitPrice ??
+          unitPrice ??
+          (label == null ? null : product.price + (option?.priceDelta ?? 0)),
     );
     notifyListeners();
   }
 
-  void decrease(Product product) {
+  String _lineKey(Product product, String? option) => CartItem.cartKey(
+    product,
+    option ?? ShopController.optionLabel(product, null),
+  );
+
+  void decrease(Product product, {String? option}) {
     if (_placingOrder) return;
-    final current = _cart[product.id];
+    final key = _lineKey(product, option);
+    final current = _cart[key];
     if (current == null) return;
     if (current.quantity == 1) {
-      _cart.remove(product.id);
+      _cart.remove(key);
     } else {
-      _cart[product.id] = CartItem(
+      _cart[key] = CartItem(
         product: product,
         quantity: current.quantity - 1,
+        option: current.option,
+        customUnitPrice: current.customUnitPrice,
       );
     }
     notifyListeners();
   }
 
-  void remove(Product product) {
+  void remove(Product product, {String? option}) {
     if (_placingOrder) return;
-    _cart.remove(product.id);
+    _cart.remove(_lineKey(product, option));
     notifyListeners();
   }
 
@@ -1430,7 +1782,7 @@ class ShopController extends ChangeNotifier {
           final order = OrderReceipt.fromJson(record);
           if (order.items.isEmpty ||
               order.items.any(
-                (item) => item.quantity < 1 || item.product.price < 0,
+                (item) => item.quantity < 1 || item.unitPrice < 0,
               )) {
             throw const FormatException('Invalid receipt items');
           }
@@ -1532,8 +1884,9 @@ class ShopController extends ChangeNotifier {
 // ============================================================
 
 class MiniShopApp extends StatefulWidget {
-  const MiniShopApp({super.key, this.orderStore});
+  const MiniShopApp({super.key, this.orderStore, this.savedStore});
   final OrderStore? orderStore;
+  final SavedItemsStore? savedStore;
 
   @override
   State<MiniShopApp> createState() => _MiniShopAppState();
@@ -1549,8 +1902,10 @@ class _MiniShopAppState extends State<MiniShopApp> {
     controller = ShopController(
       repository: const MenuRepository(),
       orderStore: widget.orderStore,
+      savedStore: widget.savedStore,
     );
     unawaited(controller.restoreOrders().catchError((Object _) {}));
+    unawaited(controller.restoreSaved());
   }
 
   @override
@@ -2270,10 +2625,12 @@ class CartButton extends StatefulWidget {
     required this.controller,
     required this.onPressed,
     this.flightTargetKey,
+    this.iconColor,
   });
   final ShopController controller;
   final VoidCallback onPressed;
   final GlobalKey? flightTargetKey;
+  final Color? iconColor;
 
   @override
   State<CartButton> createState() => _CartButtonState();
@@ -2363,9 +2720,12 @@ class _CartButtonState extends State<CartButton>
             isLabelVisible: widget.controller.cartCount > 0,
             backgroundColor: AppColors.action,
             label: NumericText(countText(widget.controller.cartCount)),
-            child: const Icon(
+            child: Icon(
               Icons.shopping_bag_outlined,
-              color: AppColors.white,
+              color:
+                  widget.iconColor ??
+                  IconTheme.of(context).color ??
+                  AppColors.ink,
             ),
           ),
         ),
@@ -2585,19 +2945,262 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 48, color: AppColors.teal),
-        const SizedBox(height: 20),
-        Text(title, style: displayStyle(28), textAlign: TextAlign.center),
-        const SizedBox(height: 12),
-        Text(
-          message,
-          style: const TextStyle(color: AppColors.secondaryText, height: 1.7),
-          textAlign: TextAlign.center,
+    child: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.softTeal,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Icon(icon, size: 34, color: AppColors.teal),
+            ),
+            const SizedBox(height: 20),
+            Text(title, style: displayStyle(28), textAlign: TextAlign.center),
+            const SizedBox(height: 10),
+            Text(
+              message,
+              style: const TextStyle(
+                color: AppColors.secondaryText,
+                height: 1.65,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (action != null) ...[const SizedBox(height: 24), action!],
+          ],
         ),
-        if (action != null) ...[const SizedBox(height: 24), action!],
+      ),
+    ),
+  );
+}
+
+/// Reusable bordered card container shared across cart rows, order summaries,
+/// checkout sections, saved receipts, and cafe info panels.
+class CafeSurfaceCard extends StatelessWidget {
+  const CafeSurfaceCard({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(CafeSpace.lg),
+    this.color = AppColors.surface,
+    this.radius = CafeShape.card,
+  });
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final Color color;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: padding,
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: child,
+  );
+}
+
+enum CafeStatusTone { info, success, warning, neutral }
+
+/// Pill status badge used for stock availability, featured picks, and order
+/// fulfillment labels.
+class CafeStatusBadge extends StatelessWidget {
+  const CafeStatusBadge({
+    super.key,
+    required this.label,
+    this.icon,
+    this.tone = CafeStatusTone.info,
+  });
+  final String label;
+  final IconData? icon;
+  final CafeStatusTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final (bg, fg) = switch (tone) {
+      CafeStatusTone.info => (AppColors.softTeal, AppColors.dark),
+      CafeStatusTone.success => (AppColors.softTeal, AppColors.dark),
+      CafeStatusTone.warning => (AppColors.softCoral, AppColors.ink),
+      CafeStatusTone.neutral => (AppColors.oat, AppColors.ink),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(CafeShape.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 13, color: fg),
+            const SizedBox(width: 5),
+          ],
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: fg,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 48x48 accessible heart button for saving items to the wishlist.
+class FavoriteButton extends StatelessWidget {
+  const FavoriteButton({
+    super.key,
+    required this.product,
+    required this.controller,
+    this.filledBackground = true,
+  });
+  final Product product;
+  final ShopController controller;
+  final bool filledBackground;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: controller,
+    builder: (context, _) {
+      final saved = controller.isSaved(product);
+      return Semantics(
+        toggled: saved,
+        button: true,
+        label: saved
+            ? 'Remove ${product.name} from saved items'
+            : 'Save ${product.name}',
+        child: ExcludeSemantics(
+          child: IconButton(
+            tooltip: saved ? 'Remove from saved' : 'Save item',
+            onPressed: () {
+              CafeHaptics.selection();
+              controller.toggleSaved(product);
+            },
+            style: filledBackground
+                ? IconButton.styleFrom(
+                    backgroundColor: AppColors.surface.withValues(alpha: .92),
+                    minimumSize: const Size(40, 40),
+                    tapTargetSize: MaterialTapTargetSize.padded,
+                  )
+                : null,
+            icon: AnimatedSwitcher(
+              duration: CafeMotion.of(context, CafeMotion.quick),
+              child: Icon(
+                saved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                key: ValueKey(saved),
+                size: 20,
+                color: saved
+                    ? (filledBackground ? AppColors.action : AppColors.coral)
+                    : (filledBackground
+                          ? AppColors.ink
+                          : (IconTheme.of(context).color ?? AppColors.white)),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+/// Shared itemized subtotal + delivery + total breakdown used in the bag and
+/// checkout screens.
+class OrderSummaryCard extends StatelessWidget {
+  const OrderSummaryCard({
+    super.key,
+    required this.itemCount,
+    required this.subtotal,
+    this.totalKey,
+    this.compact = false,
+  });
+  final int itemCount;
+  final int subtotal;
+  final Key? totalKey;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => CafeSurfaceCard(
+    padding: EdgeInsets.all(compact ? CafeSpace.md : CafeSpace.lg),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 12,
+          runSpacing: 4,
+          children: [
+            Text(
+              'Subtotal (${countText(itemCount)} ${itemCount == 1 ? 'item' : 'items'})',
+              style: CafeType.caption,
+            ),
+            NumericText(
+              pesos(subtotal),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 12,
+          runSpacing: 4,
+          children: [
+            Text('Delivery within 30 km', style: CafeType.caption),
+            Text(
+              'Free',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.teal,
+              ),
+            ),
+          ],
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Divider(height: 1),
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 12,
+          runSpacing: 6,
+          children: [
+            const Text(
+              'Total',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
+            NumericText(
+              pesos(subtotal + ShopController.deliveryFee),
+              key: totalKey,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: AppColors.dark,
+              ),
+            ),
+          ],
+        ),
       ],
     ),
   );
@@ -3125,6 +3728,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   final menuSearchFocus = FocusNode();
   final orderScroll = ScrollController();
   final cafeScroll = ScrollController();
+  final savedScroll = ScrollController();
   final categoryScrolls = List.generate(
     ShopController.categories.length,
     (_) => ScrollController(),
@@ -3178,6 +3782,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     featuredPages.dispose();
     orderScroll.dispose();
     cafeScroll.dispose();
+    savedScroll.dispose();
     for (final scroll in categoryScrolls) {
       scroll.dispose();
     }
@@ -3196,7 +3801,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   }
 
   void selectTab(int value) {
-    if (value < 0 || value > 2) return;
+    if (value < 0 || value > 3) return;
     CafeTitleScope.of(context)?.selectMenuTab(value);
     CafeHaptics.light();
     if (value == tab) {
@@ -3226,7 +3831,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   ScrollController get activePrimaryScroll => switch (tab) {
     0 => categoryScrolls[categoryTabs.index],
     1 => orderScroll,
-    _ => cafeScroll,
+    2 => cafeScroll,
+    _ => savedScroll,
   };
 
   void resetPosition() {
@@ -3296,6 +3902,20 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     resetPosition();
   }
 
+  Future<void> openFilterSheet() async {
+    CafeHaptics.light();
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => FilterBottomSheet(
+        controller: shop,
+        onApplied: resetPosition,
+        onResetAll: resetFilters,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
@@ -3316,6 +3936,10 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
+                backgroundColor: AppColors.dark,
+                foregroundColor: AppColors.white,
+                systemOverlayStyle: SystemUiOverlayStyle.light,
+                shape: const Border(),
                 toolbarHeight: 72,
                 titleSpacing: 0,
                 title: ContentWidth(
@@ -3340,9 +3964,10 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           'Our menu',
                           'Order history',
                           'Discover',
+                          'Saved',
                         ].asMap().entries)
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
                             child: TextButton(
                               onPressed: () => selectTab(entry.key),
                               style: TextButton.styleFrom(
@@ -3350,23 +3975,56 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                 backgroundColor: tab == entry.key
                                     ? AppColors.white.withValues(alpha: .12)
                                     : null,
-                                minimumSize: const Size(80, 48),
-                              ),
-                              child: Text(
-                                entry.value,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
                                 ),
+                                minimumSize: const Size(64, 48),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    entry.value,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (entry.key == 3 &&
+                                      shop.savedCount > 0) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 7,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.action,
+                                        borderRadius: BorderRadius.circular(
+                                          CafeShape.pill,
+                                        ),
+                                      ),
+                                      child: NumericText(
+                                        countText(shop.savedCount),
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                           ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 12),
                       ],
                       CartButton(
                         controller: shop,
                         onPressed: openCart,
                         flightTargetKey: cartFlightTarget,
+                        iconColor: AppColors.white,
                       ),
                     ],
                   ),
@@ -3388,8 +4046,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                             selectedIndex: tab,
                             onDestinationSelected: selectTab,
                             height: 72,
-                            destinations: const [
-                              NavigationDestination(
+                            destinations: [
+                              const NavigationDestination(
                                 icon: Icon(Icons.grid_view_outlined),
                                 selectedIcon: Icon(
                                   Icons.grid_view_rounded,
@@ -3397,7 +4055,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                 ),
                                 label: 'Our menu',
                               ),
-                              NavigationDestination(
+                              const NavigationDestination(
                                 icon: Icon(Icons.receipt_long_outlined),
                                 selectedIcon: Icon(
                                   Icons.receipt_long,
@@ -3405,13 +4063,37 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                 ),
                                 label: 'Order history',
                               ),
-                              NavigationDestination(
+                              const NavigationDestination(
                                 icon: Icon(Icons.explore_outlined),
                                 selectedIcon: Icon(
                                   Icons.explore,
                                   color: AppColors.dark,
                                 ),
                                 label: 'Discover',
+                              ),
+                              NavigationDestination(
+                                icon: Badge(
+                                  isLabelVisible: shop.savedCount > 0,
+                                  backgroundColor: AppColors.action,
+                                  label: NumericText(
+                                    countText(shop.savedCount),
+                                  ),
+                                  child: const Icon(
+                                    Icons.favorite_border_rounded,
+                                  ),
+                                ),
+                                selectedIcon: Badge(
+                                  isLabelVisible: shop.savedCount > 0,
+                                  backgroundColor: AppColors.action,
+                                  label: NumericText(
+                                    countText(shop.savedCount),
+                                  ),
+                                  child: const Icon(
+                                    Icons.favorite_rounded,
+                                    color: AppColors.dark,
+                                  ),
+                                ),
+                                label: 'Saved',
                               ),
                             ],
                           ),
@@ -3472,11 +4154,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                     onFeaturedPageChanged: (value) =>
                                         setState(() => featuredIndex = value),
                                     onReset: resetFilters,
+                                    onOpenFilters: openFilterSheet,
                                     onSort: (value) {
                                       shop.sortBy(value);
                                       resetPosition();
                                     },
-                                    onDiscover: () => selectTab(2),
                                     onSearchAll: () => selectCategory('All'),
                                     onClearSearch: () {
                                       search.clear();
@@ -3500,26 +4182,13 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                   24,
+                                  18,
                                   24,
-                                  24,
-                                  16,
+                                  8,
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Your orders',
-                                      style: displayStyle(32),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    const Text(
-                                      'Find past orders and view the details.',
-                                      style: TextStyle(
-                                        color: AppColors.secondaryText,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
+                                child: Text(
+                                  'Your orders',
+                                  style: displayStyle(28),
                                 ),
                               ),
                             ),
@@ -3535,7 +4204,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     )
-                  : CustomScrollView(
+                  : tab == 2
+                  ? CustomScrollView(
                       key: const PageStorageKey('menu-tab-cafe'),
                       controller: cafeScroll,
                       keyboardDismissBehavior:
@@ -3567,6 +4237,14 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           child: SizedBox(height: math.max(24.0, endInset)),
                         ),
                       ],
+                    )
+                  : SavedItemsView(
+                      controller: shop,
+                      scroll: savedScroll,
+                      width: constraints.maxWidth,
+                      horizontalPadding: padding,
+                      endInset: endInset,
+                      onBrowseMenu: () => selectTab(0),
                     ),
             ),
           );
@@ -3591,10 +4269,10 @@ class _MenuCategoryPage extends StatelessWidget {
     required this.featuredIndex,
     required this.onFeaturedPageChanged,
     required this.onReset,
+    required this.onOpenFilters,
     required this.onSort,
     required this.onSearchAll,
     required this.onClearSearch,
-    required this.onDiscover,
   });
 
   final String category;
@@ -3609,51 +4287,24 @@ class _MenuCategoryPage extends StatelessWidget {
   final int featuredIndex;
   final ValueChanged<int> onFeaturedPageChanged;
   final VoidCallback onReset;
+  final VoidCallback onOpenFilters;
   final ValueChanged<MenuSort> onSort;
   final VoidCallback onSearchAll;
   final VoidCallback onClearSearch;
-  final VoidCallback onDiscover;
 
   @override
   Widget build(BuildContext context) {
-    final showFeatured = category == 'All' && controller.query.trim().isEmpty;
+    final showFeatured =
+        category == 'All' &&
+        controller.query.trim().isEmpty &&
+        controller.activeFilterCount == 0;
+    final filterCount = controller.activeFilterCount;
     return CustomScrollView(
       key: PageStorageKey('products-$category'),
       controller: scroll,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
-        if (showFeatured) ...[
-          SliverToBoxAdapter(
-            child: ContentWidth(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 18, bottom: 24),
-                child: CafeReveal(
-                  child: CafeSectionHeading(
-                    eyebrow: 'SMOOCH CAFE · CARMONA',
-                    title: MediaQuery.textScalerOf(context).scale(14) > 20
-                        ? 'Your menu.'
-                        : 'Good days start here.',
-                    subtitle: MediaQuery.textScalerOf(context).scale(14) > 20
-                        ? null
-                        : 'Your favorite sip. A comforting bite. A little Smooch.',
-                    trailing: wide
-                        ? CafePress(
-                            child: OutlinedButton.icon(
-                              onPressed: onDiscover,
-                              icon: const Icon(
-                                Icons.explore_outlined,
-                                size: 18,
-                              ),
-                              label: const Text('Discover Smooch'),
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        if (showFeatured)
           SliverToBoxAdapter(
             child: _FeaturedCarousel(
               controller: controller,
@@ -3662,107 +4313,192 @@ class _MenuCategoryPage extends StatelessWidget {
               onPageChanged: onFeaturedPageChanged,
             ),
           ),
-        ],
         SliverToBoxAdapter(
           child: ContentWidth(
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 16),
-              child: Row(
+              padding: const EdgeInsets.only(top: 10, bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          controller.query.trim().isNotEmpty
-                              ? 'Search results'
-                              : category == 'All'
-                              ? 'Explore the menu'
-                              : category,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.query.trim().isNotEmpty
+                                  ? 'Search results'
+                                  : category == 'All'
+                                  ? 'Explore the menu'
+                                  : category,
+                              style: CafeType.title,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${countText(products.length)} ${products.length == 1 ? 'item' : 'items'}${controller.query.trim().isNotEmpty ? ' for “${controller.query.trim()}”' : ''}',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
+                                fontSize: 12,
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (controller.hasActiveFilters) ...[
+                        TextButton(
+                          key: const Key('reset-menu-filters'),
+                          onPressed: onReset,
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.teal,
+                            minimumSize: const Size(48, 48),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                          child: const Text(
+                            'Reset',
+                            style: TextStyle(fontSize: 12),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${countText(products.length)} ${products.length == 1 ? 'item' : 'items'}${controller.query.trim().isNotEmpty ? ' for “${controller.query.trim()}”' : ''}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.secondaryText,
-                            fontSize: 12,
-                            height: 1.5,
-                          ),
-                        ),
+                        const SizedBox(width: 4),
                       ],
-                    ),
-                  ),
-                  if (controller.hasActiveFilters) ...[
-                    TextButton(
-                      key: const Key('reset-menu-filters'),
-                      onPressed: onReset,
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.teal,
-                        minimumSize: const Size(48, 48),
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                      ),
-                      child: const Text(
-                        'Reset',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                  ],
-                  PopupMenuButton<MenuSort>(
-                    tooltip: 'Sort menu',
-                    onOpened: () =>
-                        FocusManager.instance.primaryFocus?.unfocus(),
-                    initialValue: controller.sort,
-                    onSelected: (value) {
-                      if (controller.sort != value) CafeHaptics.selection();
-                      onSort(value);
-                    },
-                    itemBuilder: (_) => [
-                      for (final sort in MenuSort.values)
-                        CheckedPopupMenuItem(
-                          value: sort,
-                          checked: controller.sort == sort,
-                          child: Text(sort.label),
-                        ),
-                    ],
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 48),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.swap_vert, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            wide
-                                ? controller.sort.label
-                                : switch (controller.sort) {
-                                    MenuSort.recommended => 'Sort',
-                                    MenuSort.priceLow => 'Price ↑',
-                                    MenuSort.priceHigh => 'Price ↓',
-                                    MenuSort.name => 'A–Z',
-                                  },
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                      Tooltip(
+                        message: 'Filter menu',
+                        child: Material(
+                          color: filterCount > 0
+                              ? AppColors.softTeal
+                              : AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            key: const Key('open-menu-filters'),
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: onOpenFilters,
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                minHeight: 48,
+                                minWidth: 48,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 11,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: filterCount > 0
+                                      ? AppColors.teal
+                                      : AppColors.border,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune_rounded,
+                                    size: 18,
+                                    color: filterCount > 0
+                                        ? AppColors.dark
+                                        : AppColors.ink,
+                                  ),
+                                  if (wide) ...[
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      filterCount > 0
+                                          ? 'Filter · $filterCount'
+                                          : 'Filter',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: filterCount > 0
+                                            ? AppColors.dark
+                                            : AppColors.ink,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      PopupMenuButton<MenuSort>(
+                        tooltip: 'Sort menu',
+                        onOpened: () =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        initialValue: controller.sort,
+                        onSelected: (value) {
+                          if (controller.sort != value) CafeHaptics.selection();
+                          onSort(value);
+                        },
+                        itemBuilder: (_) => [
+                          for (final sort in MenuSort.values)
+                            CheckedPopupMenuItem(
+                              value: sort,
+                              checked: controller.sort == sort,
+                              child: Text(sort.label),
+                            ),
+                        ],
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.swap_vert, size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                wide
+                                    ? controller.sort.label
+                                    : switch (controller.sort) {
+                                        MenuSort.recommended => 'Sort',
+                                        MenuSort.priceLow => 'Price ↑',
+                                        MenuSort.priceHigh => 'Price ↓',
+                                        MenuSort.name => 'A–Z',
+                                      },
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                  if (filterCount > 0) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        if (controller.priceRange != PriceRange.any)
+                          InputChip(
+                            label: Text(controller.priceRange.label),
+                            onDeleted: () => controller.applyFilters(
+                              priceRange: PriceRange.any,
+                              inStock: controller.inStockOnly,
+                            ),
+                          ),
+                        if (controller.inStockOnly)
+                          InputChip(
+                            label: const Text('In stock only'),
+                            onDeleted: () => controller.applyFilters(
+                              priceRange: controller.priceRange,
+                              inStock: false,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -3777,9 +4513,17 @@ class _MenuCategoryPage extends StatelessWidget {
                   ? 'Try another name or clear your search.'
                   : 'Nothing matched in $category. Try searching all categories.',
               action: OutlinedButton(
-                onPressed: category == 'All' ? onClearSearch : onSearchAll,
+                onPressed: category == 'All'
+                    ? (controller.query.trim().isNotEmpty
+                          ? onClearSearch
+                          : onReset)
+                    : onSearchAll,
                 child: Text(
-                  category == 'All' ? 'Clear search' : 'Search all categories',
+                  category == 'All'
+                      ? (controller.query.trim().isNotEmpty
+                            ? 'Clear search'
+                            : 'Reset filters')
+                      : 'Search all categories',
                 ),
               ),
             ),
@@ -3791,18 +4535,217 @@ class _MenuCategoryPage extends StatelessWidget {
             width: width,
             horizontalPadding: horizontalPadding,
           ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 32, 24, math.max(32.0, endInset)),
-            child: const Center(
-              child: Text(
-                'A little Smooch goes a long way.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.secondaryText, fontSize: 12),
+        SliverToBoxAdapter(child: SizedBox(height: math.max(20.0, endInset))),
+      ],
+    );
+  }
+}
+
+class FilterBottomSheet extends StatefulWidget {
+  const FilterBottomSheet({
+    super.key,
+    required this.controller,
+    required this.onApplied,
+    required this.onResetAll,
+  });
+  final ShopController controller;
+  final VoidCallback onApplied;
+  final VoidCallback onResetAll;
+
+  @override
+  State<FilterBottomSheet> createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<FilterBottomSheet> {
+  late PriceRange priceRange = widget.controller.priceRange;
+  late bool inStockOnly = widget.controller.inStockOnly;
+  late MenuSort sort = widget.controller.sort;
+
+  int get matchingCount {
+    final category = widget.controller.category;
+    return widget.controller.products.where((product) {
+      final matchesCategory = category == 'All' || product.category == category;
+      return matchesCategory &&
+          priceRange.includes(product.price) &&
+          (!inStockOnly || product.available);
+    }).length;
+  }
+
+  void apply() {
+    CafeHaptics.selection();
+    widget.controller
+      ..sortBy(sort)
+      ..applyFilters(priceRange: priceRange, inStock: inStockOnly);
+    widget.onApplied();
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    child: SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        8,
+        24,
+        math.max(24, MediaQuery.viewInsetsOf(context).bottom + 20),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Filter & sort', style: displayStyle(26)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        priceRange = PriceRange.any;
+                        inStockOnly = false;
+                        sort = MenuSort.recommended;
+                      });
+                    },
+                    child: const Text('Clear all'),
+                  ),
+                ],
               ),
+              const SizedBox(height: 16),
+              const Eyebrow('Price range'),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final range in PriceRange.values)
+                    ChoiceChip(
+                      key: Key('filter-price-${range.name}'),
+                      label: Text(range.label),
+                      selected: priceRange == range,
+                      onSelected: (_) {
+                        CafeHaptics.selection();
+                        setState(() => priceRange = range);
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Eyebrow('Sort by'),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final option in MenuSort.values)
+                    ChoiceChip(
+                      key: Key('filter-sort-${option.name}'),
+                      label: Text(option.label),
+                      selected: sort == option,
+                      onSelected: (_) {
+                        CafeHaptics.selection();
+                        setState(() => sort = option);
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              CafeSurfaceCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: SwitchListTile.adaptive(
+                    key: const Key('filter-in-stock'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text(
+                      'In stock only',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    value: inStockOnly,
+                    onChanged: (value) {
+                      CafeHaptics.selection();
+                      setState(() => inStockOnly = value);
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                key: const Key('apply-menu-filters'),
+                onPressed: apply,
+                child: NumericText(
+                  'Show ${countText(matchingCount)} ${matchingCount == 1 ? 'item' : 'items'}',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class SavedItemsView extends StatelessWidget {
+  const SavedItemsView({
+    super.key,
+    required this.controller,
+    required this.scroll,
+    required this.width,
+    required this.horizontalPadding,
+    required this.endInset,
+    required this.onBrowseMenu,
+  });
+  final ShopController controller;
+  final ScrollController scroll;
+  final double width;
+  final double horizontalPadding;
+  final double endInset;
+  final VoidCallback onBrowseMenu;
+
+  @override
+  Widget build(BuildContext context) {
+    final saved = controller.savedProducts;
+    return CustomScrollView(
+      key: const PageStorageKey('menu-tab-saved'),
+      controller: scroll,
+      slivers: [
+        SliverToBoxAdapter(
+          child: ContentWidth(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 18, bottom: 14),
+              child: Text('Saved for later.', style: displayStyle(28)),
             ),
           ),
         ),
+        if (saved.isEmpty)
+          SliverToBoxAdapter(
+            child: EmptyState(
+              icon: Icons.favorite_border_rounded,
+              title: 'No saved items yet.',
+              message: 'Tap the heart on any item to save it here.',
+              action: FilledButton(
+                onPressed: onBrowseMenu,
+                child: const Text('Explore the menu'),
+              ),
+            ),
+          )
+        else
+          _ProductGridSliver(
+            products: saved,
+            controller: controller,
+            width: width,
+            horizontalPadding: horizontalPadding,
+          ),
+        SliverToBoxAdapter(child: SizedBox(height: math.max(32.0, endInset))),
       ],
     );
   }
@@ -3886,15 +4829,15 @@ class _FeaturedCarousel extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1160),
         child: Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 16),
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 18),
-                child: Eyebrow('SMOOCH PICKS · SWIPE TO FIND YOUR FAVORITE'),
+                child: Eyebrow('SMOOCH PICKS'),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               SizedBox(
                 height: 224 * scale.clamp(1, 1.8),
                 child: HorizontalScrollFade(
@@ -4364,6 +5307,47 @@ class _AnimatedAddButtonState extends State<_AnimatedAddButton> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.product.available) {
+      return widget.iconOnly
+          ? Tooltip(
+              message: '${widget.product.name} is sold out',
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.softCoral,
+                  borderRadius: BorderRadius.circular(CafeShape.pill),
+                ),
+                child: const Text(
+                  'Sold out',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ),
+            )
+          : FilledButton(
+              key: Key('add-${widget.product.id}'),
+              onPressed: null,
+              style: FilledButton.styleFrom(
+                disabledBackgroundColor: AppColors.oat,
+                disabledForegroundColor: AppColors.secondaryText,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                minimumSize: const Size(68, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Sold out'),
+            );
+    }
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final colorDuration = reduceMotion
         ? Duration.zero
@@ -4503,7 +5487,7 @@ class ProductCard extends StatelessWidget {
                     if (product.featured)
                       Positioned(
                         left: 10,
-                        top: 12,
+                        top: 10,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -4523,7 +5507,25 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (quantity > 0)
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: FavoriteButton(
+                        key: Key('save-${product.id}'),
+                        product: product,
+                        controller: controller,
+                      ),
+                    ),
+                    if (!product.available)
+                      const Positioned(
+                        left: 10,
+                        bottom: 10,
+                        child: CafeStatusBadge(
+                          label: 'Sold out',
+                          tone: CafeStatusTone.warning,
+                        ),
+                      )
+                    else if (quantity > 0)
                       Positioned(
                         left: 10,
                         bottom: 10,
@@ -4644,17 +5646,31 @@ class ProductDetailsScreen extends StatefulWidget {
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   int quantity = 1;
+  int optionIndex = 0;
   bool adding = false;
   final cartFlightTarget = GlobalKey();
 
+  ProductOption? get selectedOption {
+    final options = widget.product.sizeOptions;
+    if (options.isEmpty) return null;
+    return options[optionIndex.clamp(0, options.length - 1)];
+  }
+
+  int get unitPrice => widget.product.price + (selectedOption?.priceDelta ?? 0);
+
   Future<void> addToCart(BuildContext buttonContext) async {
-    if (adding) return;
+    if (adding || !widget.product.available) return;
     final addedQuantity = quantity;
+    final chosen = selectedOption;
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     setState(() => adding = true);
     final before = widget.controller.cartCount;
-    widget.controller.addToCart(widget.product, quantity: addedQuantity);
+    widget.controller.addToCart(
+      widget.product,
+      quantity: addedQuantity,
+      option: chosen,
+    );
     if (widget.controller.cartCount == before) {
       setState(() => adding = false);
       return;
@@ -4678,181 +5694,219 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Product details', style: TextStyle(fontSize: 16)),
-      actions: [
-        CartButton(
-          controller: widget.controller,
-          flightTargetKey: cartFlightTarget,
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              settings: const RouteSettings(name: '/bag'),
-              builder: (_) => CartScreen(controller: widget.controller),
+  Widget build(BuildContext context) {
+    final options = widget.product.sizeOptions;
+    final available = widget.product.available;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Product details', style: TextStyle(fontSize: 16)),
+        actions: [
+          FavoriteButton(
+            key: Key('details-save-${widget.product.id}'),
+            product: widget.product,
+            controller: widget.controller,
+            filledBackground: false,
+          ),
+          CartButton(
+            controller: widget.controller,
+            flightTargetKey: cartFlightTarget,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                settings: const RouteSettings(name: '/bag'),
+                builder: (_) => CartScreen(controller: widget.controller),
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-      ],
-    ),
-    body: SingleChildScrollView(
-      child: ContentWidth(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 28),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final wide = constraints.maxWidth >= 700;
-              return Flex(
-                direction: wide ? Axis.horizontal : Axis.vertical,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(
-                    flex: wide ? 1 : 0,
-                    child: CafeReveal(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(28),
-                        child: AspectRatio(
-                          aspectRatio: wide ? 1 : 1.1,
-                          child: ProductImage(
-                            product: widget.product,
-                            highResolution: true,
+          const SizedBox(width: 12),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: ContentWidth(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = constraints.maxWidth >= 700;
+                return Flex(
+                  direction: wide ? Axis.horizontal : Axis.vertical,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      flex: wide ? 1 : 0,
+                      child: CafeReveal(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(28),
+                          child: AspectRatio(
+                            aspectRatio: wide ? 1 : 1.1,
+                            child: ProductImage(
+                              product: widget.product,
+                              highResolution: true,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: wide ? 44 : 0, height: wide ? 0 : 28),
-                  Flexible(
-                    flex: wide ? 1 : 0,
-                    child: CafeReveal(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Eyebrow(widget.product.subcategory),
-                          const SizedBox(height: 12),
-                          Text(widget.product.name, style: displayStyle(38)),
-                          const SizedBox(height: 18),
-                          NumericText(
-                            pesos(widget.product.price),
-                            style: const TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.w700,
+                    SizedBox(width: wide ? 40 : 0, height: wide ? 0 : 20),
+                    Flexible(
+                      flex: wide ? 1 : 0,
+                      child: CafeReveal(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 8,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Eyebrow(widget.product.subcategory),
+                                CafeStatusBadge(
+                                  label: available
+                                      ? 'Available'
+                                      : 'Temporarily sold out',
+                                  icon: available
+                                      ? Icons.check_circle_outline
+                                      : Icons.schedule_outlined,
+                                  tone: available
+                                      ? CafeStatusTone.success
+                                      : CafeStatusTone.warning,
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Divider(),
-                          const SizedBox(height: 18),
-                          const Text(
-                            'About this item',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            widget.product.description,
-                            style: const TextStyle(
-                              color: AppColors.secondaryText,
-                              height: 1.7,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          const Row(
-                            children: [
-                              Icon(
-                                Icons.local_cafe_outlined,
-                                color: AppColors.action,
-                                size: 15,
+                            const SizedBox(height: 10),
+                            Text(widget.product.name, style: displayStyle(34)),
+                            const SizedBox(height: 12),
+                            NumericText(
+                              pesos(unitPrice),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
                               ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Made with love at Smooch Cafe.',
-                                  softWrap: true,
-                                  style: TextStyle(
-                                    color: AppColors.secondaryText,
-                                    fontSize: 10,
-                                  ),
+                            ),
+                            if (options.isNotEmpty) ...[
+                              const SizedBox(height: 18),
+                              const Text(
+                                'Size',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
                                 ),
                               ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [
+                                  for (var i = 0; i < options.length; i++)
+                                    ChoiceChip(
+                                      key: Key('size-${options[i].label}'),
+                                      selected: optionIndex == i,
+                                      onSelected: available
+                                          ? (_) {
+                                              CafeHaptics.selection();
+                                              setState(() => optionIndex = i);
+                                            }
+                                          : null,
+                                      label: Text(
+                                        options[i].priceDelta == 0
+                                            ? '${options[i].label} · ${options[i].detail}'
+                                            : '${options[i].label} · ${options[i].detail} (+${pesos(options[i].priceDelta)})',
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ],
-                          ),
-                        ],
+                            const SizedBox(height: 18),
+                            Text(
+                              widget.product.description,
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
+                                height: 1.65,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Material(
+        color: AppColors.surface,
+        child: SafeArea(
+          top: false,
+          child: ContentWidth(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final picker = Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 16,
+                  children: [
+                    const Text(
+                      'Quantity',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    QuantityPicker(
+                      quantity: quantity,
+                      onDecrease: quantity > 1 && !adding && available
+                          ? () => setState(() => quantity--)
+                          : null,
+                      onIncrease: () {
+                        if (!adding && available) setState(() => quantity++);
+                      },
+                    ),
+                  ],
+                );
+                final button = Builder(
+                  builder: (buttonContext) => CafePress(
+                    enabled: !adding && available,
+                    child: FilledButton.icon(
+                      key: const Key('details-add-to-cart'),
+                      onPressed: adding || !available
+                          ? null
+                          : () => addToCart(buttonContext),
+                      icon: Icon(
+                        !available
+                            ? Icons.remove_shopping_cart_outlined
+                            : adding
+                            ? Icons.check
+                            : Icons.shopping_bag_outlined,
+                        size: 18,
+                      ),
+                      label: NumericText(
+                        !available
+                            ? 'Out of stock'
+                            : adding
+                            ? 'Added to bag'
+                            : 'Add to bag • ${pesos(unitPrice * quantity)}',
                       ),
                     ),
                   ),
-                ],
-              );
-            },
+                );
+                if (constraints.maxWidth >= 650) {
+                  return Row(children: [picker, const Spacer(), button]);
+                }
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    picker,
+                    const SizedBox(height: 10),
+                    SizedBox(width: double.infinity, child: button),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
-    ),
-    bottomNavigationBar: Material(
-      color: AppColors.surface,
-      child: SafeArea(
-        top: false,
-        child: ContentWidth(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final picker = Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 16,
-                children: [
-                  const Text(
-                    'Quantity',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  QuantityPicker(
-                    quantity: quantity,
-                    onDecrease: quantity > 1 && !adding
-                        ? () => setState(() => quantity--)
-                        : null,
-                    onIncrease: () {
-                      if (!adding) setState(() => quantity++);
-                    },
-                  ),
-                ],
-              );
-              final button = Builder(
-                builder: (buttonContext) => CafePress(
-                  enabled: !adding,
-                  child: FilledButton.icon(
-                    key: const Key('details-add-to-cart'),
-                    onPressed: adding ? null : () => addToCart(buttonContext),
-                    icon: Icon(
-                      adding ? Icons.check : Icons.shopping_bag_outlined,
-                      size: 18,
-                    ),
-                    label: NumericText(
-                      adding
-                          ? 'Added to bag'
-                          : 'Add to bag • ${pesos(widget.product.price * quantity)}',
-                    ),
-                  ),
-                ),
-              );
-              if (constraints.maxWidth >= 650) {
-                return Row(children: [picker, const Spacer(), button]);
-              }
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  picker,
-                  const SizedBox(height: 10),
-                  SizedBox(width: double.infinity, child: button),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    ),
-  );
+    );
+  }
 }
 
 // ============================================================
@@ -4900,8 +5954,7 @@ class _CartScreenState extends State<CartScreen> {
                 child: EmptyState(
                   icon: Icons.shopping_bag_outlined,
                   title: 'A little empty, for now.',
-                  message:
-                      'Your next favorite sip or bite is waiting on the menu.',
+                  message: 'Add drinks or food from the menu to get started.',
                   action: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('Explore the menu'),
@@ -4911,46 +5964,46 @@ class _CartScreenState extends State<CartScreen> {
             )
           : CustomScrollView(
               slivers: [
-                SliverToBoxAdapter(
-                  child: ContentWidth(
-                    maxWidth: 760,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 28, bottom: 24),
-                      child: CafeReveal(
-                        child: CafeSectionHeading(
-                          eyebrow: 'GOOD THINGS, ALL TOGETHER',
-                          title: 'A bag full of happy.',
-                          subtitle:
-                              '${countText(itemCount)} ${itemCount == 1 ? 'item' : 'items'} picked by you. One lovely order.',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 SliverList.builder(
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return ContentWidth(
+                      maxWidth: 760,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
+                        padding: const EdgeInsets.only(bottom: 12),
                         child: _CartRow(item: item, controller: controller),
                       ),
                     );
                   },
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                SliverToBoxAdapter(
+                  child: ContentWidth(
+                    maxWidth: 760,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 20),
+                      child: OrderSummaryCard(
+                        itemCount: itemCount,
+                        subtotal: orderTotal,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
       bottomNavigationBar: items.isEmpty
           ? null
-          : ColoredBox(
-              color: AppColors.surface,
+          : DecoratedBox(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border)),
+              ),
               child: SafeArea(
                 child: ContentWidth(
                   maxWidth: 760,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -4959,32 +6012,27 @@ class _CartScreenState extends State<CartScreen> {
                           alignment: WrapAlignment.spaceBetween,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: 12,
-                          runSpacing: 10,
+                          runSpacing: 8,
                           children: [
-                            const Text('Total', style: TextStyle(fontSize: 16)),
+                            const Text(
+                              'Total',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             NumericText(
                               pesos(orderTotal),
                               key: const Key('cart-total'),
                               style: const TextStyle(
-                                fontSize: 23,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w700,
+                                color: AppColors.dark,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'No order is sent to the cafe.',
-                            style: TextStyle(
-                              color: AppColors.secondaryText,
-                              fontSize: 12,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,
                           child: CafePress(
@@ -5014,7 +6062,7 @@ class _CartRow extends StatelessWidget {
 
   void removeWithUndo(BuildContext context) {
     if (controller.placingOrder) return;
-    controller.remove(item.product);
+    controller.remove(item.product, option: item.option);
     CafeHaptics.light();
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
@@ -5025,7 +6073,12 @@ class _CartRow extends StatelessWidget {
           label: 'Undo',
           onPressed: () {
             CafeHaptics.light();
-            controller.addToCart(item.product, quantity: item.quantity);
+            controller.addToCart(
+              item.product,
+              quantity: item.quantity,
+              optionLabel: item.option,
+              unitPrice: item.unitPrice,
+            );
           },
         ),
       ),
@@ -5033,12 +6086,8 @@ class _CartRow extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => CafeSurfaceCard(
     padding: const EdgeInsets.all(14),
-    decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(20),
-    ),
     child: LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 450;
@@ -5062,25 +6111,28 @@ class _CartRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.product.subcategory.toUpperCase(),
+                        item.option != null
+                            ? '${item.product.subcategory} · ${item.option}'
+                                  .toUpperCase()
+                            : item.product.subcategory.toUpperCase(),
                         style: const TextStyle(
                           color: AppColors.secondaryText,
                           fontSize: 11,
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         item.product.name,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          height: 1.4,
+                          height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       NumericText(
-                        '${pesos(item.product.price)} each',
+                        '${pesos(item.unitPrice)} each',
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.secondaryText,
@@ -5111,14 +6163,19 @@ class _CartRow extends StatelessWidget {
                   quantity: item.quantity,
                   onDecrease: () => item.quantity == 1
                       ? removeWithUndo(context)
-                      : controller.decrease(item.product),
-                  onIncrease: () => controller.addToCart(item.product),
+                      : controller.decrease(item.product, option: item.option),
+                  onIncrease: () => controller.addToCart(
+                    item.product,
+                    optionLabel: item.option,
+                    unitPrice: item.unitPrice,
+                  ),
                 ),
                 NumericText(
                   pesos(item.total),
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
+                    color: AppColors.dark,
                   ),
                 ),
               ],
@@ -5222,10 +6279,14 @@ class _OrderHistoryContent extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
                     child: Material(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(CafeShape.card),
+                        side: const BorderSide(color: AppColors.border),
+                      ),
+                      clipBehavior: Clip.antiAlias,
                       child: InkWell(
                         key: Key('history-${order.reference}'),
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(CafeShape.card),
                         onTap: () {
                           CafeHaptics.light();
                           Navigator.push(
@@ -5260,19 +6321,42 @@ class _OrderHistoryContent extends StatelessWidget {
                               ],
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.receipt_long,
-                                    color: AppColors.teal,
-                                    size: 26,
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.softTeal,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.receipt_long,
+                                      color: AppColors.teal,
+                                      size: 20,
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: Text(
-                                      order.reference,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.dark,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          order.reference,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.dark,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          orderDate(order.createdAt),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.secondaryText,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   const Icon(
@@ -5281,15 +6365,7 @@ class _OrderHistoryContent extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                orderDate(order.createdAt),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.secondaryText,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: OrderTracking(
@@ -5298,21 +6374,45 @@ class _OrderHistoryContent extends StatelessWidget {
                                   compact: true,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 10),
                               Text(
-                                '${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} · ${order.paymentStatus}',
+                                order.items
+                                    .map(
+                                      (item) =>
+                                          '${countText(item.quantity)}× ${item.product.name}',
+                                    )
+                                    .join(', '),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.secondaryText,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.ink,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              NumericText(
-                                pesos(order.total),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 12,
+                                runSpacing: 6,
+                                children: [
+                                  Text(
+                                    '${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} · ${order.paymentStatus}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.secondaryText,
+                                    ),
+                                  ),
+                                  NumericText(
+                                    pesos(order.total),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                      color: AppColors.dark,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -6866,7 +7966,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 36),
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
               child: Form(
                 key: form,
                 autovalidateMode: attemptedSubmit
@@ -6875,18 +7975,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Eyebrow('Order details'),
-                    const SizedBox(height: 10),
-                    Text('Almost yours.', style: displayStyle(32)),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Tell us where to bring your order and how to reach you.',
-                      style: TextStyle(
-                        color: AppColors.secondaryText,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
                     const CheckoutStepHeading(
                       step: 1,
                       title: 'Contact details',
@@ -6958,9 +8046,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     const Text(
-                      'Delivery is available within ${CheckoutValidation.deliveryRadiusLabel} of Carmona, Cavite. If you use the map, your pin must be within this area. Include your house number, street and city.',
+                      'Within ${CheckoutValidation.deliveryRadiusLabel} of Carmona, Cavite.',
                       style: TextStyle(
                         color: AppColors.secondaryText,
                         fontSize: 12,
@@ -7074,7 +8162,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     _PaymentChoice(
                       key: const Key('payment-digital'),
                       title: 'GCash',
-                      subtitle: 'Preview a wallet payment; no money is taken',
+                      subtitle: 'Pay with your GCash wallet',
                       icon: Icons.account_balance_wallet_outlined,
                       selected: payment == PaymentMethod.digital,
                       onTap: () {
@@ -7084,13 +8172,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         }
                       },
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'No order will be sent to the cafe, and no payment will be taken.',
-                      style: TextStyle(
-                        color: AppColors.secondaryText,
-                        fontSize: 12,
-                      ),
+                    const SizedBox(height: 18),
+                    OrderSummaryCard(
+                      itemCount: widget.controller.cartCount,
+                      subtotal: widget.controller.total,
+                      compact: true,
                     ),
                   ],
                 ),
@@ -7099,8 +8185,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: ColoredBox(
-        color: AppColors.surface,
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          border: Border(top: BorderSide(color: AppColors.border)),
+        ),
         child: SafeArea(
           top: false,
           child: Center(
@@ -7536,9 +8625,15 @@ class _DemoPaymentScreenState extends State<DemoPaymentScreen> {
       appBar: AppBar(
         backgroundColor: _WalletDemoColors.deepBlue,
         foregroundColor: Colors.white,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        shape: const Border(),
         title: const Text(
           'GCash',
-          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
         ),
         actions: [
           Center(
@@ -8088,23 +9183,23 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                   liveRegion: true,
                   child: Text(
                     fromHistory ? 'Your saved order.' : 'Order placed.',
-                    style: displayStyle(32),
+                    style: displayStyle(30),
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  fromHistory
-                      ? orderDate(order.createdAt, detailed: true)
-                      : 'Follow your order progress below.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.secondaryText,
-                    fontSize: 14,
-                    height: 1.6,
+                if (fromHistory) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    orderDate(order.createdAt, detailed: true),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.secondaryText,
+                      fontSize: 13,
+                      height: 1.5,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 28),
+                ],
+                const SizedBox(height: 20),
                 OrderTracking(order: order, timeline: timeline),
                 const SizedBox(height: 20),
                 Container(
@@ -8198,7 +9293,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                item.product.subcategory,
+                                item.option != null
+                                    ? '${item.product.subcategory} · ${item.option}'
+                                    : item.product.subcategory,
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: AppColors.secondaryText,
@@ -8211,7 +9308,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                                 runSpacing: 6,
                                 children: [
                                   NumericText(
-                                    '${countText(item.quantity)} × ${pesos(item.product.price)}',
+                                    '${countText(item.quantity)} × ${pesos(item.unitPrice)}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.secondaryText,
@@ -8256,16 +9353,6 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                         ],
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Saved on this device only. Nothing was sent to the cafe, and no payment was taken.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.secondaryText,
-                    height: 1.6,
                   ),
                 ),
               ],
@@ -8413,6 +9500,7 @@ class CafeSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(CafeShape.card),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -8686,7 +9774,7 @@ class CafeRouteTitles extends NavigatorObserver {
   }
 
   void selectMenuTab(int index) {
-    menuLabel = const ['Our menu', 'Order history', 'Discover'][index];
+    menuLabel = const ['Our menu', 'Order history', 'Discover', 'Saved'][index];
     if (active?.settings.name == '/menu') publish(menuLabel);
   }
 
