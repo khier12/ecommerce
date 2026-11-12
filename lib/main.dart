@@ -2,36 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui'
-    as ui
-    show
-        Image,
-        ImageShader,
-        PathMetric,
-        PictureRecorder,
-        instantiateImageCodec,
-        Vertices,
-        VertexMode;
+import 'dart:ui' as ui;
 import 'dart:ui' show FontFeature, PlatformDispatcher, PointerDeviceKind;
 
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:flutter_map/flutter_map.dart'
-    show
-        CameraFit,
-        FlutterMap,
-        MapCamera,
-        MapController,
-        MapOptions,
-        Marker,
-        MarkerLayer,
-        Polyline,
-        PolylineLayer,
-        TileLayer;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
