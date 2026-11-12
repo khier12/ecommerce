@@ -3119,6 +3119,33 @@ class FavoriteButton extends StatelessWidget {
   );
 }
 
+/// Compact McDelivery-style quantity pill (e.g. `1x`, `2x`) for order summaries
+/// and receipts.
+class QuantityBadge extends StatelessWidget {
+  const QuantityBadge({super.key, required this.quantity});
+  final int quantity;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minWidth: 32, minHeight: 26),
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: AppColors.softTeal,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: NumericText(
+      '${countText(quantity)}x',
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        color: AppColors.dark,
+      ),
+    ),
+  );
+}
+
 /// Shared itemized subtotal + delivery + total breakdown used in the bag and
 /// checkout screens.
 class OrderSummaryCard extends StatelessWidget {
@@ -3126,11 +3153,13 @@ class OrderSummaryCard extends StatelessWidget {
     super.key,
     required this.itemCount,
     required this.subtotal,
+    this.items = const [],
     this.totalKey,
     this.compact = false,
   });
   final int itemCount;
   final int subtotal;
+  final List<CartItem> items;
   final Key? totalKey;
   final bool compact;
 
@@ -3140,6 +3169,54 @@ class OrderSummaryCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (items.isNotEmpty) ...[
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                QuantityBadge(quantity: items[i].quantity),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        items[i].product.name,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      if (items[i].option != null)
+                        Text(
+                          items[i].option!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.secondaryText,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                NumericText(
+                  pesos(items[i].total),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1),
+          ),
+        ],
         Wrap(
           alignment: WrapAlignment.spaceBetween,
           spacing: 12,
@@ -4321,6 +4398,43 @@ class _MenuCategoryPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (showFeatured) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        key: const Key('delivery-location-pill'),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.softTeal,
+                          borderRadius: BorderRadius.circular(CafeShape.pill),
+                        ),
+                        child: const Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            Icon(
+                              Icons.delivery_dining_outlined,
+                              size: 15,
+                              color: AppColors.teal,
+                            ),
+                            Text(
+                              'Carmona · 30 km',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.dark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   Row(
                     children: [
                       Expanded(
@@ -4873,7 +4987,7 @@ class _FeaturedCarousel extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -4881,8 +4995,8 @@ class _FeaturedCarousel extends StatelessWidget {
                     AnimatedContainer(
                       duration: CafeMotion.of(context, CafeMotion.standard),
                       margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: index == currentPage ? 24 : 6,
-                      height: 5,
+                      width: index == currentPage ? 22 : 6,
+                      height: 6,
                       decoration: BoxDecoration(
                         color: index == currentPage
                             ? AppColors.teal
@@ -4890,16 +5004,6 @@ class _FeaturedCarousel extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  const SizedBox(width: 14),
-                  ExcludeSemantics(
-                    child: NumericText(
-                      '${currentPage + 1} / ${featured.length}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppColors.secondaryText,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -5784,35 +5888,47 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                             if (options.isNotEmpty) ...[
                               const SizedBox(height: 18),
-                              const Text(
-                                'Size',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 10,
-                                runSpacing: 10,
-                                children: [
-                                  for (var i = 0; i < options.length; i++)
-                                    ChoiceChip(
-                                      key: Key('size-${options[i].label}'),
-                                      selected: optionIndex == i,
-                                      onSelected: available
-                                          ? (_) {
-                                              CafeHaptics.selection();
-                                              setState(() => optionIndex = i);
-                                            }
-                                          : null,
-                                      label: Text(
-                                        options[i].priceDelta == 0
-                                            ? '${options[i].label} · ${options[i].detail}'
-                                            : '${options[i].label} · ${options[i].detail} (+${pesos(options[i].priceDelta)})',
+                              CafeSurfaceCard(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Size',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
                                       ),
                                     ),
-                                ],
+                                    const SizedBox(height: 10),
+                                    Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      children: [
+                                        for (var i = 0; i < options.length; i++)
+                                          ChoiceChip(
+                                            key: Key(
+                                              'size-${options[i].label}',
+                                            ),
+                                            selected: optionIndex == i,
+                                            onSelected: available
+                                                ? (_) {
+                                                    CafeHaptics.selection();
+                                                    setState(
+                                                      () => optionIndex = i,
+                                                    );
+                                                  }
+                                                : null,
+                                            label: Text(
+                                              options[i].priceDelta == 0
+                                                  ? '${options[i].label} · ${options[i].detail}'
+                                                  : '${options[i].label} · ${options[i].detail} (+${pesos(options[i].priceDelta)})',
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                             const SizedBox(height: 18),
@@ -5835,33 +5951,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Material(
-        color: AppColors.surface,
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          border: Border(top: BorderSide(color: AppColors.border)),
+        ),
         child: SafeArea(
           top: false,
           child: ContentWidth(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final picker = Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 16,
-                  children: [
-                    const Text(
-                      'Quantity',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    QuantityPicker(
-                      quantity: quantity,
-                      onDecrease: quantity > 1 && !adding && available
-                          ? () => setState(() => quantity--)
-                          : null,
-                      onIncrease: () {
-                        if (!adding && available) setState(() => quantity++);
-                      },
-                    ),
-                  ],
+                final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+                final inlineBar = constraints.maxWidth >= 340 && scale <= 1.25;
+                final stepper = QuantityPicker(
+                  quantity: quantity,
+                  onDecrease: quantity > 1 && !adding && available
+                      ? () => setState(() => quantity--)
+                      : null,
+                  onIncrease: () {
+                    if (!adding && available) setState(() => quantity++);
+                  },
                 );
                 final button = Builder(
                   builder: (buttonContext) => CafePress(
@@ -5889,13 +5999,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ),
                 );
-                if (constraints.maxWidth >= 650) {
-                  return Row(children: [picker, const Spacer(), button]);
+                if (inlineBar) {
+                  return Row(
+                    children: [
+                      stepper,
+                      const SizedBox(width: 12),
+                      Expanded(child: button),
+                    ],
+                  );
                 }
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    picker,
+                    stepper,
                     const SizedBox(height: 10),
                     SizedBox(width: double.infinity, child: button),
                   ],
@@ -5977,6 +6093,23 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     );
                   },
+                ),
+                SliverToBoxAdapter(
+                  child: ContentWidth(
+                    maxWidth: 760,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: OutlinedButton.icon(
+                          key: const Key('bag-add-more'),
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Add more items'),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: ContentWidth(
@@ -7975,207 +8108,240 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const CheckoutStepHeading(
-                      step: 1,
-                      title: 'Contact details',
-                      icon: Icons.person_outline,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      key: const Key('customer-name'),
-                      controller: name,
-                      enabled: !busy,
-                      autofillHints: const [AutofillHints.name],
-                      textCapitalization: TextCapitalization.words,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Full name *',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      validator: CheckoutValidation.name,
-                    ),
-                    const SizedBox(height: 18),
-                    TextFormField(
-                      key: const Key('customer-mobile'),
-                      controller: mobile,
-                      inputFormatters: [mobileFormatter],
-                      enabled: !busy,
-                      autofillHints: const [
-                        AutofillHints.telephoneNumberNational,
-                      ],
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Mobile number *',
-                        hintText: '09XX XXX XXXX',
-                        prefixIcon: Icon(Icons.phone_outlined),
-                      ),
-                      validator: validateMobile,
-                    ),
-                    const SizedBox(height: 24),
-                    const CheckoutStepHeading(
-                      step: 2,
-                      title: 'Delivery address',
-                      icon: Icons.location_on_outlined,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      key: const Key('delivery-address'),
-                      controller: address,
-                      enabled: !busy,
-                      autofillHints: const [AutofillHints.fullStreetAddress],
-                      maxLines: 2,
-                      textCapitalization: TextCapitalization.words,
-                      keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.newline,
-                      decoration: const InputDecoration(
-                        labelText: 'Delivery address *',
-                        hintText: 'House number, street, barangay, city',
-                        prefixIcon: Icon(Icons.location_on_outlined),
-                        alignLabelWithHint: true,
-                      ),
-                      validator: (value) {
-                        final addressError = CheckoutValidation.address(value);
-                        if (addressError != null) return addressError;
-                        if (deliveryPin != null &&
-                            !CheckoutValidation.isWithinDeliveryArea(
-                              deliveryPin,
-                            )) {
-                          return 'That pin is outside our ${CheckoutValidation.deliveryRadiusLabel} delivery area';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Within ${CheckoutValidation.deliveryRadiusLabel} of Carmona, Cavite.',
-                      style: TextStyle(
-                        color: AppColors.secondaryText,
-                        fontSize: 12,
-                      ),
-                    ),
-                    if (suggestedAddress.isUsable) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        'Map address suggestion: $suggestedAddress',
-                        style: const TextStyle(
-                          color: AppColors.secondaryText,
-                          fontSize: 12,
-                        ),
-                      ),
-                      if (address.text.trim() != suggestedAddress)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton.icon(
-                            key: const Key('use-suggested-address'),
-                            onPressed: busy
-                                ? null
-                                : () => setState(() {
-                                    address.text = suggestedAddress!;
-                                  }),
-                            icon: const Icon(Icons.edit_location_alt_outlined),
-                            label: const Text('Use suggested address'),
+                    CafeSurfaceCard(
+                      padding: const EdgeInsets.all(CafeSpace.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const CheckoutStepHeading(
+                            step: 1,
+                            title: 'Contact details',
+                            icon: Icons.person_outline,
                           ),
-                        ),
-                    ],
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 8,
-                      children: [
-                        OutlinedButton.icon(
-                          key: const Key('use-gps-address'),
-                          onPressed: () => chooseLocation(useGps: true),
-                          icon: const Icon(
-                            Icons.my_location_outlined,
-                            size: 18,
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            key: const Key('customer-name'),
+                            controller: name,
+                            enabled: !busy,
+                            autofillHints: const [AutofillHints.name],
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Full name *',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            validator: CheckoutValidation.name,
                           ),
-                          label: const Text('Use GPS'),
-                        ),
-                        OutlinedButton.icon(
-                          key: const Key('choose-map-address'),
-                          onPressed: chooseLocation,
-                          icon: const Icon(Icons.map_outlined, size: 18),
-                          label: Text(
-                            deliveryPin == null ? 'Choose on map' : 'Move pin',
+                          const SizedBox(height: 14),
+                          TextFormField(
+                            key: const Key('customer-mobile'),
+                            controller: mobile,
+                            inputFormatters: [mobileFormatter],
+                            enabled: !busy,
+                            autofillHints: const [
+                              AutofillHints.telephoneNumberNational,
+                            ],
+                            keyboardType: TextInputType.phone,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Mobile number *',
+                              hintText: '09XX XXX XXXX',
+                              prefixIcon: Icon(Icons.phone_outlined),
+                            ),
+                            validator: validateMobile,
                           ),
-                        ),
-                      ],
-                    ),
-                    if (deliveryPin != null) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        'Delivery pin: ${deliveryPin!.latitude.toStringAsFixed(5)}, ${deliveryPin!.longitude.toStringAsFixed(5)}',
-                        key: const Key('checkout-delivery-pin'),
-                        style: const TextStyle(
-                          color: AppColors.teal,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          key: const Key('remove-delivery-pin'),
-                          onPressed: busy
-                              ? null
-                              : () => setState(() => deliveryPin = null),
-                          icon: const Icon(Icons.close, size: 16),
-                          label: const Text('Remove pin'),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 18),
-                    TextFormField(
-                      key: const Key('customer-notes'),
-                      controller: notes,
-                      enabled: !busy,
-                      maxLines: 2,
-                      maxLength: 200,
-                      decoration: const InputDecoration(
-                        labelText: 'Delivery notes (optional)',
-                        alignLabelWithHint: true,
-                        hintText: 'Anything the cafe should know?',
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const CheckoutStepHeading(
-                      step: 3,
-                      title: 'Payment method',
-                      icon: Icons.account_balance_wallet_outlined,
+                    const SizedBox(height: 14),
+                    CafeSurfaceCard(
+                      padding: const EdgeInsets.all(CafeSpace.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const CheckoutStepHeading(
+                            step: 2,
+                            title: 'Delivery address',
+                            icon: Icons.location_on_outlined,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            key: const Key('delivery-address'),
+                            controller: address,
+                            enabled: !busy,
+                            autofillHints: const [
+                              AutofillHints.fullStreetAddress,
+                            ],
+                            maxLines: 2,
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.multiline,
+                            textInputAction: TextInputAction.newline,
+                            decoration: const InputDecoration(
+                              labelText: 'Delivery address *',
+                              hintText: 'House number, street, barangay, city',
+                              prefixIcon: Icon(Icons.location_on_outlined),
+                              alignLabelWithHint: true,
+                            ),
+                            validator: (value) {
+                              final addressError = CheckoutValidation.address(
+                                value,
+                              );
+                              if (addressError != null) return addressError;
+                              if (deliveryPin != null &&
+                                  !CheckoutValidation.isWithinDeliveryArea(
+                                    deliveryPin,
+                                  )) {
+                                return 'That pin is outside our ${CheckoutValidation.deliveryRadiusLabel} delivery area';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Within ${CheckoutValidation.deliveryRadiusLabel} of Carmona, Cavite.',
+                            style: TextStyle(
+                              color: AppColors.secondaryText,
+                              fontSize: 12,
+                            ),
+                          ),
+                          if (suggestedAddress.isUsable) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'Map address suggestion: $suggestedAddress',
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
+                                fontSize: 12,
+                              ),
+                            ),
+                            if (address.text.trim() != suggestedAddress)
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: TextButton.icon(
+                                  key: const Key('use-suggested-address'),
+                                  onPressed: busy
+                                      ? null
+                                      : () => setState(() {
+                                          address.text = suggestedAddress!;
+                                        }),
+                                  icon: const Icon(
+                                    Icons.edit_location_alt_outlined,
+                                  ),
+                                  label: const Text('Use suggested address'),
+                                ),
+                              ),
+                          ],
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 8,
+                            children: [
+                              OutlinedButton.icon(
+                                key: const Key('use-gps-address'),
+                                onPressed: () => chooseLocation(useGps: true),
+                                icon: const Icon(
+                                  Icons.my_location_outlined,
+                                  size: 18,
+                                ),
+                                label: const Text('Use GPS'),
+                              ),
+                              OutlinedButton.icon(
+                                key: const Key('choose-map-address'),
+                                onPressed: chooseLocation,
+                                icon: const Icon(Icons.map_outlined, size: 18),
+                                label: Text(
+                                  deliveryPin == null
+                                      ? 'Choose on map'
+                                      : 'Move pin',
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (deliveryPin != null) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              'Delivery pin: ${deliveryPin!.latitude.toStringAsFixed(5)}, ${deliveryPin!.longitude.toStringAsFixed(5)}',
+                              key: const Key('checkout-delivery-pin'),
+                              style: const TextStyle(
+                                color: AppColors.teal,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                key: const Key('remove-delivery-pin'),
+                                onPressed: busy
+                                    ? null
+                                    : () => setState(() => deliveryPin = null),
+                                icon: const Icon(Icons.close, size: 16),
+                                label: const Text('Remove pin'),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 14),
+                          TextFormField(
+                            key: const Key('customer-notes'),
+                            controller: notes,
+                            enabled: !busy,
+                            maxLines: 2,
+                            maxLength: 200,
+                            decoration: const InputDecoration(
+                              labelText: 'Delivery notes (optional)',
+                              alignLabelWithHint: true,
+                              hintText: 'Anything the cafe should know?',
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    _PaymentChoice(
-                      key: const Key('payment-cash'),
-                      title: 'Cash on delivery',
-                      subtitle: 'Pay when your order arrives',
-                      icon: Icons.payments_outlined,
-                      selected: payment == PaymentMethod.cash,
-                      onTap: () {
-                        if (!busy && payment != PaymentMethod.cash) {
-                          CafeHaptics.selection();
-                          setState(() => payment = PaymentMethod.cash);
-                        }
-                      },
+                    const SizedBox(height: 14),
+                    CafeSurfaceCard(
+                      padding: const EdgeInsets.all(CafeSpace.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const CheckoutStepHeading(
+                            step: 3,
+                            title: 'Payment method',
+                            icon: Icons.account_balance_wallet_outlined,
+                          ),
+                          const SizedBox(height: 12),
+                          _PaymentChoice(
+                            key: const Key('payment-cash'),
+                            title: 'Cash on delivery',
+                            subtitle: 'Pay when your order arrives',
+                            icon: Icons.payments_outlined,
+                            selected: payment == PaymentMethod.cash,
+                            onTap: () {
+                              if (!busy && payment != PaymentMethod.cash) {
+                                CafeHaptics.selection();
+                                setState(() => payment = PaymentMethod.cash);
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          _PaymentChoice(
+                            key: const Key('payment-digital'),
+                            title: 'GCash',
+                            subtitle: 'Pay with your GCash wallet',
+                            icon: Icons.account_balance_wallet_outlined,
+                            selected: payment == PaymentMethod.digital,
+                            onTap: () {
+                              if (!busy && payment != PaymentMethod.digital) {
+                                CafeHaptics.selection();
+                                setState(() => payment = PaymentMethod.digital);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    _PaymentChoice(
-                      key: const Key('payment-digital'),
-                      title: 'GCash',
-                      subtitle: 'Pay with your GCash wallet',
-                      icon: Icons.account_balance_wallet_outlined,
-                      selected: payment == PaymentMethod.digital,
-                      onTap: () {
-                        if (!busy && payment != PaymentMethod.digital) {
-                          CafeHaptics.selection();
-                          setState(() => payment = PaymentMethod.digital);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 14),
                     OrderSummaryCard(
                       itemCount: widget.controller.cartCount,
                       subtotal: widget.controller.total,
+                      items: widget.controller.cartItems,
                       compact: true,
                     ),
                   ],
@@ -9214,18 +9380,51 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                     children: [
                       const Eyebrow('Order reference'),
                       const SizedBox(height: 8),
-                      SelectableText(
-                        order.reference,
-                        key: const Key('order-reference'),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.dark,
-                        ),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          SelectableText(
+                            order.reference,
+                            key: const Key('order-reference'),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.dark,
+                            ),
+                          ),
+                          TextButton.icon(
+                            key: const Key('copy-order-reference'),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              minimumSize: const Size(0, 32),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: order.reference),
+                              );
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Order reference copied'),
+                                  ),
+                                );
+                            },
+                            icon: const Icon(Icons.copy_rounded, size: 14),
+                            label: const Text('Copy'),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       Text(
-                        '${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} order',
+                        'Smooch Cafe · Carmona · ${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} order',
                         style: const TextStyle(
                           color: AppColors.secondaryText,
                           fontSize: 12,
@@ -9283,13 +9482,22 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                item.product.name,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.4,
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  QuantityBadge(quantity: item.quantity),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item.product.name,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 4),
                               Text(

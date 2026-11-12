@@ -596,4 +596,47 @@ void main() {
     expect(find.text('Tiramisu Latte'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'McDelivery-inspired delivery pill, bag add-more action, and 1x receipt badges work cleanly',
+    (tester) async {
+      await openMenu(tester);
+      expect(find.byKey(const Key('delivery-location-pill')), findsOneWidget);
+      expect(find.text('Carmona · 30 km'), findsOneWidget);
+
+      final item = shop.products.first;
+      shop.addToCart(item);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('view-bag-summary')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('bag-add-more')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('open-checkout')));
+      await tester.pumpAndSettle();
+      expect(find.text('1x'), findsOneWidget);
+      expect(find.text('Contact details'), findsOneWidget);
+      expect(find.text('Delivery address'), findsOneWidget);
+
+      final order = (await shop.submitOrder(
+        customerName: 'Juan Dela Cruz',
+        mobileNumber: '09171234567',
+        notes: '',
+        paymentMethod: PaymentMethod.cash,
+        deliveryAddress: '12 Rizal Street, Carmona, Cavite',
+      ))!;
+      await tester.pumpWidget(
+        MaterialApp(
+          key: const ValueKey('confirmation-app'),
+          theme: AppTheme.theme,
+          home: OrderConfirmationScreen(order: order),
+        ),
+      );
+      await tester.pump();
+      expect(find.byKey(const Key('copy-order-reference')), findsOneWidget);
+      expect(find.text('1x'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
