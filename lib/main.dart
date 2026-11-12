@@ -56,16 +56,18 @@ abstract final class AppColors {
   static const white = Color(0xFFFFFFFF);
   static const muted = Color(0xFFC0D8DA);
   static const line = Color(0xFF39747C);
-  static const canvas = Color(0xFFF6F3ED);
+  static const canvas = Color(0xFFFAFAFC);
   static const surface = Color(0xFFFFFFFF);
   static const ink = Color(0xFF163B3D);
   static const secondaryText = Color(0xFF56696B);
-  static const border = Color(0xFFDCE3DF);
+  static const border = Color(0xFFE4E7EC);
   static const action = Color(0xFFC23F38);
   static const softTeal = Color(0xFFE8F0EC);
   static const softCoral = Color(0xFFFBE9E5);
-  static const oat = Color(0xFFEEE5D6);
+  static const oat = Color(0xFFF2F2F5);
   static const gold = Color(0xFFE9C587);
+  static const softGold = Color(0xFFFDF3D6);
+  static const cardShadow = Color(0x12163B3D);
   // Status colors. Each foreground meets 4.5:1 on its soft background.
   static const success = Color(0xFF1C6B45);
   static const successSoft = Color(0xFFE3F2E8);
@@ -147,8 +149,8 @@ abstract final class CafeMotion {
 abstract final class CafeShape {
   static const badge = 8.0;
   static const control = 14.0;
-  static const card = 20.0;
-  static const panel = 28.0;
+  static const card = 16.0;
+  static const panel = 24.0;
   static const pill = 999.0;
 }
 
@@ -2982,6 +2984,13 @@ class CafeSurfaceCard extends StatelessWidget {
       color: color,
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(color: AppColors.border),
+      boxShadow: const [
+        BoxShadow(
+          color: AppColors.cardShadow,
+          blurRadius: 12,
+          offset: Offset(0, 4),
+        ),
+      ],
     ),
     child: child,
   );
@@ -3110,9 +3119,9 @@ class QuantityBadge extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: AppColors.softTeal,
+      color: AppColors.softGold,
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: AppColors.border),
+      border: Border.all(color: AppColors.gold),
     ),
     child: NumericText(
       '${countText(quantity)}x',
@@ -4158,8 +4167,20 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
               body: tab == 0
                   ? Column(
                       children: [
-                        Material(
-                          color: AppColors.canvas,
+                        DecoratedBox(
+                          decoration: const BoxDecoration(
+                            color: AppColors.surface,
+                            border: Border(
+                              bottom: BorderSide(color: AppColors.border),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.cardShadow,
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
                           child: MenuFilters(
                             controller: shop,
                             search: search,
@@ -4378,41 +4399,99 @@ class _MenuCategoryPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (showFeatured) ...[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        key: const Key('delivery-location-pill'),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.softTeal,
-                          borderRadius: BorderRadius.circular(CafeShape.pill),
-                        ),
-                        child: const Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: [
-                            Icon(
-                              Icons.delivery_dining_outlined,
-                              size: 15,
-                              color: AppColors.teal,
+                    Container(
+                      key: const Key('delivery-location-pill'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(CafeShape.control),
+                        border: Border.all(color: AppColors.border),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: AppColors.cardShadow,
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 10,
+                        runSpacing: 6,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 30,
+                                height: 30,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.softGold,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.delivery_dining_outlined,
+                                  size: 17,
+                                  color: AppColors.dark,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'DELIVERY AREA',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 1,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Carmona · 30 km',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.dark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 4,
                             ),
-                            Text(
-                              'Carmona · 30 km',
+                            decoration: BoxDecoration(
+                              color: AppColors.softTeal,
+                              borderRadius: BorderRadius.circular(
+                                CafeShape.pill,
+                              ),
+                            ),
+                            child: const Text(
+                              'Free delivery',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.dark,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                   ],
                   Row(
                     children: [
@@ -5245,11 +5324,24 @@ class MenuFilters extends StatelessWidget {
                 onSubmitted: (_) =>
                     FocusManager.instance.primaryFocus?.unfocus(),
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.oat,
                   hintText: 'Search drinks, food or pastries',
                   prefixIcon: const Icon(Icons.search, size: 22),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 16,
+                    vertical: 14,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(CafeShape.pill),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(CafeShape.pill),
+                    borderSide: const BorderSide(
+                      color: AppColors.teal,
+                      width: 2,
+                    ),
                   ),
                   suffixIcon: controller.query.isEmpty
                       ? null
@@ -5536,6 +5628,9 @@ class ProductCard extends StatelessWidget {
       lift: true,
       child: Material(
         color: AppColors.surface,
+        elevation: 2,
+        shadowColor: AppColors.cardShadow,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(CafeShape.card),
           side: const BorderSide(color: AppColors.border),
@@ -5563,75 +5658,90 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ProductImage(product: product),
-                    if (product.featured)
+                child: ColoredBox(
+                  color: AppColors.oat,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ProductImage(product: product),
+                      if (product.featured)
+                        Positioned(
+                          left: 10,
+                          top: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.softGold,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.gold),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.star_rounded,
+                                  size: 12,
+                                  color: AppColors.dark,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Smooch pick',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.dark,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       Positioned(
-                        left: 10,
-                        top: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
+                        right: 4,
+                        top: 4,
+                        child: FavoriteButton(
+                          key: Key('save-${product.id}'),
+                          product: product,
+                          controller: controller,
+                        ),
+                      ),
+                      if (!product.available)
+                        const Positioned(
+                          left: 10,
+                          bottom: 10,
+                          child: CafeStatusBadge(
+                            label: 'Sold out',
+                            tone: CafeStatusTone.warning,
                           ),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Smooch pick',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                        )
+                      else if (quantity > 0)
+                        Positioned(
+                          left: 10,
+                          bottom: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color: AppColors.dark,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '${countText(quantity)} in bag',
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    Positioned(
-                      right: 4,
-                      top: 4,
-                      child: FavoriteButton(
-                        key: Key('save-${product.id}'),
-                        product: product,
-                        controller: controller,
-                      ),
-                    ),
-                    if (!product.available)
-                      const Positioned(
-                        left: 10,
-                        bottom: 10,
-                        child: CafeStatusBadge(
-                          label: 'Sold out',
-                          tone: CafeStatusTone.warning,
-                        ),
-                      )
-                    else if (quantity > 0)
-                      Positioned(
-                        left: 10,
-                        bottom: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.dark,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${countText(quantity)} in bag',
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Padding(
@@ -6384,152 +6494,191 @@ class _OrderHistoryContent extends StatelessWidget {
             itemCount: controller.orders.length,
             itemBuilder: (context, index) {
               final order = controller.orders[index];
+              final now = DateTime.now();
+              final isOngoing =
+                  order.stageAt(now) != OrderStage.delivered &&
+                  order.stageAt(now) != OrderStage.readyForPickup;
+              final prevOngoing = index > 0
+                  ? (controller.orders[index - 1].stageAt(now) !=
+                            OrderStage.delivered &&
+                        controller.orders[index - 1].stageAt(now) !=
+                            OrderStage.readyForPickup)
+                  : null;
+              final showSectionHeader =
+                  index == 0 || prevOngoing != isOngoing;
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 680),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                    child: Material(
-                      color: AppColors.surface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(CafeShape.card),
-                        side: const BorderSide(color: AppColors.border),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        key: Key('history-${order.reference}'),
-                        borderRadius: BorderRadius.circular(CafeShape.card),
-                        onTap: () {
-                          CafeHaptics.light();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              settings: const RouteSettings(
-                                name: '/order-confirmation',
-                                arguments: 'Order details',
-                              ),
-                              builder: (_) => OrderConfirmationScreen(
-                                order: order,
-                                fromHistory: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (showSectionHeader)
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: index == 0 ? 0 : 8,
+                              bottom: 10,
+                            ),
+                            child: Eyebrow(
+                              isOngoing ? 'Ongoing orders' : 'Past orders',
+                            ),
+                          ),
+                        Material(
+                          color: AppColors.surface,
+                          elevation: 2,
+                          shadowColor: AppColors.cardShadow,
+                          surfaceTintColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(CafeShape.card),
+                            side: const BorderSide(color: AppColors.border),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            key: Key('history-${order.reference}'),
+                            borderRadius: BorderRadius.circular(CafeShape.card),
+                            onTap: () {
+                              CafeHaptics.light();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  settings: const RouteSettings(
+                                    name: '/order-confirmation',
+                                    arguments: 'Order details',
+                                  ),
+                                  builder: (_) => OrderConfirmationScreen(
+                                    order: order,
+                                    fromHistory: true,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(18),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (index == 0 &&
+                                      controller.historyError != null) ...[
+                                    Text(
+                                      controller.historyError!,
+                                      style: const TextStyle(
+                                        color: AppColors.secondaryText,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: isOngoing
+                                              ? AppColors.softGold
+                                              : AppColors.softTeal,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          isOngoing
+                                              ? Icons.delivery_dining_outlined
+                                              : Icons.receipt_long,
+                                          color: AppColors.dark,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              order.reference,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: AppColors.dark,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              orderDate(order.createdAt),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.secondaryText,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: OrderTracking(
+                                      key: ValueKey(
+                                        'tracking-${order.reference}',
+                                      ),
+                                      order: order,
+                                      compact: true,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    order.items
+                                        .map(
+                                          (item) =>
+                                              '${countText(item.quantity)}× ${item.product.name}',
+                                        )
+                                        .join(', '),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.ink,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Wrap(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 12,
+                                    runSpacing: 6,
+                                    children: [
+                                      Text(
+                                        '${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} · ${order.paymentStatus}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.secondaryText,
+                                        ),
+                                      ),
+                                      NumericText(
+                                        pesos(order.total),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                          color: AppColors.dark,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (index == 0 &&
-                                  controller.historyError != null) ...[
-                                Text(
-                                  controller.historyError!,
-                                  style: const TextStyle(
-                                    color: AppColors.secondaryText,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.softTeal,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Icon(
-                                      Icons.receipt_long,
-                                      color: AppColors.teal,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          order.reference,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.dark,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          orderDate(order.createdAt),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.secondaryText,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.chevron_right,
-                                    color: AppColors.secondaryText,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: OrderTracking(
-                                  key: ValueKey('tracking-${order.reference}'),
-                                  order: order,
-                                  compact: true,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                order.items
-                                    .map(
-                                      (item) =>
-                                          '${countText(item.quantity)}× ${item.product.name}',
-                                    )
-                                    .join(', '),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.ink,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                alignment: WrapAlignment.spaceBetween,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 12,
-                                runSpacing: 6,
-                                children: [
-                                  Text(
-                                    '${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} · ${order.paymentStatus}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.secondaryText,
-                                    ),
-                                  ),
-                                  NumericText(
-                                    pesos(order.total),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                      color: AppColors.dark,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
