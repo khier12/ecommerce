@@ -7108,7 +7108,7 @@ class _CafeMap extends StatelessWidget {
 
   static const _tileUrl = String.fromEnvironment(
     'MAP_TILE_URL',
-    defaultValue: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    defaultValue: 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
   );
 
   final LatLng center;
@@ -7130,13 +7130,14 @@ class _CafeMap extends StatelessWidget {
       initialZoom: zoom,
       initialCameraFit: initialCameraFit,
       minZoom: 3,
-      maxZoom: 19,
+      maxZoom: 20,
       onTap: onTap == null ? null : (_, point) => onTap!(point),
       onMapReady: onReady,
     ),
     children: [
       TileLayer(
         urlTemplate: _tileUrl,
+        subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
         userAgentPackageName: 'SmoochCafeFlutter',
       ),
       ...layers,
@@ -7167,12 +7168,12 @@ class _CafeMap extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
               onTap: () => openCafeLink(
                 context,
-                Uri.parse('https://www.openstreetmap.org/copyright'),
+                Uri.parse('https://www.google.com/maps'),
               ),
               child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 child: Text(
-                  '© OpenStreetMap contributors',
+                  'Map data © Google',
                   style: TextStyle(fontSize: 10, color: AppColors.ink),
                 ),
               ),
