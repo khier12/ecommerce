@@ -1768,6 +1768,42 @@ class ShopController extends ChangeNotifier {
     return candidates.take(limit).toList(growable: false);
   }
 
+  List<Product> cartAddOns({int limit = 4}) {
+    final inBag = {for (final item in _cart.values) item.product.id};
+    final hasDrink = _cart.values.any(
+      (item) =>
+          item.product.category != 'Food' &&
+          item.product.category != 'Pastries',
+    );
+    final hasFood = _cart.values.any(
+      (item) =>
+          item.product.category == 'Food' ||
+          item.product.category == 'Pastries',
+    );
+    final preferredOrder = hasDrink && !hasFood
+        ? const ['Pastries', 'Food', 'Coffee', 'Non-Coffee']
+        : hasFood && !hasDrink
+        ? const ['Coffee', 'Non-Coffee', 'Ice Blended', 'More Drinks']
+        : const ['Pastries', 'Coffee', 'Food', 'Non-Coffee'];
+    final candidates = products
+        .where((item) => item.available && !inBag.contains(item.id))
+        .toList();
+    int rankOf(Product item) {
+      final index = preferredOrder.indexOf(item.category);
+      return index == -1 ? preferredOrder.length : index;
+    }
+
+    candidates.sort((a, b) {
+      final rankCompare = rankOf(a).compareTo(rankOf(b));
+      if (rankCompare != 0) return rankCompare;
+      final priceCompare = a.price.compareTo(b.price);
+      if (priceCompare != 0) return priceCompare;
+      if (a.featured != b.featured) return a.featured ? -1 : 1;
+      return a.name.compareTo(b.name);
+    });
+    return candidates.take(limit).toList(growable: false);
+  }
+
   // Read-only projection for adjacent swipe pages; filtering rules stay shared.
   List<Product> productsForCategory(String category) {
     final matches = products.where((product) {
@@ -5419,7 +5455,19 @@ class SavedItemsView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Padding(
               padding: const EdgeInsets.only(top: 18, bottom: 14),
-              child: Text('Saved for later.', style: displayStyle(28)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Saved for later', style: displayStyle(28)),
+                  const SizedBox(height: 4),
+                  Text(
+                    saved.isEmpty
+                        ? 'Keep your favorites ready to reorder'
+                        : '${countText(saved.length)} ${saved.length == 1 ? 'saved item' : 'saved items'}',
+                    style: CafeType.caption,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -5754,9 +5802,22 @@ class _BagSummary extends StatelessWidget {
                     color: AppColors.white.withValues(alpha: .15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: NumericText(
-                    countText(controller.cartCount),
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  child: AnimatedSwitcher(
+                    duration: CafeMotion.of(context, CafeMotion.quick),
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: ScaleTransition(
+                        scale: Tween<double>(begin: .88, end: 1).animate(
+                          animation,
+                        ),
+                        child: child,
+                      ),
+                    ),
+                    child: NumericText(
+                      countText(controller.cartCount),
+                      key: ValueKey(controller.cartCount),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -5766,11 +5827,15 @@ class _BagSummary extends StatelessWidget {
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
-                NumericText(
-                  pesos(controller.total),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                AnimatedSwitcher(
+                  duration: CafeMotion.of(context, CafeMotion.quick),
+                  child: NumericText(
+                    pesos(controller.total),
+                    key: ValueKey(controller.total),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -6984,7 +7049,15 @@ class _CartScreenState extends State<CartScreen> {
             )
           : CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                const SliverToBoxAdapter(
+                  child: ContentWidth(
+                    maxWidth: 760,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 14, bottom: 12),
+                      child: _OrderFlowSteps(currentStep: 0),
+                    ),
+                  ),
+                ),
                 SliverList.builder(
                   itemCount: items.length,
                   itemBuilder: (context, index) {
@@ -7013,6 +7086,12 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                     ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: ContentWidth(
+                    maxWidth: 760,
+                    child: _CartAddOnsSection(controller: controller),
                   ),
                 ),
                 SliverToBoxAdapter(
@@ -7124,9 +7203,45 @@ class _CartRow extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => CafeSurfaceCard(
-    padding: const EdgeInsets.all(14),
-    child: LayoutBuilder(
+  Widget build(BuildContext context) {
+    final rowKey = CartItem.cartKey(item.product, item.option);
+    return Dismissible(
+      key: Key('cart-dismiss-$rowKey'),
+      direction: controller.placingOrder
+          ? DismissDirection.none
+          : DismissDirection.endToStart,
+      onDismissed: (_) => removeWithUndo(context),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: AppColors.dangerSoft,
+          borderRadius: BorderRadius.circular(CafeShape.card),
+          border: Border.all(color: AppColors.danger.withValues(alpha: .28)),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Remove',
+              style: TextStyle(
+                color: AppColors.danger,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(width: 6),
+            Icon(
+              Icons.delete_outline_rounded,
+              color: AppColors.danger,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+      child: CafeSurfaceCard(
+        padding: const EdgeInsets.all(14),
+        child: LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 450;
         return Column(
@@ -7222,7 +7337,315 @@ class _CartRow extends StatelessWidget {
         );
       },
     ),
-  );
+    ),
+    );
+  }
+}
+
+class _OrderFlowSteps extends StatelessWidget {
+  const _OrderFlowSteps({required this.currentStep});
+
+  final int currentStep;
+
+  static const _labels = ['Bag', 'Checkout', 'Confirm'];
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
+    return Container(
+      key: const Key('order-flow-steps'),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(CafeShape.control),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 250 * scale) {
+            return Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              children: [
+                for (var i = 0; i < _labels.length; i++)
+                  _OrderFlowStepPill(
+                    number: i + 1,
+                    label: _labels[i],
+                    completed: i < currentStep || (currentStep == 2 && i == 2),
+                    active: i == currentStep && currentStep < 2,
+                  ),
+              ],
+            );
+          }
+          return Row(
+            children: [
+              for (var i = 0; i < _labels.length; i++) ...[
+                _OrderFlowStepPill(
+                  number: i + 1,
+                  label: _labels[i],
+                  completed: i < currentStep || (currentStep == 2 && i == 2),
+                  active: i == currentStep && currentStep < 2,
+                ),
+                if (i < _labels.length - 1)
+                  Expanded(
+                    child: Container(
+                      height: 2,
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: i < currentStep
+                            ? AppColors.teal
+                            : AppColors.border,
+                        borderRadius: BorderRadius.circular(CafeShape.pill),
+                      ),
+                    ),
+                  ),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _OrderFlowStepPill extends StatelessWidget {
+  const _OrderFlowStepPill({
+    required this.number,
+    required this.label,
+    required this.completed,
+    required this.active,
+  });
+
+  final int number;
+  final String label;
+  final bool completed;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    final badgeColor = completed
+        ? AppColors.teal
+        : active
+        ? AppColors.dark
+        : AppColors.oat;
+    final badgeForeground = completed || active
+        ? AppColors.white
+        : AppColors.secondaryText;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: badgeColor, shape: BoxShape.circle),
+          child: completed
+              ? Icon(Icons.check_rounded, size: 14, color: badgeForeground)
+              : Text(
+                  '$number',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: badgeForeground,
+                  ),
+                ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: active || completed ? FontWeight.w700 : FontWeight.w500,
+            color: active || completed
+                ? AppColors.dark
+                : AppColors.secondaryText,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CartAddOnsSection extends StatelessWidget {
+  const _CartAddOnsSection({required this.controller});
+
+  final ShopController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final addOns = controller.cartAddOns();
+    if (addOns.isEmpty) return const SizedBox.shrink();
+    final scale = MediaQuery.textScalerOf(context).scale(13) / 13;
+    final cardWidth = math.max(152.0, 152.0 * math.min(scale, 1.35));
+    final listHeight = 90 + 96 * scale;
+    return Padding(
+      key: const Key('cart-addons-section'),
+      padding: const EdgeInsets.only(top: 6, bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Eyebrow('QUICK ADD-ONS'),
+          const SizedBox(height: 4),
+          const Text('Complete your order', style: CafeType.title),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: listHeight,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                  PointerDeviceKind.trackpad,
+                  PointerDeviceKind.stylus,
+                },
+              ),
+              child: HorizontalScrollFade(
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(bottom: 4),
+                  itemCount: addOns.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
+                  itemBuilder: (context, index) {
+                    final item = addOns[index];
+                    return SizedBox(
+                      width: cardWidth,
+                      child: Material(
+                        color: AppColors.surface,
+                        elevation: 2,
+                        shadowColor: AppColors.cardShadow,
+                        surfaceTintColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(CafeShape.card),
+                          side: const BorderSide(color: AppColors.border),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 86,
+                              width: double.infinity,
+                              child: ColoredBox(
+                                color: AppColors.oat,
+                                child: ProductImage(product: item),
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.ink,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item.subcategory,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 10.5,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: NumericText(
+                                            pesos(item.price),
+                                            style: const TextStyle(
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.dark,
+                                            ),
+                                          ),
+                                        ),
+                                        Material(
+                                          color: AppColors.dark,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: InkWell(
+                                            key: Key('cart-addon-${item.id}'),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            onTap: controller.placingOrder
+                                                ? null
+                                                : () {
+                                                    CafeHaptics.light();
+                                                    controller.addToCart(item);
+                                                    final messenger =
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        );
+                                                    messenger
+                                                        .hideCurrentSnackBar();
+                                                    messenger.showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          '${item.name} added to your bag.',
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                            child: const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 9,
+                                                vertical: 6,
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.add_rounded,
+                                                    size: 14,
+                                                    color: AppColors.white,
+                                                  ),
+                                                  SizedBox(width: 2),
+                                                  Text(
+                                                    'Add',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: AppColors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // ============================================================
@@ -9192,6 +9615,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const _OrderFlowSteps(currentStep: 1),
+                    const SizedBox(height: 14),
                     CafeSurfaceCard(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -10664,6 +11089,10 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (!fromHistory) ...[
+                  const _OrderFlowSteps(currentStep: 2),
+                  const SizedBox(height: 18),
+                ],
                 Center(child: CafeSuccessSeal(animate: !fromHistory)),
                 const SizedBox(height: 14),
                 Semantics(

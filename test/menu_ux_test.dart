@@ -505,7 +505,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('COFFEE · REGULAR · 16 OZ'), findsOneWidget);
     expect(find.text('COFFEE · LARGE · 22 OZ'), findsOneWidget);
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+    await tester.scrollUntilVisible(
+      find.text('Subtotal (2 items)'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     expect(find.text('Subtotal (2 items)'), findsOneWidget);
     expect(find.text('₱29.00'), findsOneWidget);
@@ -592,7 +596,8 @@ void main() {
 
     await tester.tap(find.text('Saved'));
     await tester.pumpAndSettle();
-    expect(find.text('Saved for later.'), findsOneWidget);
+    expect(find.text('Saved for later'), findsOneWidget);
+    expect(find.text('1 saved item'), findsOneWidget);
     expect(find.text('Tiramisu Latte'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -746,6 +751,57 @@ void main() {
       await tester.tap(quickAdd);
       await tester.pumpAndSettle();
       expect(shop.quantityOf(firstPair), 1);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Cart supports 3-step indicator, Complete your order add-ons, and swipe-to-remove',
+    (tester) async {
+      final first = shop.products.first;
+      shop.addToCart(first);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.theme,
+          home: CartScreen(controller: shop),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('order-flow-steps')), findsOneWidget);
+      expect(find.byKey(const Key('cart-addons-section')), findsOneWidget);
+      expect(find.text('Complete your order'), findsOneWidget);
+
+      final addOn = shop.cartAddOns().first;
+      final addOnBtn = find.byKey(Key('cart-addon-${addOn.id}'));
+      await tester.ensureVisible(addOnBtn);
+      await tester.pumpAndSettle();
+      await tester.tap(addOnBtn);
+      await tester.pumpAndSettle();
+      expect(shop.quantityOf(addOn), 1);
+
+      final firstKey = CartItem.cartKey(
+        first,
+        ShopController.optionLabel(first, null),
+      );
+      final dismissible = find.byKey(Key('cart-dismiss-$firstKey'));
+      await tester.scrollUntilVisible(
+        dismissible,
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.drag(dismissible, const Offset(-500, 0));
+      await tester.pumpAndSettle();
+      expect(shop.quantityOf(first), 0);
+      expect(find.text('Undo'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('open-checkout')));
+      await tester.pumpAndSettle();
+      expect(find.byType(CheckoutScreen), findsOneWidget);
+      expect(find.byKey(const Key('order-flow-steps')), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox.shrink());
       expect(tester.takeException(), isNull);
