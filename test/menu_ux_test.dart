@@ -723,4 +723,32 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'Product details uses Hero image transition and offers Pairs well with quick add',
+    (tester) async {
+      await openMenu(tester);
+      final featured = shop.products.firstWhere((p) => p.featured);
+      await tester.tap(find.byKey(Key('featured-${featured.id}')).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ProductDetailsScreen), findsOneWidget);
+      expect(find.byType(Hero), findsAtLeastNWidgets(1));
+      expect(find.byKey(const Key('pairs-well-with-section')), findsOneWidget);
+      expect(find.text('Pairs well with'), findsOneWidget);
+
+      final pairings = shop.pairingsFor(featured);
+      expect(pairings, isNotEmpty);
+      final firstPair = pairings.first;
+      final quickAdd = find.byKey(Key('pair-add-${firstPair.id}'));
+      await tester.ensureVisible(quickAdd);
+      await tester.pumpAndSettle();
+      await tester.tap(quickAdd);
+      await tester.pumpAndSettle();
+      expect(shop.quantityOf(firstPair), 1);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

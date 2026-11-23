@@ -1745,6 +1745,29 @@ class ShopController extends ChangeNotifier {
   List<Product> get products => repository.products;
   List<Product> get filteredProducts => productsForCategory(_category);
 
+  List<Product> pairingsFor(Product product, {int limit = 4}) {
+    final isFoodOrPastry =
+        product.category == 'Food' || product.category == 'Pastries';
+    final preferredOrder = isFoodOrPastry
+        ? const ['Coffee', 'Non-Coffee', 'Ice Blended', 'More Drinks']
+        : const ['Pastries', 'Food', 'Coffee', 'Non-Coffee'];
+    final candidates = products
+        .where((item) => item.available && item.id != product.id)
+        .toList();
+    int rankOf(Product item) {
+      final index = preferredOrder.indexOf(item.category);
+      return index == -1 ? preferredOrder.length : index;
+    }
+
+    candidates.sort((a, b) {
+      final rankCompare = rankOf(a).compareTo(rankOf(b));
+      if (rankCompare != 0) return rankCompare;
+      if (a.featured != b.featured) return a.featured ? -1 : 1;
+      return a.price.compareTo(b.price);
+    });
+    return candidates.take(limit).toList(growable: false);
+  }
+
   // Read-only projection for adjacent swipe pages; filtering rules stay shared.
   List<Product> productsForCategory(String category) {
     final matches = products.where((product) {
@@ -5024,6 +5047,7 @@ class _MenuCategoryPage extends StatelessWidget {
             controller: controller,
             width: width,
             horizontalPadding: horizontalPadding,
+            heroScope: 'menu-$category',
           ),
         SliverToBoxAdapter(child: SizedBox(height: math.max(20.0, endInset))),
       ],
@@ -5417,6 +5441,7 @@ class SavedItemsView extends StatelessWidget {
             controller: controller,
             width: width,
             horizontalPadding: horizontalPadding,
+            heroScope: 'saved',
           ),
         SliverToBoxAdapter(child: SizedBox(height: math.max(32.0, endInset))),
       ],
@@ -5430,11 +5455,13 @@ class _ProductGridSliver extends StatelessWidget {
     required this.controller,
     required this.width,
     required this.horizontalPadding,
+    this.heroScope = 'grid',
   });
   final List<Product> products;
   final ShopController controller;
   final double width;
   final double horizontalPadding;
+  final String heroScope;
 
   @override
   Widget build(BuildContext context) {
@@ -5470,6 +5497,7 @@ class _ProductGridSliver extends StatelessWidget {
               key: ValueKey(products[index].id),
               product: products[index],
               controller: controller,
+              heroScope: heroScope,
             ),
           );
         },
@@ -5578,83 +5606,86 @@ class _FeaturedCard extends StatelessWidget {
   final ShopController controller;
   final int index;
   @override
-  Widget build(BuildContext context) => CafePress(
-    lift: true,
-    child: Material(
-      color: AppColors.dark,
-      borderRadius: BorderRadius.circular(CafeShape.panel),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        key: Key('featured-${product.id}'),
-        onTap: () {
-          CafeHaptics.light();
-          FocusManager.instance.primaryFocus?.unfocus();
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              settings: RouteSettings(
-                name: '/details',
-                arguments: product.name,
+  Widget build(BuildContext context) {
+    final heroTag = 'product-hero-featured-$index-${product.id}';
+    return CafePress(
+      lift: true,
+      child: Material(
+        color: AppColors.dark,
+        borderRadius: BorderRadius.circular(CafeShape.panel),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: Key('featured-${product.id}'),
+          onTap: () {
+            CafeHaptics.light();
+            FocusManager.instance.primaryFocus?.unfocus();
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                settings: RouteSettings(
+                  name: '/details',
+                  arguments: product.name,
+                ),
+                builder: (_) => ProductDetailsScreen(
+                  product: product,
+                  controller: controller,
+                  heroTag: heroTag,
+                ),
               ),
-              builder: (_) => ProductDetailsScreen(
-                product: product,
-                controller: controller,
-              ),
-            ),
-          );
-        },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final compact = constraints.maxWidth < 500;
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: compact ? 57 : 51,
-                  child: Padding(
-                    padding: EdgeInsets.all(compact ? 18 : 28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Eyebrow('SMOOCH PICKS', color: AppColors.gold),
-                        const Spacer(),
-                        Text(
-                          product.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: displayStyle(
-                            compact ? 25 : 34,
-                            color: AppColors.white,
+            );
+          },
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 500;
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: compact ? 57 : 51,
+                    child: Padding(
+                      padding: EdgeInsets.all(compact ? 18 : 28),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Eyebrow('SMOOCH PICKS', color: AppColors.gold),
+                          const Spacer(),
+                          Text(
+                            product.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: displayStyle(
+                              compact ? 25 : 34,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          product.subcategory,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.muted,
+                          const SizedBox(height: 8),
+                          Text(
+                            product.subcategory,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.muted,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 14),
-                        NumericText(
-                          pesos(product.price),
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                          const SizedBox(height: 14),
+                          NumericText(
+                            pesos(product.price),
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: compact ? 43 : 49,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ProductImage(product: product),
+                  Expanded(
+                    flex: compact ? 43 : 49,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Hero(tag: heroTag, child: ProductImage(product: product)),
                       Positioned(
                         right: 12,
                         bottom: 12,
@@ -5674,7 +5705,8 @@ class _FeaturedCard extends StatelessWidget {
         ),
       ),
     ),
-  );
+    );
+  }
 }
 
 class _BagSummary extends StatelessWidget {
@@ -6093,13 +6125,16 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.product,
     required this.controller,
+    this.heroScope = 'grid',
   });
   final Product product;
   final ShopController controller;
+  final String heroScope;
 
   @override
   Widget build(BuildContext context) {
     final quantity = controller.quantityOf(product);
+    final heroTag = 'product-hero-$heroScope-${product.id}';
     return CafePress(
       lift: true,
       child: Material(
@@ -6126,6 +6161,7 @@ class ProductCard extends StatelessWidget {
                 builder: (_) => ProductDetailsScreen(
                   product: product,
                   controller: controller,
+                  heroTag: heroTag,
                 ),
               ),
             );
@@ -6139,7 +6175,7 @@ class ProductCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      ProductImage(product: product),
+                      Hero(tag: heroTag, child: ProductImage(product: product)),
                       if (product.featured)
                         Positioned(
                           left: 10,
@@ -6305,9 +6341,11 @@ class ProductDetailsScreen extends StatefulWidget {
     super.key,
     required this.product,
     required this.controller,
+    this.heroTag,
   });
   final Product product;
   final ShopController controller;
+  final Object? heroTag;
 
   @override
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
@@ -6393,35 +6431,40 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         child: ContentWidth(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final wide = constraints.maxWidth >= 700;
-                return Flex(
-                  direction: wide ? Axis.horizontal : Axis.vertical,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      flex: wide ? 1 : 0,
-                      child: CafeReveal(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.oat,
-                            borderRadius: BorderRadius.circular(
-                              CafeShape.panel,
-                            ),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: AspectRatio(
-                            aspectRatio: wide ? 1 : 1.1,
-                            child: ProductImage(
-                              product: widget.product,
-                              highResolution: true,
-                            ),
-                          ),
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final wide = constraints.maxWidth >= 700;
+                    final image = ProductImage(
+                      product: widget.product,
+                      highResolution: true,
+                    );
+                    final photoFrame = Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.oat,
+                        borderRadius: BorderRadius.circular(CafeShape.panel),
+                        border: Border.all(color: AppColors.border),
                       ),
-                    ),
+                      clipBehavior: Clip.antiAlias,
+                      child: AspectRatio(
+                        aspectRatio: wide ? 1 : 1.1,
+                        child: widget.heroTag == null
+                            ? image
+                            : Hero(tag: widget.heroTag!, child: image),
+                      ),
+                    );
+                    return Flex(
+                      direction: wide ? Axis.horizontal : Axis.vertical,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          flex: wide ? 1 : 0,
+                          child: widget.heroTag == null
+                              ? CafeReveal(child: photoFrame)
+                              : photoFrame,
+                        ),
                     SizedBox(width: wide ? 40 : 0, height: wide ? 0 : 20),
                     Flexible(
                       flex: wide ? 1 : 0,
@@ -6546,6 +6589,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 );
               },
             ),
+                _PairsWellWithSection(
+                  product: widget.product,
+                  controller: widget.controller,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -6617,6 +6666,225 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               },
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PairsWellWithSection extends StatelessWidget {
+  const _PairsWellWithSection({
+    required this.product,
+    required this.controller,
+  });
+
+  final Product product;
+  final ShopController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final pairings = controller.pairingsFor(product);
+    if (pairings.isEmpty) return const SizedBox.shrink();
+    final scale = MediaQuery.textScalerOf(context).scale(13) / 13;
+    final cardWidth = math.max(156.0, 156.0 * math.min(scale, 1.35));
+    final listHeight = 104 + 104 * scale;
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => Padding(
+        key: const Key('pairs-well-with-section'),
+        padding: const EdgeInsets.only(top: 28, bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(height: 1),
+            const SizedBox(height: 20),
+            const Eyebrow('COMPLETE YOUR ORDER'),
+            const SizedBox(height: 4),
+            const Text('Pairs well with', style: CafeType.title),
+            const SizedBox(height: 14),
+            SizedBox(
+              height: listHeight,
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                    PointerDeviceKind.trackpad,
+                    PointerDeviceKind.stylus,
+                  },
+                ),
+                child: HorizontalScrollFade(
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.only(bottom: 4),
+                    itemCount: pairings.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final pair = pairings[index];
+                      final qty = controller.quantityOf(pair);
+                      final pairHeroTag =
+                          'product-hero-pair-${product.id}-${pair.id}';
+                      return SizedBox(
+                        width: cardWidth,
+                        child: Material(
+                          color: AppColors.surface,
+                          elevation: 2,
+                          shadowColor: AppColors.cardShadow,
+                          surfaceTintColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(CafeShape.card),
+                            side: const BorderSide(color: AppColors.border),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            key: Key('pair-card-${pair.id}'),
+                            onTap: () {
+                              CafeHaptics.light();
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  settings: RouteSettings(
+                                    name: '/details',
+                                    arguments: pair.name,
+                                  ),
+                                  builder: (_) => ProductDetailsScreen(
+                                    product: pair,
+                                    controller: controller,
+                                    heroTag: pairHeroTag,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 100,
+                                  width: double.infinity,
+                                  child: ColoredBox(
+                                    color: AppColors.oat,
+                                    child: Hero(
+                                      tag: pairHeroTag,
+                                      child: ProductImage(product: pair),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          pair.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.ink,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          pair.subcategory,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.secondaryText,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: NumericText(
+                                                pesos(pair.price),
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: AppColors.dark,
+                                                ),
+                                              ),
+                                            ),
+                                            Material(
+                                              color: qty > 0
+                                                  ? AppColors.softTeal
+                                                  : AppColors.dark,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: InkWell(
+                                                key: Key('pair-add-${pair.id}'),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                onTap: () {
+                                                  CafeHaptics.light();
+                                                  controller.addToCart(pair);
+                                                  final messenger =
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      );
+                                                  messenger
+                                                      .hideCurrentSnackBar();
+                                                  messenger.showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        '${pair.name} added to your bag.',
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                        minWidth: 32,
+                                                        minHeight: 32,
+                                                      ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                      ),
+                                                  alignment: Alignment.center,
+                                                  child: qty > 0
+                                                      ? NumericText(
+                                                          '${countText(qty)}+',
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 11,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color: AppColors
+                                                                    .dark,
+                                                              ),
+                                                        )
+                                                      : const Icon(
+                                                          Icons.add_rounded,
+                                                          size: 18,
+                                                          color:
+                                                              AppColors.white,
+                                                        ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
