@@ -6383,8 +6383,22 @@ class ProductCard extends StatelessWidget {
                         }
                         return Row(
                           children: [
-                            Expanded(child: price),
-                            const SizedBox(width: 8),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: NumericText(
+                                  pesos(product.price),
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.dark,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
                             add,
                           ],
                         );
@@ -8257,7 +8271,9 @@ class DeliveryRouteService {
           await (client == null
                   ? http.get(uri, headers: headers)
                   : client!.get(uri, headers: headers))
-              .timeout(_timeout);
+              .timeout(
+                client == null ? const Duration(seconds: 18) : _timeout,
+              );
       if (response.statusCode != 200 ||
           response.bodyBytes.length > _maxResponseBytes) {
         throw StateError('The delivery route is unavailable.');
@@ -8378,7 +8394,7 @@ class DeliveryRouteService {
   }
 }
 
-class _CafeMap extends StatelessWidget {
+class _CafeMap extends StatefulWidget {
   const _CafeMap({
     required this.center,
     this.pin,
@@ -8416,31 +8432,46 @@ class _CafeMap extends StatelessWidget {
   final int interactiveFlags;
 
   @override
+  State<_CafeMap> createState() => _CafeMapState();
+}
+
+class _CafeMapState extends State<_CafeMap> {
+  // Keep one NetworkTileProvider across rebuilds and avoid aborting in-flight
+  // tile requests when initialCameraFit and route fitting refine the camera;
+  // aborted requests otherwise resolve to transparent 1x1 placeholders.
+  late final NetworkTileProvider _tileProvider = NetworkTileProvider(
+    abortObsoleteRequests: false,
+  );
+
+  @override
   Widget build(BuildContext context) => FlutterMap(
-    key: mapKey,
-    mapController: controller,
+    key: widget.mapKey,
+    mapController: widget.controller,
     options: MapOptions(
-      initialCenter: center,
-      initialZoom: zoom,
-      initialCameraFit: initialCameraFit,
+      initialCenter: widget.center,
+      initialZoom: widget.zoom,
+      initialCameraFit: widget.initialCameraFit,
       minZoom: 3,
       maxZoom: 20,
-      interactionOptions: InteractionOptions(flags: interactiveFlags),
-      onTap: onTap == null ? null : (_, point) => onTap!(point),
-      onMapReady: onReady,
+      interactionOptions: InteractionOptions(flags: widget.interactiveFlags),
+      onTap: widget.onTap == null ? null : (_, point) => widget.onTap!(point),
+      onMapReady: widget.onReady,
     ),
     children: [
       TileLayer(
-        urlTemplate: _tileUrl,
+        urlTemplate: _CafeMap._tileUrl,
         subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
         userAgentPackageName: 'SmoochCafeFlutter',
+        tileProvider: _tileProvider,
+        evictErrorTileStrategy:
+            EvictErrorTileStrategy.notVisibleRespectMargin,
       ),
-      ...layers,
-      if (pin != null)
+      ...widget.layers,
+      if (widget.pin != null)
         MarkerLayer(
           markers: [
             Marker(
-              point: pin!,
+              point: widget.pin!,
               width: 48,
               height: 48,
               child: const Icon(
@@ -8725,7 +8756,7 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                         InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
                     onReady: () {
                       mapReady = true;
-                      fitRoute();
+                      if (route != null) fitRoute();
                     },
                     layers: [
                       if (route case final road?) ...[
