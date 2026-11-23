@@ -3,7 +3,8 @@ import 'dart:math' as math;
 import 'package:ecommerce/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_map/flutter_map.dart' show FlutterMap, TapPosition;
+import 'package:flutter_map/flutter_map.dart'
+    show FlutterMap, InteractiveFlag, TapPosition;
 import 'package:latlong2/latlong.dart' show LatLng;
 
 void main() {
@@ -447,6 +448,38 @@ void main() {
     expect(find.textContaining('Pin:'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'Map disables double-tap-drag zoom and supports pinch zoom + zoom buttons',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(const MaterialApp(home: DeliveryMapPicker()));
+      await tester.pumpAndSettle();
+
+      final map = tester.widget<FlutterMap>(
+        find.byKey(const Key('delivery-map')),
+      );
+      final flags = map.options.interactionOptions.flags;
+      expect(InteractiveFlag.hasDrag(flags), isTrue);
+      expect(InteractiveFlag.hasPinchZoom(flags), isTrue);
+      expect(InteractiveFlag.hasDoubleTapDragZoom(flags), isFalse);
+      expect(InteractiveFlag.hasDoubleTapZoom(flags), isFalse);
+      expect(InteractiveFlag.hasRotate(flags), isFalse);
+
+      final initialZoom = map.mapController!.camera.zoom;
+      await tester.tap(find.byKey(const Key('map-zoom-in')));
+      await tester.pumpAndSettle();
+      expect(map.mapController!.camera.zoom, closeTo(initialZoom + 1, 0.01));
+
+      await tester.tap(find.byKey(const Key('map-zoom-out')));
+      await tester.pumpAndSettle();
+      expect(map.mapController!.camera.zoom, closeTo(initialZoom, 0.01));
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 class _FakeLocationService extends DeliveryLocationService {

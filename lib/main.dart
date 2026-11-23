@@ -7245,6 +7245,14 @@ class _CafeMap extends StatelessWidget {
       initialCameraFit: initialCameraFit,
       minZoom: 3,
       maxZoom: 20,
+      interactionOptions: const InteractionOptions(
+        flags:
+            InteractiveFlag.drag |
+            InteractiveFlag.flingAnimation |
+            InteractiveFlag.pinchMove |
+            InteractiveFlag.pinchZoom |
+            InteractiveFlag.scrollWheelZoom,
+      ),
       onTap: onTap == null ? null : (_, point) => onTap!(point),
       onMapReady: onReady,
     ),
@@ -8093,6 +8101,55 @@ class _DeliveryMapPickerState extends State<DeliveryMapPicker> {
                       ),
                     ),
                   ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 12,
+              bottom: 38,
+              child: Material(
+                color: AppColors.surface,
+                elevation: 2,
+                shadowColor: AppColors.cardShadow,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: const BorderSide(color: AppColors.border),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      key: const Key('map-zoom-in'),
+                      tooltip: 'Zoom in',
+                      onPressed: () {
+                        if (!mapReady) return;
+                        CafeHaptics.selection();
+                        mapController.move(
+                          mapController.camera.center,
+                          (mapController.camera.zoom + 1).clamp(3.0, 20.0),
+                        );
+                      },
+                      icon: const Icon(Icons.add, size: 20),
+                    ),
+                    const SizedBox(
+                      width: 32,
+                      child: Divider(height: 1, color: AppColors.border),
+                    ),
+                    IconButton(
+                      key: const Key('map-zoom-out'),
+                      tooltip: 'Zoom out',
+                      onPressed: () {
+                        if (!mapReady) return;
+                        CafeHaptics.selection();
+                        mapController.move(
+                          mapController.camera.center,
+                          (mapController.camera.zoom - 1).clamp(3.0, 20.0),
+                        );
+                      },
+                      icon: const Icon(Icons.remove, size: 20),
+                    ),
+                  ],
                 ),
               ),
             ),
