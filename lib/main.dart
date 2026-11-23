@@ -7218,7 +7218,15 @@ class _CafeMap extends StatelessWidget {
     this.mapKey = const Key('delivery-map'),
     this.initialCameraFit,
     this.layers = const [],
+    this.interactiveFlags = _defaultFlags,
   });
+
+  static const _defaultFlags =
+      InteractiveFlag.drag |
+      InteractiveFlag.flingAnimation |
+      InteractiveFlag.pinchMove |
+      InteractiveFlag.pinchZoom |
+      InteractiveFlag.scrollWheelZoom;
 
   static const _tileUrl = String.fromEnvironment(
     'MAP_TILE_URL',
@@ -7234,6 +7242,7 @@ class _CafeMap extends StatelessWidget {
   final Key mapKey;
   final CameraFit? initialCameraFit;
   final List<Widget> layers;
+  final int interactiveFlags;
 
   @override
   Widget build(BuildContext context) => FlutterMap(
@@ -7245,14 +7254,7 @@ class _CafeMap extends StatelessWidget {
       initialCameraFit: initialCameraFit,
       minZoom: 3,
       maxZoom: 20,
-      interactionOptions: const InteractionOptions(
-        flags:
-            InteractiveFlag.drag |
-            InteractiveFlag.flingAnimation |
-            InteractiveFlag.pinchMove |
-            InteractiveFlag.pinchZoom |
-            InteractiveFlag.scrollWheelZoom,
-      ),
+      interactionOptions: InteractionOptions(flags: interactiveFlags),
       onTap: onTap == null ? null : (_, point) => onTap!(point),
       onMapReady: onReady,
     ),
@@ -7548,6 +7550,8 @@ class _DeliveryRouteMapState extends State<DeliveryRouteMap>
                     center: widget.origin,
                     controller: mapController,
                     initialCameraFit: cameraFit,
+                    interactiveFlags:
+                        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
                     onReady: () {
                       mapReady = true;
                       fitRoute();
@@ -9634,198 +9638,232 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 28),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(child: CafeSuccessSeal(animate: !fromHistory)),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 Semantics(
                   liveRegion: true,
                   child: Text(
                     fromHistory ? 'Your saved order.' : 'Order placed.',
-                    style: displayStyle(30),
+                    style: displayStyle(28),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 if (fromHistory) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     orderDate(order.createdAt, detailed: true),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.secondaryText,
-                      fontSize: 13,
-                      height: 1.5,
+                      fontSize: 12,
+                      height: 1.4,
                     ),
                   ),
                 ],
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(14, 6, 8, 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(CafeShape.pill),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        SelectableText(
+                          order.reference,
+                          key: const Key('order-reference'),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.dark,
+                          ),
+                        ),
+                        TextButton.icon(
+                          key: const Key('copy-order-reference'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            minimumSize: const Size(0, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            Clipboard.setData(
+                              ClipboardData(text: order.reference),
+                            );
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(
+                                const SnackBar(
+                                  content: Text('Order reference copied'),
+                                ),
+                              );
+                          },
+                          icon: const Icon(Icons.copy_rounded, size: 13),
+                          label: const Text(
+                            'Copy',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
                 OrderTracking(order: order, timeline: timeline),
-                const SizedBox(height: 20),
+                if (order.deliveryAddress.isNotEmpty &&
+                    order.deliveryPoint != null) ...[
+                  const SizedBox(height: 14),
+                  CafeSurfaceCard(
+                    padding: const EdgeInsets.all(16),
+                    child: DeliveryRouteMap(
+                      order: order,
+                      timeline: timeline,
+                      destination: order.deliveryPoint!,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 14),
                 CafeSurfaceCard(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Eyebrow('Order reference'),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
-                          SelectableText(
-                            order.reference,
-                            key: const Key('order-reference'),
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.dark,
-                            ),
-                          ),
-                          TextButton.icon(
-                            key: const Key('copy-order-reference'),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              minimumSize: const Size(0, 32),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: order.reference),
-                              );
-                              ScaffoldMessenger.of(context)
-                                ..hideCurrentSnackBar()
-                                ..showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Order reference copied'),
-                                  ),
-                                );
-                            },
-                            icon: const Icon(Icons.copy_rounded, size: 14),
-                            label: const Text('Copy'),
-                          ),
-                        ],
+                      const Eyebrow('Delivery details'),
+                      const SizedBox(height: 12),
+                      _OrderDetailLine(
+                        icon: Icons.storefront_outlined,
+                        title: 'Smooch Cafe · Carmona',
+                        subtitle:
+                            '${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} order',
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Smooch Cafe · Carmona · ${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'} · ${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} order',
-                        style: const TextStyle(
-                          color: AppColors.secondaryText,
-                          fontSize: 12,
-                        ),
+                      const Divider(height: 20),
+                      _OrderDetailLine(
+                        icon: Icons.person_outline,
+                        title:
+                            '${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} for ${order.customerName}',
+                        subtitle: order.mobileNumber.isNotEmpty
+                            ? readablePhMobile(order.mobileNumber)
+                            : null,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${order.fulfillment == FulfillmentMethod.delivery ? 'Delivery' : 'Pickup'} for ${order.customerName}',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      if (order.mobileNumber.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(readablePhMobile(order.mobileNumber)),
-                      ],
                       if (order.deliveryAddress.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Delivery address',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.secondaryText,
-                          ),
+                        const Divider(height: 20),
+                        _OrderDetailLine(
+                          icon: Icons.location_on_outlined,
+                          title: order.deliveryAddress,
+                          subtitle: order.notes.isNotEmpty
+                              ? 'Note: ${order.notes}'
+                              : null,
                         ),
-                        const SizedBox(height: 4),
-                        Text(order.deliveryAddress),
-                        if (order.deliveryPoint case final point?) ...[
-                          const SizedBox(height: 12),
-                          DeliveryRouteMap(
-                            order: order,
-                            timeline: timeline,
-                            destination: point,
-                          ),
-                        ],
+                      ] else if (order.notes.isNotEmpty) ...[
+                        const Divider(height: 20),
+                        _OrderDetailLine(
+                          icon: Icons.notes_rounded,
+                          title: 'Note: ${order.notes}',
+                        ),
                       ],
-                      if (order.notes.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text('Note: ${order.notes}'),
-                      ],
-                      const SizedBox(height: 8),
-                      Text(
-                        order.paymentMethod == PaymentMethod.cash
+                      const Divider(height: 20),
+                      _OrderDetailLine(
+                        icon: order.paymentMethod == PaymentMethod.cash
+                            ? Icons.payments_outlined
+                            : Icons.account_balance_wallet_outlined,
+                        title: order.paymentMethod == PaymentMethod.cash
                             ? '${order.fulfillment == FulfillmentMethod.delivery ? 'Cash on delivery' : 'Cash at pickup'} · ${order.paymentStatus}'
                             : 'GCash · ${order.paymentStatus}',
-                        key: const Key('confirmation-payment'),
-                        style: const TextStyle(
-                          color: AppColors.secondaryText,
-                          fontSize: 12,
-                        ),
+                        titleKey: const Key('confirmation-payment'),
                       ),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      for (final item in order.items)
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                CafeSurfaceCard(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Eyebrow('Order summary'),
+                      const SizedBox(height: 6),
+                      for (var i = 0; i < order.items.length; i++) ...[
+                        if (i > 0) const Divider(height: 1),
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  QuantityBadge(quantity: item.quantity),
-                                  const SizedBox(width: 8),
+                                  QuantityBadge(
+                                    quantity: order.items[i].quantity,
+                                  ),
+                                  const SizedBox(width: 10),
                                   Expanded(
-                                    child: Text(
-                                      item.product.name,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        height: 1.4,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          order.items[i].product.name,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            height: 1.35,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          order.items[i].option != null
+                                              ? '${order.items[i].product.subcategory} · ${order.items[i].option}'
+                                              : order
+                                                    .items[i]
+                                                    .product
+                                                    .subcategory,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.secondaryText,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  NumericText(
+                                    pesos(order.items[i].total),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.ink,
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                item.option != null
-                                    ? '${item.product.subcategory} · ${item.option}'
-                                    : item.product.subcategory,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.secondaryText,
+                              Padding(
+                                padding: const EdgeInsets.only(left: 42),
+                                child: NumericText(
+                                  '${countText(order.items[i].quantity)} × ${pesos(order.items[i].unitPrice)}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.secondaryText,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                alignment: WrapAlignment.spaceBetween,
-                                spacing: 16,
-                                runSpacing: 6,
-                                children: [
-                                  NumericText(
-                                    '${countText(item.quantity)} × ${pesos(item.unitPrice)}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.secondaryText,
-                                    ),
-                                  ),
-                                  NumericText(
-                                    pesos(item.total),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ],
                           ),
                         ),
-                      const Divider(),
-                      const SizedBox(height: 16),
+                      ],
+                      const Divider(height: 1),
+                      const SizedBox(height: 14),
                       Wrap(
                         alignment: WrapAlignment.spaceBetween,
                         crossAxisAlignment: WrapCrossAlignment.center,
@@ -9835,15 +9873,15 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                           const Text(
                             'Total',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           NumericText(
                             pesos(order.total),
                             key: const Key('confirmation-total'),
                             style: const TextStyle(
-                              fontSize: 24,
+                              fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: AppColors.dark,
                             ),
@@ -9859,8 +9897,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
         ),
       ),
     ),
-    bottomNavigationBar: ColoredBox(
-      color: AppColors.surface,
+    bottomNavigationBar: DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border)),
+      ),
       child: SafeArea(
         top: false,
         child: Center(
@@ -9868,7 +9909,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               child: SizedBox(
                 width: double.infinity,
                 child: CafePress(
@@ -9888,6 +9929,56 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
         ),
       ),
     ),
+  );
+}
+
+class _OrderDetailLine extends StatelessWidget {
+  const _OrderDetailLine({
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    this.titleKey,
+  });
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Key? titleKey;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 18, color: AppColors.teal),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              key: titleKey,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
+                height: 1.4,
+              ),
+            ),
+            if (subtitle != null && subtitle!.isNotEmpty) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.secondaryText,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    ],
   );
 }
 

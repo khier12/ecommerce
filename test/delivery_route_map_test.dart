@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart'
-    show FlutterMap, MarkerLayer, PolylineLayer;
+    show FlutterMap, InteractiveFlag, MarkerLayer, PolylineLayer;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart' show LatLng;
 
@@ -146,6 +146,14 @@ void main() {
     await _flushRoute(tester);
     expect(find.byKey(const Key('delivery-route-loading')), findsNothing);
     expect(find.byKey(const Key('delivery-route-map')), findsOneWidget);
+    final routeMapFlags = tester
+        .widget<FlutterMap>(find.byKey(const Key('delivery-route-map')))
+        .options
+        .interactionOptions
+        .flags;
+    expect(InteractiveFlag.hasPinchZoom(routeMapFlags), isTrue);
+    expect(InteractiveFlag.hasDrag(routeMapFlags), isFalse);
+    expect(InteractiveFlag.hasScrollWheelZoom(routeMapFlags), isFalse);
     expect(_showsFullRoute(tester, route), isTrue);
     final mapSize = tester.getSize(find.byKey(const Key('delivery-route-map')));
     expect(mapSize.height, inInclusiveRange(280, 340));
