@@ -124,7 +124,7 @@ void main() {
       expect(receipt.reference, saved!.reference);
       expect(receipt.items.single.product.toJson(), retired.toJson());
       expect(receipt.items.single.quantity, 2);
-      expect(receipt.total, 360);
+      expect(receipt.total, 360 + ShopController.deliveryFee);
       expect(receipt.notes, 'Less sauce');
       expect(File(receipt.items.single.product.image).existsSync(), isFalse);
       expect(current.products, hasLength(40));
@@ -182,18 +182,24 @@ void main() {
       final order = (await place())!;
       expect(order.reference, 'SMC-0001');
       expect(order.itemCount, 3);
-      expect(order.total, first.price * 2 + second.price);
+      expect(
+        order.total,
+        first.price * 2 + second.price + ShopController.deliveryFee,
+      );
       expect(shop.cartCount, 0);
       expect(shop.total, 0);
       expect(await place(), isNull);
       shop.addToCart(first, quantity: 4);
       expect(order.items.first.quantity, 2);
-      expect(order.total, first.price * 2 + second.price);
+      expect(
+        order.total,
+        first.price * 2 + second.price + ShopController.deliveryFee,
+      );
       expect(() => order.items.clear(), throwsUnsupportedError);
       final next = (await place())!;
       expect(next.reference, 'SMC-0002');
       expect(next.itemCount, 4);
-      expect(next.total, first.price * 4);
+      expect(next.total, first.price * 4 + ShopController.deliveryFee);
     },
   );
 
@@ -270,7 +276,7 @@ void main() {
       expect(restored.orders.single.mobileNumber, '09171234567');
       expect(restored.orders.single.notes, 'Less ice');
       expect(restored.orders.single.items.single.quantity, 2);
-      expect(restored.orders.single.total, 290);
+      expect(restored.orders.single.total, 290 + ShopController.deliveryFee);
       restored.addToCart(restored.products.first);
       final next = await restored.submitOrder(
         customerName: 'Ana',

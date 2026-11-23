@@ -109,19 +109,19 @@ void main() {
     expect(find.byKey(const Key('cart-total')), findsOneWidget);
     expect(
       tester.widget<Text>(find.byKey(const Key('cart-total'))).data,
-      '₱290.00',
+      '₱319.00',
     );
     await tester.tap(find.byTooltip('Increase quantity'));
     await tester.pump();
     expect(
       tester.widget<Text>(find.byKey(const Key('cart-total'))).data,
-      '₱435.00',
+      '₱464.00',
     );
     await tester.tap(find.byTooltip('Decrease quantity'));
     await tester.pump();
     expect(
       tester.widget<Text>(find.byKey(const Key('cart-total'))).data,
-      '₱290.00',
+      '₱319.00',
     );
     await tester.tap(find.byTooltip('Remove Tiramisu Latte'));
     await tester.pumpAndSettle();

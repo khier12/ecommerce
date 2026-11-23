@@ -98,7 +98,7 @@ void main() {
       );
       expect(
         tester.widget<Text>(find.byKey(const Key('confirmation-total'))).data,
-        '₱290.00',
+        '₱319.00',
       );
       expect(shop.cartItems, isEmpty);
       expect(shop.total, 0);

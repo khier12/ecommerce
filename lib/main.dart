@@ -731,7 +731,13 @@ class OrderReceipt {
     this.deliveryAddress = '',
     this.deliveryLatitude,
     this.deliveryLongitude,
-  }) : items = List.unmodifiable(items);
+    int? deliveryFee,
+  }) : items = List.unmodifiable(items),
+       deliveryFee =
+           deliveryFee ??
+           (fulfillment == FulfillmentMethod.delivery
+               ? ShopController.deliveryFee
+               : 0);
 
   final String reference;
   final List<CartItem> items;
@@ -744,6 +750,7 @@ class OrderReceipt {
   final String deliveryAddress;
   final double? deliveryLatitude;
   final double? deliveryLongitude;
+  final int deliveryFee;
   LatLng? get deliveryPoint =>
       deliveryLatitude != null &&
           deliveryLongitude != null &&
@@ -805,7 +812,8 @@ class OrderReceipt {
             : 'Payment due at pickup'
       : 'Payment step complete';
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
-  int get total => items.fold(0, (sum, item) => sum + item.total);
+  int get subtotal => items.fold(0, (sum, item) => sum + item.total);
+  int get total => subtotal + deliveryFee;
 
   Map<String, Object?> toJson() => {
     'reference': reference,
@@ -819,6 +827,7 @@ class OrderReceipt {
     'deliveryAddress': deliveryAddress,
     'deliveryLatitude': deliveryLatitude,
     'deliveryLongitude': deliveryLongitude,
+    'deliveryFee': deliveryFee,
   };
 
   factory OrderReceipt.fromJson(Map<String, dynamic> json) => OrderReceipt(
@@ -839,6 +848,7 @@ class OrderReceipt {
     deliveryAddress: json['deliveryAddress'] as String? ?? '',
     deliveryLatitude: (json['deliveryLatitude'] as num?)?.toDouble(),
     deliveryLongitude: (json['deliveryLongitude'] as num?)?.toDouble(),
+    deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
   );
 }
 
@@ -1642,10 +1652,10 @@ class ShopController extends ChangeNotifier {
   List<CartItem> get cartItems => List.unmodifiable(_cart.values);
   int get cartCount => _cart.values.fold(0, (sum, item) => sum + item.quantity);
   int get total => _cart.values.fold(0, (sum, item) => sum + item.total);
+  int get grandTotal => _cart.isEmpty ? 0 : total + deliveryFee;
 
-  /// Delivery is free within the service area; kept explicit so totals and
-  /// summaries can show the breakdown.
-  static const deliveryFee = 0;
+  /// Flat delivery fee within the 30 km service area.
+  static const deliveryFee = 29;
 
   void search(String value) {
     if (_query == value) return;
@@ -3253,18 +3263,20 @@ class OrderSummaryCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        const Wrap(
+        Wrap(
           alignment: WrapAlignment.spaceBetween,
           spacing: 12,
           runSpacing: 4,
           children: [
-            Text('Delivery within 30 km', style: CafeType.caption),
-            Text(
-              'Free',
-              style: TextStyle(
+            const Text('Delivery fee', style: CafeType.caption),
+            NumericText(
+              ShopController.deliveryFee == 0
+                  ? 'Free'
+                  : pesos(ShopController.deliveryFee),
+              style: const TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.teal,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
               ),
             ),
           ],
@@ -4500,7 +4512,7 @@ class _MenuCategoryPage extends StatelessWidget {
                               ),
                             ),
                             child: const Text(
-                              'Free delivery',
+                              '₱29 delivery',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -6157,7 +6169,8 @@ class _CartScreenState extends State<CartScreen> {
   ShopController get controller => widget.controller;
   List<CartItem> get items => controller.cartItems;
   int get itemCount => controller.cartCount;
-  int get orderTotal => controller.total;
+  int get itemsSubtotal => controller.total;
+  int get orderTotal => controller.grandTotal;
 
   void _openCheckout() {
     if (items.isEmpty) return;
@@ -6272,7 +6285,7 @@ class _CartScreenState extends State<CartScreen> {
                       padding: const EdgeInsets.only(top: 4, bottom: 20),
                       child: OrderSummaryCard(
                         itemCount: itemCount,
-                        subtotal: orderTotal,
+                        subtotal: itemsSubtotal,
                         showTotal: false,
                       ),
                     ),
@@ -8338,7 +8351,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           MaterialPageRoute(
             settings: const RouteSettings(name: '/payment'),
             builder: (_) => DemoPaymentScreen(
-              amount: widget.controller.total,
+              amount: widget.controller.grandTotal,
               checkoutMobile: mobile.text,
             ),
           ),
@@ -8390,6 +8403,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
+  InputDecoration _fieldDecoration({
+    required String label,
+    String? hint,
+    IconData? icon,
+    bool multiline = false,
+  }) => InputDecoration(
+    labelText: label,
+    hintText: hint,
+    filled: true,
+    fillColor: AppColors.oat,
+    prefixIcon: icon == null ? null : Icon(icon, size: 20),
+    alignLabelWithHint: multiline,
+    counterText: '',
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(CafeShape.control),
+      borderSide: const BorderSide(color: AppColors.border),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(CafeShape.control),
+      borderSide: const BorderSide(color: AppColors.teal, width: 2),
+    ),
+  );
+
+  void _applyNoteChip(String text) {
+    if (busy) return;
+    CafeHaptics.selection();
+    final current = notes.text.trim();
+    if (current.toLowerCase().contains(text.toLowerCase())) return;
+    final next = current.isEmpty ? text : '$current · $text';
+    if (next.length <= 200) {
+      setState(() => notes.text = next);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
@@ -8403,7 +8451,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
               child: Form(
                 key: form,
                 autovalidateMode: attemptedSubmit
@@ -8412,6 +8460,84 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    CafeSurfaceCard(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 34,
+                                height: 34,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.softGold,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.delivery_dining_outlined,
+                                  size: 18,
+                                  color: AppColors.dark,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Smooch Cafe · Carmona',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.dark,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Delivery within ${CheckoutValidation.deliveryRadiusLabel}',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.softTeal,
+                              borderRadius: BorderRadius.circular(
+                                CafeShape.pill,
+                              ),
+                            ),
+                            child: NumericText(
+                              'Fee ${pesos(ShopController.deliveryFee)}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.dark,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     CafeSurfaceCard(
                       padding: const EdgeInsets.all(CafeSpace.md),
                       child: Column(
@@ -8430,13 +8556,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             autofillHints: const [AutofillHints.name],
                             textCapitalization: TextCapitalization.words,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Full name *',
-                              prefixIcon: Icon(Icons.person_outline),
+                            decoration: _fieldDecoration(
+                              label: 'Full name *',
+                              icon: Icons.person_outline,
                             ),
                             validator: CheckoutValidation.name,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           TextFormField(
                             key: const Key('customer-mobile'),
                             controller: mobile,
@@ -8447,10 +8573,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ],
                             keyboardType: TextInputType.phone,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Mobile number *',
-                              hintText: '09XX XXX XXXX',
-                              prefixIcon: Icon(Icons.phone_outlined),
+                            decoration: _fieldDecoration(
+                              label: 'Mobile number *',
+                              hint: '09XX XXX XXXX',
+                              icon: Icons.phone_outlined,
                             ),
                             validator: validateMobile,
                           ),
@@ -8468,6 +8594,55 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             title: 'Delivery address',
                             icon: Icons.location_on_outlined,
                           ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              OutlinedButton.icon(
+                                key: const Key('use-gps-address'),
+                                onPressed: () => chooseLocation(useGps: true),
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(48, 44),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 10,
+                                  ),
+                                  side: const BorderSide(
+                                    color: AppColors.border,
+                                  ),
+                                  backgroundColor: AppColors.softTeal,
+                                  foregroundColor: AppColors.dark,
+                                ),
+                                icon: const Icon(
+                                  Icons.my_location_outlined,
+                                  size: 17,
+                                ),
+                                label: const Text('Use GPS'),
+                              ),
+                              OutlinedButton.icon(
+                                key: const Key('choose-map-address'),
+                                onPressed: chooseLocation,
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(48, 44),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 10,
+                                  ),
+                                  side: const BorderSide(
+                                    color: AppColors.border,
+                                  ),
+                                  foregroundColor: AppColors.ink,
+                                ),
+                                icon: const Icon(Icons.map_outlined, size: 17),
+                                label: Text(
+                                  deliveryPin == null
+                                      ? 'Choose on map'
+                                      : 'Move pin',
+                                ),
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 12),
                           TextFormField(
                             key: const Key('delivery-address'),
@@ -8480,11 +8655,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             textCapitalization: TextCapitalization.words,
                             keyboardType: TextInputType.multiline,
                             textInputAction: TextInputAction.newline,
-                            decoration: const InputDecoration(
-                              labelText: 'Delivery address *',
-                              hintText: 'House number, street, barangay, city',
-                              prefixIcon: Icon(Icons.location_on_outlined),
-                              alignLabelWithHint: true,
+                            decoration: _fieldDecoration(
+                              label: 'Delivery address *',
+                              hint: 'House number, street, barangay, city',
+                              icon: Icons.location_on_outlined,
+                              multiline: true,
                             ),
                             validator: (value) {
                               final addressError = CheckoutValidation.address(
@@ -8500,101 +8675,161 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Within ${CheckoutValidation.deliveryRadiusLabel} of Carmona, Cavite.',
-                            style: TextStyle(
-                              color: AppColors.secondaryText,
-                              fontSize: 12,
-                            ),
-                          ),
-                          if (suggestedAddress.isUsable) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              'Map address suggestion: $suggestedAddress',
-                              style: const TextStyle(
-                                color: AppColors.secondaryText,
-                                fontSize: 12,
-                              ),
-                            ),
-                            if (address.text.trim() != suggestedAddress)
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: TextButton.icon(
-                                  key: const Key('use-suggested-address'),
-                                  onPressed: busy
-                                      ? null
-                                      : () => setState(() {
-                                          address.text = suggestedAddress!;
-                                        }),
-                                  icon: const Icon(
-                                    Icons.edit_location_alt_outlined,
-                                  ),
-                                  label: const Text('Use suggested address'),
-                                ),
-                              ),
-                          ],
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 8,
-                            children: [
-                              OutlinedButton.icon(
-                                key: const Key('use-gps-address'),
-                                onPressed: () => chooseLocation(useGps: true),
-                                icon: const Icon(
-                                  Icons.my_location_outlined,
-                                  size: 18,
-                                ),
-                                label: const Text('Use GPS'),
-                              ),
-                              OutlinedButton.icon(
-                                key: const Key('choose-map-address'),
-                                onPressed: chooseLocation,
-                                icon: const Icon(Icons.map_outlined, size: 18),
-                                label: Text(
-                                  deliveryPin == null
-                                      ? 'Choose on map'
-                                      : 'Move pin',
-                                ),
-                              ),
-                            ],
-                          ),
                           if (deliveryPin != null) ...[
                             const SizedBox(height: 10),
-                            Text(
-                              'Delivery pin: ${deliveryPin!.latitude.toStringAsFixed(5)}, ${deliveryPin!.longitude.toStringAsFixed(5)}',
-                              key: const Key('checkout-delivery-pin'),
-                              style: const TextStyle(
-                                color: AppColors.teal,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.softTeal,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: TextButton.icon(
-                                key: const Key('remove-delivery-pin'),
-                                onPressed: busy
-                                    ? null
-                                    : () => setState(() => deliveryPin = null),
-                                icon: const Icon(Icons.close, size: 16),
-                                label: const Text('Remove pin'),
+                              child: Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_outline,
+                                        size: 16,
+                                        color: AppColors.teal,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          'Delivery pin: ${deliveryPin!.latitude.toStringAsFixed(5)}, ${deliveryPin!.longitude.toStringAsFixed(5)}',
+                                          key: const Key(
+                                            'checkout-delivery-pin',
+                                          ),
+                                          style: const TextStyle(
+                                            color: AppColors.dark,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  TextButton.icon(
+                                    key: const Key('remove-delivery-pin'),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      minimumSize: const Size(0, 32),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed: busy
+                                        ? null
+                                        : () =>
+                                              setState(() => deliveryPin = null),
+                                    icon: const Icon(Icons.close, size: 15),
+                                    label: const Text(
+                                      'Remove',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                          const SizedBox(height: 14),
+                          if (suggestedAddress.isUsable &&
+                              address.text.trim() != suggestedAddress) ...[
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.softGold,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.gold),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Map address: $suggestedAddress',
+                                    style: const TextStyle(
+                                      color: AppColors.dark,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextButton.icon(
+                                    key: const Key('use-suggested-address'),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      minimumSize: const Size(0, 34),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      backgroundColor: AppColors.surface,
+                                      foregroundColor: AppColors.dark,
+                                    ),
+                                    onPressed: busy
+                                        ? null
+                                        : () => setState(() {
+                                            address.text = suggestedAddress!;
+                                          }),
+                                    icon: const Icon(
+                                      Icons.edit_location_alt_outlined,
+                                      size: 16,
+                                    ),
+                                    label: const Text('Use suggested address'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            child: Divider(height: 1),
+                          ),
                           TextFormField(
                             key: const Key('customer-notes'),
                             controller: notes,
                             enabled: !busy,
                             maxLines: 2,
                             maxLength: 200,
-                            decoration: const InputDecoration(
-                              labelText: 'Delivery notes (optional)',
-                              alignLabelWithHint: true,
-                              hintText: 'Anything the cafe should know?',
+                            decoration: _fieldDecoration(
+                              label: 'Delivery notes (optional)',
+                              hint: 'Gate code, landmarks, or drink notes',
+                              icon: Icons.notes_rounded,
+                              multiline: true,
                             ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              for (final quick in const [
+                                'Leave at gate',
+                                'Call on arrival',
+                                'Less ice',
+                              ])
+                                ActionChip(
+                                  key: Key('note-chip-$quick'),
+                                  onPressed: busy
+                                      ? null
+                                      : () => _applyNoteChip(quick),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  label: Text(
+                                    quick,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -8647,6 +8882,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       subtotal: widget.controller.total,
                       items: widget.controller.cartItems,
                       compact: true,
+                      showTotal: false,
                     ),
                   ],
                 ),
@@ -8667,7 +8903,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 640),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -8678,19 +8914,34 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       runSpacing: 6,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Text(
-                          '${countText(widget.controller.cartCount)} ${widget.controller.cartCount == 1 ? 'item' : 'items'} · Delivery',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.secondaryText,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Total',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.ink,
+                              ),
+                            ),
+                            Text(
+                              '${countText(widget.controller.cartCount)} ${widget.controller.cartCount == 1 ? 'item' : 'items'} · incl. ₱${ShopController.deliveryFee} delivery',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.secondaryText,
+                              ),
+                            ),
+                          ],
                         ),
                         NumericText(
-                          pesos(widget.controller.total),
+                          pesos(widget.controller.grandTotal),
                           key: const Key('checkout-total'),
                           style: const TextStyle(
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.w700,
+                            color: AppColors.dark,
                           ),
                         ),
                       ],
@@ -8753,14 +9004,14 @@ class _PaymentChoice extends StatelessWidget {
     inMutuallyExclusiveGroup: true,
     child: Material(
       color: selected ? AppColors.softTeal : AppColors.surface,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: selected ? AppColors.teal : AppColors.border,
               width: selected ? 2 : 1,
@@ -8768,22 +9019,34 @@ class _PaymentChoice extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: AppColors.dark),
-              const SizedBox(width: 14),
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.softGold : AppColors.oat,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 19, color: AppColors.dark),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: const TextStyle(
                         color: AppColors.secondaryText,
-                        fontSize: 12,
+                        fontSize: 11,
                       ),
                     ),
                   ],
@@ -9863,7 +10126,49 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                         ),
                       ],
                       const Divider(height: 1),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          Text(
+                            'Subtotal (${countText(order.itemCount)} ${order.itemCount == 1 ? 'item' : 'items'})',
+                            style: CafeType.caption,
+                          ),
+                          NumericText(
+                            pesos(order.subtotal),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          const Text('Delivery fee', style: CafeType.caption),
+                          NumericText(
+                            order.deliveryFee == 0
+                                ? 'Free'
+                                : pesos(order.deliveryFee),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(height: 1),
+                      ),
                       Wrap(
                         alignment: WrapAlignment.spaceBetween,
                         crossAxisAlignment: WrapCrossAlignment.center,

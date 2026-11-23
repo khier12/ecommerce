@@ -243,7 +243,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       tester.widget<Text>(find.byKey(const Key('cart-total'))).data,
-      '₱290.00',
+      '₱319.00',
     );
     expect(tester.takeException(), isNull);
   });
@@ -508,7 +508,7 @@ void main() {
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
     await tester.pumpAndSettle();
     expect(find.text('Subtotal (2 items)'), findsOneWidget);
-    expect(find.text('Free'), findsOneWidget);
+    expect(find.text('₱29.00'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
