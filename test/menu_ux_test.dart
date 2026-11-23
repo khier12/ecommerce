@@ -639,4 +639,49 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('Clear bag supports Undo and Order History supports Order again', (
+    tester,
+  ) async {
+    final first = shop.products.first;
+    shop.addToCart(first, quantity: 2);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.theme,
+        home: CartScreen(controller: shop),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Total'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('clear-bag')));
+    await tester.pumpAndSettle();
+    expect(shop.cartCount, 0);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(shop.cartCount, 2);
+
+    final order = (await shop.submitOrder(
+      customerName: 'Juan Dela Cruz',
+      mobileNumber: '09171234567',
+      notes: '',
+      paymentMethod: PaymentMethod.cash,
+      deliveryAddress: '12 Rizal Street, Carmona, Cavite',
+    ))!;
+    expect(shop.cartCount, 0);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        key: const ValueKey('history-app'),
+        theme: AppTheme.theme,
+        home: OrderHistoryScreen(controller: shop),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('reorder-${order.reference}')));
+    await tester.pumpAndSettle();
+    expect(shop.cartCount, 2);
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
 }
