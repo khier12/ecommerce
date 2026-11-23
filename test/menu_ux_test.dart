@@ -684,4 +684,43 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'Ongoing order shows live banner on Menu and active badge on Order history tab',
+    (tester) async {
+      await openMenu(tester);
+      expect(find.byKey(const Key('active-order-banner')), findsNothing);
+      final initialBadge = tester.widget<Badge>(
+        find.byKey(const Key('orders-nav-badge')),
+      );
+      expect(initialBadge.isLabelVisible, isFalse);
+
+      shop.addToCart(shop.products.first);
+      final order = (await shop.submitOrder(
+        customerName: 'Juan Dela Cruz',
+        mobileNumber: '09171234567',
+        notes: '',
+        paymentMethod: PaymentMethod.cash,
+        deliveryAddress: '12 Rizal Street, Carmona, Cavite',
+      ))!;
+      await tester.pump();
+
+      expect(find.byKey(const Key('active-order-banner')), findsOneWidget);
+      expect(find.textContaining(order.reference), findsOneWidget);
+      expect(find.text('Order confirmed'), findsOneWidget);
+
+      final activeBadge = tester.widget<Badge>(
+        find.byKey(const Key('orders-nav-badge')),
+      );
+      expect(activeBadge.isLabelVisible, isTrue);
+
+      await tester.tap(find.byKey(const Key('active-order-banner')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(find.byType(OrderConfirmationScreen), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

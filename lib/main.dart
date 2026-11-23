@@ -801,6 +801,19 @@ class OrderReceipt {
     return stages[index];
   }
 
+  bool isOngoingAt(DateTime now) {
+    final stage = stageAt(now);
+    return stage != OrderStage.delivered && stage != OrderStage.readyForPickup;
+  }
+
+  DateTime? nextStageDeadlineAt(DateTime now) {
+    for (final offset in journeyEvents) {
+      final deadline = createdAt.add(offset);
+      if (deadline.isAfter(now)) return deadline;
+    }
+    return null;
+  }
+
   double riderProgressAt(DateTime now) =>
       ((now.difference(createdAt) - riderDeparture).inMicroseconds /
               riderTravel.inMicroseconds)
@@ -1716,6 +1729,10 @@ class ShopController extends ChangeNotifier {
   bool get inStockOnly => _inStockOnly;
   bool get placingOrder => _placingOrder;
   List<OrderReceipt> get orders => List.unmodifiable(_orders);
+  List<OrderReceipt> ongoingOrdersAt(DateTime now) => [
+    for (final order in _orders)
+      if (order.isOngoingAt(now)) order,
+  ];
 
   /// Number of refinements chosen in the Filters sheet.
   int get activeFilterCount =>
@@ -3996,12 +4013,53 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late TabController categoryTabs;
   bool? reducedCategoryMotion;
   int featuredIndex = 0;
+  Timer? _activeOrderTimer;
   ShopController get shop => widget.controller;
 
   @override
   void initState() {
     super.initState();
     search.text = shop.query;
+    _syncActiveOrderTimer();
+  }
+
+  void _syncActiveOrderTimer() {
+    _activeOrderTimer?.cancel();
+    _activeOrderTimer = null;
+    if (!mounted) return;
+    final now = DateTime.now();
+    DateTime? earliest;
+    for (final order in shop.orders) {
+      final deadline = order.nextStageDeadlineAt(now);
+      if (deadline == null) continue;
+      if (earliest == null || deadline.isBefore(earliest)) {
+        earliest = deadline;
+      }
+    }
+    if (earliest == null) return;
+    final delay = earliest.difference(now) + const Duration(milliseconds: 50);
+    _activeOrderTimer = Timer(delay, () {
+      if (!mounted) return;
+      setState(() {});
+      _syncActiveOrderTimer();
+    });
+  }
+
+  void _openActiveOrder(OrderReceipt order) {
+    CafeHaptics.light();
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(
+          name: '/order-confirmation',
+          arguments: 'Order details',
+        ),
+        builder: (_) => OrderConfirmationScreen(
+          order: order,
+          fromHistory: true,
+        ),
+      ),
+    );
   }
 
   @override
@@ -4025,16 +4083,17 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
       vsync: this,
     );
     categoryTabs.addListener(onCategoryPageChanged);
-    if (reducedCategoryMotion == null) shop.addListener(syncCategoryTabs);
+    if (reducedCategoryMotion == null) shop.addListener(_onShopChanged);
     reducedCategoryMotion = reduced;
   }
 
   @override
   void dispose() {
+    _activeOrderTimer?.cancel();
     search.dispose();
     menuSearchFocus.dispose();
     if (reducedCategoryMotion != null) {
-      shop.removeListener(syncCategoryTabs);
+      shop.removeListener(_onShopChanged);
       categoryTabs.removeListener(onCategoryPageChanged);
       categoryTabs.dispose();
     }
@@ -4097,6 +4156,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   void resetPosition() {
     final scroll = categoryScrolls[categoryTabs.index];
     if (scroll.hasClients && scroll.offset > 0) scroll.jumpTo(0);
+  }
+
+  void _onShopChanged() {
+    syncCategoryTabs();
+    _syncActiveOrderTimer();
   }
 
   void syncCategoryTabs() {
@@ -4187,6 +4251,12 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
       return ListenableBuilder(
         listenable: shop,
         builder: (context, _) {
+          final now = DateTime.now();
+          final ongoingOrders = shop.ongoingOrdersAt(now);
+          final activeOrder = ongoingOrders.isEmpty
+              ? null
+              : ongoingOrders.first;
+          final ongoingCount = ongoingOrders.length;
           final endInset = wide && shop.cartCount == 0
               ? BottomPadding.of(context, minimum: 0)
               : 0.0;
@@ -4262,6 +4332,30 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ],
+                                  if (entry.key == 2 && ongoingCount > 0) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      key: const Key('orders-desktop-badge'),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 7,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.gold,
+                                        borderRadius: BorderRadius.circular(
+                                          CafeShape.pill,
+                                        ),
+                                      ),
+                                      child: NumericText(
+                                        countText(ongoingCount),
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.dark,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -4327,11 +4421,24 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                 ),
                                 label: 'Saved',
                               ),
-                              const NavigationDestination(
-                                icon: Icon(Icons.receipt_long_outlined),
-                                selectedIcon: Icon(
-                                  Icons.receipt_long,
-                                  color: AppColors.dark,
+                              NavigationDestination(
+                                icon: Badge(
+                                  key: const Key('orders-nav-badge'),
+                                  isLabelVisible: ongoingCount > 0,
+                                  backgroundColor: AppColors.teal,
+                                  label: NumericText(countText(ongoingCount)),
+                                  child: const Icon(
+                                    Icons.receipt_long_outlined,
+                                  ),
+                                ),
+                                selectedIcon: Badge(
+                                  isLabelVisible: ongoingCount > 0,
+                                  backgroundColor: AppColors.teal,
+                                  label: NumericText(countText(ongoingCount)),
+                                  child: const Icon(
+                                    Icons.receipt_long,
+                                    color: AppColors.dark,
+                                  ),
                                 ),
                                 label: 'Order history',
                               ),
@@ -4424,6 +4531,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                       search.clear();
                                       queryChanged('');
                                     },
+                                    activeOrder: activeOrder,
+                                    ongoingCount: ongoingCount,
+                                    onOpenActiveOrder: activeOrder == null
+                                        ? null
+                                        : () => _openActiveOrder(activeOrder),
                                   ),
                               ],
                             ),
@@ -4533,6 +4645,9 @@ class _MenuCategoryPage extends StatelessWidget {
     required this.onSort,
     required this.onSearchAll,
     required this.onClearSearch,
+    this.activeOrder,
+    this.ongoingCount = 0,
+    this.onOpenActiveOrder,
   });
 
   final String category;
@@ -4551,6 +4666,9 @@ class _MenuCategoryPage extends StatelessWidget {
   final ValueChanged<MenuSort> onSort;
   final VoidCallback onSearchAll;
   final VoidCallback onClearSearch;
+  final OrderReceipt? activeOrder;
+  final int ongoingCount;
+  final VoidCallback? onOpenActiveOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -4564,8 +4682,24 @@ class _MenuCategoryPage extends StatelessWidget {
       controller: scroll,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
+        if (activeOrder != null && onOpenActiveOrder != null)
+          SliverToBoxAdapter(
+            key: const ValueKey('active-order-sliver'),
+            child: ContentWidth(
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 4),
+                child: _ActiveOrderBanner(
+                  order: activeOrder!,
+                  ongoingCount: ongoingCount,
+                  onTap: onOpenActiveOrder!,
+                ),
+              ),
+            ),
+          ),
         if (showFeatured)
           SliverToBoxAdapter(
+            key: const ValueKey('featured-carousel-sliver'),
             child: _FeaturedCarousel(
               controller: controller,
               pages: featuredPages,
@@ -4574,6 +4708,7 @@ class _MenuCategoryPage extends StatelessWidget {
             ),
           ),
         SliverToBoxAdapter(
+          key: const ValueKey('menu-controls-sliver'),
           child: ContentWidth(
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Padding(
@@ -4892,6 +5027,189 @@ class _MenuCategoryPage extends StatelessWidget {
           ),
         SliverToBoxAdapter(child: SizedBox(height: math.max(20.0, endInset))),
       ],
+    );
+  }
+}
+
+class _ActiveOrderBanner extends StatelessWidget {
+  const _ActiveOrderBanner({
+    required this.order,
+    required this.ongoingCount,
+    required this.onTap,
+  });
+
+  final OrderReceipt order;
+  final int ongoingCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final stage = order.stageAt(DateTime.now());
+    final stageIndex = order.stages.indexOf(stage).clamp(0, order.stages.length - 1);
+    final headline = switch (stage) {
+      OrderStage.confirmed => 'Order confirmed',
+      OrderStage.preparing => 'Preparing your order',
+      OrderStage.riderAssigned => 'Rider heading to cafe',
+      OrderStage.onTheWay => 'Rider is on the way',
+      OrderStage.delivered => 'Order delivered',
+      OrderStage.readyForPickup => 'Ready for pickup',
+    };
+    final icon = switch (stage) {
+      OrderStage.confirmed => Icons.check_circle_outline_rounded,
+      OrderStage.preparing => Icons.local_cafe_rounded,
+      OrderStage.riderAssigned => Icons.two_wheeler_rounded,
+      OrderStage.onTheWay => Icons.delivery_dining_rounded,
+      OrderStage.delivered => Icons.home_outlined,
+      OrderStage.readyForPickup => Icons.storefront_outlined,
+    };
+    final extra = ongoingCount > 1 ? ' · +${ongoingCount - 1}' : '';
+    return Semantics(
+      button: true,
+      label: 'Live order ${order.reference}, $headline. Tap to track.',
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(CafeShape.card),
+        clipBehavior: Clip.antiAlias,
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.dark, AppColors.teal],
+            ),
+            borderRadius: BorderRadius.circular(CafeShape.card),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.cardShadow,
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: InkWell(
+            key: const Key('active-order-banner'),
+            onTap: onTap,
+            splashColor: AppColors.white.withValues(alpha: .12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: .14),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, size: 20, color: AppColors.softGold),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: const BoxDecoration(
+                                color: AppColors.gold,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                'LIVE ORDER · ${order.reference}$extra',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.gold,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.9,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          headline,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Row(
+                          children: [
+                            for (var i = 0; i < order.stages.length; i++) ...[
+                              Expanded(
+                                child: Container(
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: i <= stageIndex
+                                        ? AppColors.gold
+                                        : AppColors.white.withValues(
+                                            alpha: .22,
+                                          ),
+                                    borderRadius: BorderRadius.circular(
+                                      CafeShape.pill,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (i < order.stages.length - 1)
+                                const SizedBox(width: 4),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.softGold,
+                      borderRadius: BorderRadius.circular(CafeShape.pill),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Track',
+                          style: TextStyle(
+                            color: AppColors.dark,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 2),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16,
+                          color: AppColors.dark,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -6725,14 +7043,9 @@ class _OrderHistoryContent extends StatelessWidget {
             itemBuilder: (context, index) {
               final order = controller.orders[index];
               final now = DateTime.now();
-              final isOngoing =
-                  order.stageAt(now) != OrderStage.delivered &&
-                  order.stageAt(now) != OrderStage.readyForPickup;
+              final isOngoing = order.isOngoingAt(now);
               final prevOngoing = index > 0
-                  ? (controller.orders[index - 1].stageAt(now) !=
-                            OrderStage.delivered &&
-                        controller.orders[index - 1].stageAt(now) !=
-                            OrderStage.readyForPickup)
+                  ? controller.orders[index - 1].isOngoingAt(now)
                   : null;
               final showSectionHeader =
                   index == 0 || prevOngoing != isOngoing;
