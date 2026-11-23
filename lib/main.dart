@@ -776,10 +776,10 @@ class OrderReceipt {
 
   static const stageInterval = Duration(seconds: 10);
   static const riderDeparture = Duration(seconds: 30);
-  static const riderTravel = Duration(seconds: 8);
-  static const riderArrival = Duration(seconds: 38);
+  static const riderTravel = Duration(seconds: 18);
+  static const riderArrival = Duration(seconds: 48);
   static const arrivalHold = Duration(seconds: 1);
-  static const deliveryComplete = Duration(seconds: 39);
+  static const deliveryComplete = Duration(seconds: 49);
 
   List<Duration> get journeyEvents => fulfillment == FulfillmentMethod.delivery
       ? const [
@@ -1666,12 +1666,15 @@ class PhilSmsService {
     }
   }
 
+  static const onTheWayLeadTime = Duration(seconds: 7);
+  static const onTheWaySmsDelay = Duration(seconds: 23);
+
   List<Timer> scheduleOrderNotifications(OrderReceipt order) {
     if (!isEnabled) return const [];
     unawaited(sendStageUpdate(order, OrderStage.confirmed));
     if (order.fulfillment != FulfillmentMethod.delivery) return const [];
     return [
-      Timer(OrderReceipt.riderDeparture, () {
+      Timer(onTheWaySmsDelay, () {
         unawaited(sendStageUpdate(order, OrderStage.onTheWay));
       }),
       Timer(OrderReceipt.deliveryComplete, () {

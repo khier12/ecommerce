@@ -415,6 +415,11 @@ void main() {
         (jsonDecode(sentRequests[2].body) as Map<String, dynamic>)['message'],
         contains('DELIVERED'),
       );
+      expect(
+        PhilSmsService.onTheWaySmsDelay,
+        OrderReceipt.riderDeparture - PhilSmsService.onTheWayLeadTime,
+      );
+      expect(OrderReceipt.deliveryComplete, const Duration(seconds: 49));
     },
   );
 }

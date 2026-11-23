@@ -274,10 +274,10 @@ void main() {
       expect(timeline.stage, OrderStage.onTheWay);
       expect(find.text('On the way'), findsOneWidget);
       await tester.pump();
-      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 9));
       expect(timeline.rider.value, closeTo(.5, .001));
       expect(_motorcyclePosition(tester), isNot(store));
-      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 9));
       expect(timeline.rider.value, 1);
       expect(timeline.stage, OrderStage.onTheWay);
       final arrived = _motorcyclePosition(tester);
@@ -348,7 +348,7 @@ void main() {
       await tester.pumpWidget(
         _routeApp(service, timeline: timeline, reducedMotion: true),
       );
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 15));
       expect(timeline.rider.value, 1);
       expect(timeline.stage, OrderStage.onTheWay);
       await tester.pump(const Duration(seconds: 1));
@@ -505,14 +505,14 @@ void main() {
     final service = _PendingRouteService();
     await tester.pumpWidget(_routeApp(service, timeline: timeline));
     expect(find.byKey(const Key('delivery-motorcycle')), findsOneWidget);
-    await tester.pump(const Duration(seconds: 14));
+    await tester.pump(const Duration(seconds: 19));
     expect(timeline.stage, OrderStage.onTheWay);
     expect(find.byKey(const Key('delivery-motorcycle')), findsNothing);
     service.requests.single.result.complete(_roadTo(_firstDropoff));
     await _flushRoute(tester);
     expect(timeline.rider.value, closeTo(.5, .01));
     expect(find.byKey(const Key('delivery-motorcycle')), findsOneWidget);
-    await tester.pump(const Duration(seconds: 4));
+    await tester.pump(const Duration(seconds: 9));
     expect(timeline.rider.value, 1);
     expect(timeline.stage, OrderStage.onTheWay);
     await tester.pump(const Duration(seconds: 1));
@@ -550,7 +550,7 @@ void main() {
       expect(_motorcyclePosition(tester), stopped);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
-      expect(timeline.rider.value, closeTo(5.05 / 8, .002));
+      expect(timeline.rider.value, closeTo(5.05 / 18, .002));
       expect(_motorcyclePosition(tester), isNot(stopped));
       expect(timeline.rider.isAnimating, isTrue);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
@@ -573,7 +573,7 @@ void main() {
       final service = _PendingRouteService();
       final timeline = OrderTimeline(
         order: _order(
-          tester.binding.clock.now().subtract(const Duration(seconds: 34)),
+          tester.binding.clock.now().subtract(const Duration(seconds: 39)),
         ),
         vsync: tester,
         now: tester.binding.clock.now,
@@ -611,7 +611,7 @@ void main() {
     (tester) async {
       final timeline = OrderTimeline(
         order: _order(
-          tester.binding.clock.now().subtract(const Duration(seconds: 34)),
+          tester.binding.clock.now().subtract(const Duration(seconds: 39)),
         ),
         vsync: tester,
         now: tester.binding.clock.now,

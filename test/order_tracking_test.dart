@@ -150,21 +150,21 @@ void main() {
       OrderStage.onTheWay,
     );
     expect(
-      order.stageAt(placedAt.add(const Duration(seconds: 38))),
+      order.stageAt(placedAt.add(const Duration(seconds: 48))),
       OrderStage.onTheWay,
     );
     expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 30))), 0);
     expect(
-      order.riderProgressAt(placedAt.add(const Duration(seconds: 34))),
+      order.riderProgressAt(placedAt.add(const Duration(seconds: 39))),
       .5,
     );
-    expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 38))), 1);
+    expect(order.riderProgressAt(placedAt.add(const Duration(seconds: 48))), 1);
     expect(
-      order.stageAt(placedAt.add(const Duration(milliseconds: 38999))),
+      order.stageAt(placedAt.add(const Duration(milliseconds: 48999))),
       OrderStage.onTheWay,
     );
     expect(
-      order.stageAt(placedAt.add(const Duration(seconds: 39))),
+      order.stageAt(placedAt.add(const Duration(seconds: 49))),
       OrderStage.delivered,
     );
     final restored = OrderReceipt.fromJson(order.toJson());
@@ -254,7 +254,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byKey(const Key('order-stage-onTheWay')), findsOneWidget);
 
-    await tester.pump(const Duration(seconds: 10));
+    await tester.pump(const Duration(seconds: 19));
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byKey(const Key('order-stage-delivered')), findsOneWidget);
     await tester.pump(const Duration(seconds: 30));
