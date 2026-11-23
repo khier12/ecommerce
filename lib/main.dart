@@ -4089,9 +4089,9 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
 
   ScrollController get activePrimaryScroll => switch (tab) {
     0 => categoryScrolls[categoryTabs.index],
-    1 => orderScroll,
-    2 => cafeScroll,
-    _ => savedScroll,
+    1 => savedScroll,
+    2 => orderScroll,
+    _ => cafeScroll,
   };
 
   void resetPosition() {
@@ -4205,25 +4205,14 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   padding: EdgeInsets.symmetric(horizontal: padding),
                   child: Row(
                     children: [
-                      if (Navigator.of(context).canPop()) ...[
-                        IconButton(
-                          tooltip: 'Back to start',
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: AppColors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
                       const BrandLogo(width: 112),
                       const Spacer(),
                       if (wide) ...[
                         for (final entry in [
                           'Our menu',
+                          'Saved',
                           'Order history',
                           'Discover',
-                          'Saved',
                         ].asMap().entries)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -4249,7 +4238,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  if (entry.key == 3 &&
+                                  if (entry.key == 1 &&
                                       shop.savedCount > 0) ...[
                                     const SizedBox(width: 6),
                                     Container(
@@ -4314,22 +4303,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                 ),
                                 label: 'Our menu',
                               ),
-                              const NavigationDestination(
-                                icon: Icon(Icons.receipt_long_outlined),
-                                selectedIcon: Icon(
-                                  Icons.receipt_long,
-                                  color: AppColors.dark,
-                                ),
-                                label: 'Order history',
-                              ),
-                              const NavigationDestination(
-                                icon: Icon(Icons.explore_outlined),
-                                selectedIcon: Icon(
-                                  Icons.explore,
-                                  color: AppColors.dark,
-                                ),
-                                label: 'Discover',
-                              ),
                               NavigationDestination(
                                 icon: Badge(
                                   isLabelVisible: shop.savedCount > 0,
@@ -4353,6 +4326,22 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                   ),
                                 ),
                                 label: 'Saved',
+                              ),
+                              const NavigationDestination(
+                                icon: Icon(Icons.receipt_long_outlined),
+                                selectedIcon: Icon(
+                                  Icons.receipt_long,
+                                  color: AppColors.dark,
+                                ),
+                                label: 'Order history',
+                              ),
+                              const NavigationDestination(
+                                icon: Icon(Icons.explore_outlined),
+                                selectedIcon: Icon(
+                                  Icons.explore,
+                                  color: AppColors.dark,
+                                ),
+                                label: 'Discover',
                               ),
                             ],
                           ),
@@ -4443,6 +4432,15 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                       ],
                     )
                   : tab == 1
+                  ? SavedItemsView(
+                      controller: shop,
+                      scroll: savedScroll,
+                      width: constraints.maxWidth,
+                      horizontalPadding: padding,
+                      endInset: endInset,
+                      onBrowseMenu: () => selectTab(0),
+                    )
+                  : tab == 2
                   ? Column(
                       children: [
                         Center(
@@ -4475,8 +4473,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     )
-                  : tab == 2
-                  ? CustomScrollView(
+                  : CustomScrollView(
                       key: const PageStorageKey('menu-tab-cafe'),
                       controller: cafeScroll,
                       keyboardDismissBehavior:
@@ -4508,14 +4505,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           child: SizedBox(height: math.max(24.0, endInset)),
                         ),
                       ],
-                    )
-                  : SavedItemsView(
-                      controller: shop,
-                      scroll: savedScroll,
-                      width: constraints.maxWidth,
-                      horizontalPadding: padding,
-                      endInset: endInset,
-                      onBrowseMenu: () => selectTab(0),
                     ),
             ),
           );
@@ -11025,7 +11014,7 @@ class CafeRouteTitles extends NavigatorObserver {
   }
 
   void selectMenuTab(int index) {
-    menuLabel = const ['Our menu', 'Order history', 'Discover', 'Saved'][index];
+    menuLabel = const ['Our menu', 'Saved', 'Order history', 'Discover'][index];
     if (active?.settings.name == '/menu') publish(menuLabel);
   }
 

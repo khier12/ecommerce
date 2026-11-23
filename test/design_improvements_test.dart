@@ -338,7 +338,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(observer.title.value, 'Discover · Smooch Cafe');
-    await tester.tap(find.byTooltip('Back to start'));
+    await Navigator.of(tester.element(find.byType(MenuScreen))).maybePop();
     await tester.pumpAndSettle();
     expect(observer.title.value, 'Welcome · Smooch Cafe');
     await tester.ensureVisible(find.byKey(const Key('enter-store')));

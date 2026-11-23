@@ -53,7 +53,7 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
       expect(scene().idlePhase, hidden);
 
-      await tester.tap(find.byTooltip('Back to start'));
+      await Navigator.of(tester.element(find.byType(MenuScreen))).maybePop();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 700));
       final returned = scene().idlePhase;
@@ -215,7 +215,8 @@ void main() {
       expect(ModalRoute.of(menuContext), isA<MaterialPageRoute<void>>());
       expect(ModalRoute.of(menuContext)!.settings.name, MenuScreen.routeName);
       expect(Navigator.of(menuContext).canPop(), isTrue);
-      await tester.tap(find.byTooltip('Back to start'));
+      expect(find.byTooltip('Back to start'), findsNothing);
+      await Navigator.of(menuContext).maybePop();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 700));
       expect(find.byType(StartScreen), findsOneWidget);
@@ -262,7 +263,7 @@ void main() {
       await tester.tap(add);
       await tester.pumpAndSettle();
       expect(shop.total, 145);
-      await tester.tap(find.byTooltip('Back to start'));
+      await Navigator.of(tester.element(find.byType(MenuScreen))).maybePop();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 700));
       expect(find.byType(StartScreen), findsOneWidget);
