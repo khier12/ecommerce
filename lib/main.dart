@@ -10513,30 +10513,113 @@ class CafeSection extends StatelessWidget {
           ? (constraints.maxWidth - 72) / 2
           : constraints.maxWidth - 40;
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           CafeReveal(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Discover Smooch',
-                  style: displayStyle(spacious ? 36 : 30),
+            child: Container(
+              padding: EdgeInsets.all(spacious ? 28 : 20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.dark, AppColors.teal],
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Coffee, comfort, and something sweet.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.6,
-                    color: AppColors.secondaryText,
+                borderRadius: BorderRadius.circular(CafeShape.panel),
+                boxShadow: const [
+                  BoxShadow(
+                    color: AppColors.cardShadow,
+                    blurRadius: 16,
+                    offset: Offset(0, 6),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 10,
+                    runSpacing: 8,
+                    children: [
+                      const Eyebrow(
+                        'SMOOCH CAFE · CARMONA',
+                        color: AppColors.gold,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: .14),
+                          borderRadius: BorderRadius.circular(CafeShape.pill),
+                        ),
+                        child: const Text(
+                          'Open daily · 2–11 PM',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Discover Smooch',
+                    style: displayStyle(
+                      spacious ? 36 : 28,
+                      color: AppColors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Coffee, comfort, and something sweet.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.5,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _DiscoverStatPill(
+                        icon: Icons.delivery_dining_outlined,
+                        label:
+                            '${CheckoutValidation.deliveryRadiusLabel} · ₱${ShopController.deliveryFee} fee',
+                      ),
+                      _DiscoverStatPill(
+                        icon: Icons.local_cafe_outlined,
+                        label: '${countText(products.length)} menu items',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    key: const Key('discover-browse-menu'),
+                    onPressed: onBrowse,
+                    iconAlignment: IconAlignment.end,
+                    icon: const Icon(Icons.arrow_forward, size: 17),
+                    label: const Text('Browse menu'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.white,
+                      foregroundColor: AppColors.dark,
+                      minimumSize: const Size(48, 48),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
           if (collections.isNotEmpty) ...[
+            const Eyebrow('Popular collections'),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 12,
               runSpacing: 12,
@@ -10549,34 +10632,50 @@ class CafeSection extends StatelessWidget {
                       product: collection.items.first,
                       itemCount: collection.items.length,
                       horizontal: horizontal,
-                      imageHeight: (tileWidth * .98).clamp(88.0, 200.0),
+                      imageHeight: (tileWidth * .88).clamp(84.0, 180.0),
                       onTap: () => onCategory(collection.category),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 24),
           ],
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              key: const Key('discover-browse-menu'),
-              onPressed: onBrowse,
-              iconAlignment: IconAlignment.end,
-              icon: const Icon(Icons.arrow_forward, size: 16),
-              label: const Text('Browse menu'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.teal,
-                minimumSize: const Size(48, 48),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              const Text(
+                'Visit Smooch',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.dark,
+                ),
               ),
-            ),
+              TextButton.icon(
+                key: const Key('discover-directions'),
+                onPressed: () => openCafeLink(
+                  context,
+                  Uri.parse(
+                    'https://www.google.com/maps/search/?api=1&query=${CheckoutValidation.deliveryCenter.latitude},${CheckoutValidation.deliveryCenter.longitude}',
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  minimumSize: const Size(0, 36),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.directions_outlined, size: 17),
+                label: const Text('Directions'),
+              ),
+            ],
           ),
-          const SizedBox(height: 22),
-          const Text(
-            'Visit Smooch',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           CafeSurfaceCard(
             key: const Key('discover-cafe-details'),
             padding: const EdgeInsets.all(20),
@@ -10631,22 +10730,32 @@ class CafeSection extends StatelessWidget {
                   ],
                 ),
                 const Divider(height: 24),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.delivery_dining_outlined,
-                      size: 19,
-                      color: AppColors.teal,
+                    Container(
+                      width: 32,
+                      height: 32,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.softGold,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.delivery_dining_outlined,
+                        size: 18,
+                        color: AppColors.dark,
+                      ),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
+                    const SizedBox(width: 12),
+                    const Expanded(
                       child: Text(
-                        'Delivery within ${CheckoutValidation.deliveryRadiusLabel} of Carmona',
+                        'Delivery within ${CheckoutValidation.deliveryRadiusLabel} of Carmona · ₱${ShopController.deliveryFee} flat fee',
                         style: TextStyle(
                           fontSize: 12,
-                          height: 1.5,
-                          color: AppColors.secondaryText,
+                          height: 1.45,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink,
                         ),
                       ),
                     ),
@@ -10655,11 +10764,43 @@ class CafeSection extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          const AppVersionLabel(),
+          const SizedBox(height: 18),
+          const Center(child: AppVersionLabel()),
         ],
       );
     },
+  );
+}
+
+class _DiscoverStatPill extends StatelessWidget {
+  const _DiscoverStatPill({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: AppColors.white.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppColors.gold),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.white,
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 }
 
@@ -10682,11 +10823,11 @@ class _DiscoverCollection extends StatelessWidget {
   Widget build(BuildContext context) {
     final count =
         '${countText(itemCount)} ${itemCount == 1 ? 'item' : 'items'}';
-    final image = ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+    final image = ColoredBox(
+      color: AppColors.oat,
       child: SizedBox(
-        width: horizontal ? 68 : double.infinity,
-        height: horizontal ? 68 : imageHeight,
+        width: horizontal ? 72 : double.infinity,
+        height: horizontal ? 72 : imageHeight,
         child: ProductImage(product: product),
       ),
     );
@@ -10699,14 +10840,20 @@ class _DiscoverCollection extends StatelessWidget {
         Text(
           category,
           textAlign: horizontal ? TextAlign.start : TextAlign.center,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.dark,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           count,
           style: const TextStyle(
             fontSize: 11,
-            height: 1.5,
+            height: 1.4,
             color: AppColors.secondaryText,
           ),
         ),
@@ -10720,19 +10867,34 @@ class _DiscoverCollection extends StatelessWidget {
       child: CafePress(
         lift: true,
         child: Material(
-          color: Colors.transparent,
+          color: AppColors.surface,
+          elevation: 2,
+          shadowColor: AppColors.cardShadow,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(CafeShape.card),
+            side: const BorderSide(color: AppColors.border),
+          ),
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
             key: Key('discover-$category'),
             onTap: onTap,
-            borderRadius: BorderRadius.circular(16),
             child: horizontal
                 ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(10),
                     child: Row(
                       children: [
-                        image,
-                        const SizedBox(width: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: image,
+                        ),
+                        const SizedBox(width: 14),
                         Expanded(child: text),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: AppColors.secondaryText,
+                        ),
                       ],
                     ),
                   )
@@ -10740,9 +10902,10 @@ class _DiscoverCollection extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       image,
-                      const SizedBox(height: 12),
-                      text,
-                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 10, 8, 12),
+                        child: text,
+                      ),
                     ],
                   ),
           ),
@@ -10768,11 +10931,20 @@ class _CafeInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 10),
+    padding: const EdgeInsets.symmetric(vertical: 12),
     child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: AppColors.teal, size: 20),
+        Container(
+          width: 36,
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.softTeal,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: AppColors.teal, size: 18),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -10783,29 +10955,30 @@ class _CafeInfo extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
+                  color: AppColors.dark,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               SelectableText(
                 text,
                 style: const TextStyle(
                   color: AppColors.secondaryText,
                   fontSize: 13,
-                  height: 1.5,
+                  height: 1.45,
                 ),
               ),
             ],
           ),
         ),
         if (link != null)
-          IconButton(
+          IconButton.filledTonal(
             tooltip: actionLabel,
-            onPressed: () => openCafeLink(context, Uri.parse(link!)),
-            icon: const Icon(
-              Icons.open_in_new,
-              size: 20,
-              color: AppColors.teal,
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.softTeal,
+              foregroundColor: AppColors.dark,
             ),
+            onPressed: () => openCafeLink(context, Uri.parse(link!)),
+            icon: const Icon(Icons.open_in_new, size: 17),
           ),
       ],
     ),
