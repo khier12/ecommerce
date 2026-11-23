@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 
 import 'package:ecommerce/main.dart';
 
@@ -342,6 +345,76 @@ void main() {
       expect(shop.products.map((p) => p.id), orderedEquals(originalIds));
       shop.sortBy(MenuSort.recommended);
       expect(shop.filteredProducts.first.name, 'Tiramisu Latte');
+    },
+  );
+
+  test(
+    'PhilSmsService formats PH recipients and sends only Confirmed, On the way, and Delivered',
+    () async {
+      expect(PhilSmsService.formatRecipient('0917 123 4567'), '639171234567');
+      expect(PhilSmsService.formatRecipient('+63 917-123-4567'), '639171234567');
+      expect(PhilSmsService.formatRecipient('639171234567'), '639171234567');
+      expect(PhilSmsService.formatRecipient('12345'), isNull);
+
+      final sentRequests = <http.Request>[];
+      final sms = PhilSmsService(
+        apiToken: 'test-token',
+        client: MockClient((request) async {
+          sentRequests.add(request);
+          return http.Response(
+            jsonEncode({'status': 'success', 'data': 'sent'}),
+            200,
+          );
+        }),
+      );
+      final order = OrderReceipt(
+        reference: 'SMC-0001',
+        items: [CartItem(product: shop.products.first, quantity: 2)],
+        customerName: 'Juan Dela Cruz',
+        mobileNumber: '09171234567',
+        notes: '',
+        paymentMethod: PaymentMethod.cash,
+        createdAt: DateTime.now(),
+        fulfillment: FulfillmentMethod.delivery,
+        deliveryAddress: '12 Rizal Street, Carmona, Cavite',
+      );
+
+      expect(await sms.sendStageUpdate(order, OrderStage.confirmed), isTrue);
+      // Duplicate stage for the same order is ignored.
+      expect(await sms.sendStageUpdate(order, OrderStage.confirmed), isFalse);
+      // Non-milestone stages do not trigger SMS.
+      expect(await sms.sendStageUpdate(order, OrderStage.preparing), isFalse);
+      expect(
+        await sms.sendStageUpdate(order, OrderStage.riderAssigned),
+        isFalse,
+      );
+      expect(await sms.sendStageUpdate(order, OrderStage.onTheWay), isTrue);
+      expect(await sms.sendStageUpdate(order, OrderStage.delivered), isTrue);
+
+      expect(sentRequests, hasLength(3));
+      for (final req in sentRequests) {
+        expect(
+          req.url.toString(),
+          'https://dashboard.philsms.com/api/v3/sms/send',
+        );
+        expect(req.headers['Authorization'], 'Bearer test-token');
+        final payload = jsonDecode(req.body) as Map<String, dynamic>;
+        expect(payload['recipient'], '639171234567');
+        expect(payload['sender_id'], 'PhilSMS');
+        expect(payload['type'], 'plain');
+      }
+      expect(
+        (jsonDecode(sentRequests[0].body) as Map<String, dynamic>)['message'],
+        contains('CONFIRMED'),
+      );
+      expect(
+        (jsonDecode(sentRequests[1].body) as Map<String, dynamic>)['message'],
+        contains('ON THE WAY'),
+      );
+      expect(
+        (jsonDecode(sentRequests[2].body) as Map<String, dynamic>)['message'],
+        contains('DELIVERED'),
+      );
     },
   );
 }

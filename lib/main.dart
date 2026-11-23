@@ -1515,17 +1515,174 @@ class MemorySavedItemsStore implements SavedItemsStore {
   Future<void> write(List<String> ids) async => value = List.of(ids);
 }
 
+class PhilSmsService {
+  PhilSmsService({
+    this.client,
+    Uri? endpoint,
+    String? apiToken,
+    String? senderId,
+  }) : endpoint = endpoint ?? Uri.parse(defaultEndpoint),
+       apiToken = apiToken ?? defaultToken,
+       senderId = senderId ?? defaultSenderId;
+
+  static const defaultEndpoint = String.fromEnvironment(
+    'PHILSMS_ENDPOINT',
+    defaultValue: 'https://dashboard.philsms.com/api/v3/sms/send',
+  );
+  static const defaultToken = String.fromEnvironment(
+    'PHILSMS_API_TOKEN',
+    defaultValue: '4713|DaRbJAs7ecEYW8b4vtsRtd3abVXSeET2dSNVd8sV19f22ee7',
+  );
+  static const defaultSenderId = String.fromEnvironment(
+    'PHILSMS_SENDER_ID',
+    defaultValue: 'PhilSMS',
+  );
+  static const notifiedStages = <OrderStage>{
+    OrderStage.confirmed,
+    OrderStage.onTheWay,
+    OrderStage.delivered,
+  };
+  static final shared = PhilSmsService();
+  static const _timeout = Duration(seconds: 10);
+
+  final http.Client? client;
+  final Uri endpoint;
+  final String apiToken;
+  final String senderId;
+  final Set<String> _sentKeys = <String>{};
+
+  static bool _isTestBinding() {
+    try {
+      return WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Live network sends run automatically in the app, while unit/widget tests
+  /// stay offline unless a mock [client] is explicitly provided.
+  bool get isEnabled =>
+      apiToken.trim().isNotEmpty && (client != null || !_isTestBinding());
+
+  static String? formatRecipient(String mobile) {
+    final digits = mobile.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11 && digits.startsWith('09')) {
+      return '63${digits.substring(1)}';
+    }
+    if (digits.length == 12 && digits.startsWith('639')) {
+      return digits;
+    }
+    if (digits.length == 10 && digits.startsWith('9')) {
+      return '63$digits';
+    }
+    return null;
+  }
+
+  static String messageForStage(OrderReceipt order, OrderStage stage) {
+    final totalText = 'PHP ${order.total.toStringAsFixed(2)}';
+    final paymentText = order.paymentMethod == PaymentMethod.cash
+        ? 'COD'
+        : 'GCash';
+    return switch (stage) {
+      OrderStage.confirmed =>
+        'Smooch Cafe: Hi ${order.customerName}, order ${order.reference} is CONFIRMED! Total: $totalText ($paymentText). We are preparing your order.',
+      OrderStage.onTheWay =>
+        'Smooch Cafe: Your order ${order.reference} is ON THE WAY to ${order.deliveryAddress}. Please keep your line open for our rider.',
+      OrderStage.delivered =>
+        'Smooch Cafe: Your order ${order.reference} has been DELIVERED! Thank you for ordering from Smooch Cafe.',
+      _ => '',
+    };
+  }
+
+  Future<bool> sendStageUpdate(OrderReceipt order, OrderStage stage) async {
+    if (!isEnabled || !notifiedStages.contains(stage)) return false;
+    final recipient = formatRecipient(order.mobileNumber);
+    if (recipient == null) return false;
+    final dedupeKey = '${order.reference}:${stage.name}';
+    if (!_sentKeys.add(dedupeKey)) return false;
+    final message = messageForStage(order, stage);
+    if (message.isEmpty) return false;
+    final headers = <String, String>{
+      'Authorization': 'Bearer $apiToken',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    final body = jsonEncode({
+      'recipient': recipient,
+      'sender_id': senderId,
+      'type': 'plain',
+      'message': message,
+    });
+    try {
+      final response =
+          await (client == null
+                  ? http.post(endpoint, headers: headers, body: body)
+                  : client!.post(endpoint, headers: headers, body: body))
+              .timeout(_timeout);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map<String, dynamic> && decoded['status'] == 'error') {
+          _sentKeys.remove(dedupeKey);
+          if (kDebugMode) {
+            debugPrint(
+              'PhilSMS error (${stage.name}): ${decoded['message'] ?? response.body}',
+            );
+          }
+          return false;
+        }
+        if (kDebugMode) {
+          debugPrint(
+            'PhilSMS sent (${order.reference} · ${stage.name}) to $recipient',
+          );
+        }
+        return true;
+      }
+      _sentKeys.remove(dedupeKey);
+      if (kDebugMode) {
+        debugPrint(
+          'PhilSMS HTTP ${response.statusCode} (${stage.name}): ${response.body}',
+        );
+      }
+      return false;
+    } catch (error) {
+      _sentKeys.remove(dedupeKey);
+      if (kDebugMode) {
+        debugPrint('PhilSMS request failed (${stage.name}): $error');
+      }
+      return false;
+    }
+  }
+
+  List<Timer> scheduleOrderNotifications(OrderReceipt order) {
+    if (!isEnabled) return const [];
+    unawaited(sendStageUpdate(order, OrderStage.confirmed));
+    if (order.fulfillment != FulfillmentMethod.delivery) return const [];
+    return [
+      Timer(OrderReceipt.riderDeparture, () {
+        unawaited(sendStageUpdate(order, OrderStage.onTheWay));
+      }),
+      Timer(OrderReceipt.deliveryComplete, () {
+        unawaited(sendStageUpdate(order, OrderStage.delivered));
+      }),
+    ];
+  }
+}
+
 class ShopController extends ChangeNotifier {
   ShopController({
     required this.repository,
     OrderStore? orderStore,
     SavedItemsStore? savedStore,
+    PhilSmsService? smsService,
   }) : orderStore = orderStore ?? MemoryOrderStore(),
-       savedStore = savedStore ?? MemorySavedItemsStore();
+       savedStore = savedStore ?? MemorySavedItemsStore(),
+       smsService = smsService ?? PhilSmsService.shared;
 
   final MenuRepository repository;
   final OrderStore orderStore;
   final SavedItemsStore savedStore;
+  final PhilSmsService smsService;
+  final List<Timer> _smsTimers = [];
   final Map<String, CartItem> _cart = {};
   final List<OrderReceipt> _orders = [];
   final Set<String> _saved = {};
@@ -1779,6 +1936,10 @@ class ShopController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    for (final timer in _smsTimers) {
+      timer.cancel();
+    }
+    _smsTimers.clear();
     super.dispose();
   }
 
@@ -1887,6 +2048,7 @@ class ShopController extends ChangeNotifier {
       _nextOrderNumber++;
       _orders.insert(0, order);
       _cart.clear();
+      _smsTimers.addAll(smsService.scheduleOrderNotifications(order));
       if (!_disposed) notifyListeners();
       return order;
     } finally {
@@ -9711,6 +9873,33 @@ class _OrderTrackingState extends State<OrderTracking>
               color: AppColors.secondaryText,
             ),
           ),
+          if (widget.order.mobileNumber.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.softTeal,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.sms_outlined, size: 14, color: AppColors.teal),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'SMS alerts: Confirmed · On the way · Delivered',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.dark,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 18),
           ExcludeSemantics(
             child: Row(
