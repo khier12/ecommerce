@@ -8394,6 +8394,16 @@ class DeliveryRouteService {
   }
 }
 
+class _CafeMapCrs extends Epsg3857 {
+  const _CafeMapCrs();
+
+  // Carmona / PH delivery routes never cross the antimeridian; disabling
+  // multi-world replication also avoids a Dart DDC labeled-break bug in
+  // flutter_map's PolylineLayer world loop on debug web builds.
+  @override
+  bool get replicatesWorldLongitude => false;
+}
+
 class _CafeMap extends StatefulWidget {
   const _CafeMap({
     required this.center,
@@ -8448,6 +8458,7 @@ class _CafeMapState extends State<_CafeMap> {
     key: widget.mapKey,
     mapController: widget.controller,
     options: MapOptions(
+      crs: const _CafeMapCrs(),
       initialCenter: widget.center,
       initialZoom: widget.zoom,
       initialCameraFit: widget.initialCameraFit,
