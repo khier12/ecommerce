@@ -52,3 +52,4 @@ app.*.map.json
 
 # Local API keys & Dart defines (never commit secrets)
 dart_defines.json
+assets/config/local_ai.json

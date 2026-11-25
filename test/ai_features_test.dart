@@ -156,6 +156,19 @@ void main() {
       );
       expect(pairReply.recommendations, isNotEmpty);
 
+      final identityReply = await shop.barista.aiService.askBarista(
+        prompt: 'Sino ka?',
+        shop: shop,
+      );
+      expect(identityReply.text, contains('Smooch Barista'));
+
+      final calambaReply = await shop.barista.aiService.askBarista(
+        prompt: 'tulad ng sa calamba pwede kaya?',
+        shop: shop,
+      );
+      expect(calambaReply.text, contains('30 km'));
+      expect(calambaReply.text, contains('Calamba'));
+
       final offTopicReply = await shop.barista.aiService.askBarista(
         prompt: 'Write Python code for bubble sort',
         shop: shop,
