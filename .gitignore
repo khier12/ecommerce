@@ -49,3 +49,6 @@ app.*.map.json
 
 # Browser verification output
 .playwright-mcp/
+
+# Local API keys & Dart defines (never commit secrets)
+dart_defines.json
